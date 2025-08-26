@@ -1,0 +1,22 @@
+h1 {
+  text-align: center;
+}
+
+.nav_content p {
+  color: white;
+}
+
+.footer_content p,
+.footer_content a {
+  color: white;
+}
+
+.impressum_data_protection_container h2 {
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
+
+.impressum_data_protection_container h3 {
+  margin-top: 50px;
+  margin-bottom: 20px;
+}

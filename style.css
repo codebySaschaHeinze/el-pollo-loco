@@ -1,0 +1,36 @@
+.main_content_container {
+  margin-top: 100px;
+  margin-bottom: 60px;
+  max-width: 1920px;
+}
+
+.impressum_data_protection_container {
+  padding: 30px;
+  background-color: white;
+}
+
+.nav_content {
+  max-width: 1920px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding-left: clamp(5px, 3vw, 40px);
+  padding-right: clamp(5px, 3vw, 40px);
+}
+
+.footer_content {
+  max-width: 1920px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: clamp(5px, 3vw, 40px);
+  padding-right: clamp(5px, 3vw, 40px);
+}
+
+.footer_links {
+  display: flex;
+  flex-direction: column;
+}
