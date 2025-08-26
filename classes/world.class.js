@@ -3,13 +3,9 @@ class World {
   enemies = [new Chicken(), new Chicken(), new Chicken()];
 
   clouds = [new Cloud()];
-
   backgroundObjects1 = [new BackgroundObjects("assets/imgs/5_background/layers/air.png", 0)];
-
   backgroundObjects2 = [new BackgroundObjects("assets/imgs/5_background/layers/1_first_layer/full.png", 0)];
-
   backgroundObjects3 = [new BackgroundObjects("assets/imgs/5_background/layers/2_second_layer/full.png", 0)];
-
   backgroundObjects4 = [new BackgroundObjects("assets/imgs/5_background/layers/3_third_layer/full.png", 0)];
   ctx;
 
