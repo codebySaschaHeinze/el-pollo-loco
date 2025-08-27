@@ -4,6 +4,7 @@ class MovableObjects {
   width = 80;
   height = 150;
   imageCache = {};
+  currentImage = 0;
   speed = 0.15;
   otherDirection = false;
 
@@ -24,7 +25,7 @@ class MovableObjects {
     this.x += this.speed;
 
     let i = this.currentImage % this.IMAGES_WALKING.length;
-    let path = this.IMAGES_WALKING[i];
+    let path = images[i];
     this.img = this.imageCache[path];
     this.currentImage++;
   }
