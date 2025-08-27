@@ -9,18 +9,22 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/2_walk/w-26.png",
   ];
   currentImage = 0;
-  constructor() {
+  world;
+  constructor(keyboard) {
     super().loadImage("assets/imgs/2_character_pepe/1_idle/idle/i-1.png");
     this.loadImages(this.IMAGES_WALKING);
+    this.keyboard = keyboard;
     this.animate();
   }
 
   animate() {
     setInterval(() => {
-      let i = this.currentImage % this.IMAGES_WALKING.length;
-      let path = this.IMAGES_WALKING[i];
-      this.img = this.imageCache[path];
-      this.currentImage++;
+      if (this.keyboard.RIGHT) {
+        let i = this.currentImage % this.IMAGES_WALKING.length;
+        let path = this.IMAGES_WALKING[i];
+        this.img = this.imageCache[path];
+        this.currentImage++;
+      }
     }, 100);
   }
 
