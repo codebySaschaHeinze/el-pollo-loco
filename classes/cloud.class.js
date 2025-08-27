@@ -3,14 +3,12 @@ class Cloud extends MovableObjects {
   width = 400;
   height = 200;
   constructor() {
-  super().loadImage("assets/imgs/5_background/layers/4_clouds/1.png");
+    super().loadImage("assets/imgs/5_background/layers/4_clouds/1.png");
     this.x = Math.random() * 500;
     this.animate();
   }
 
   animate() {
-    setInterval(() => {
-      this.x -= 0.07;
-    }, 1);
+    this.moveLeft();
   }
 }
