@@ -35,7 +35,7 @@ class MovableObjects {
   }
 
   drawFrame(ctx) {
-    if (this instanceof Character || this instanceof Chicken) {
+    if (this instanceof Character || this instanceof Chicken || this instanceof Endboss) {
       ctx.beginPath();
       ctx.lineWidth = "3";
       ctx.strokeStyle = "red";
@@ -60,7 +60,7 @@ class MovableObjects {
   isHurt() {
     let timePassed = new Date().getTime() - this.lastHit;
     timePassed = timePassed / 1000;
-    return timePassed < 5;
+    return timePassed < 1;
   }
 
   isDead() {
