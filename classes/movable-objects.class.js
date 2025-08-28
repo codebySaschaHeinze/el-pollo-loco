@@ -12,7 +12,7 @@ class MovableObjects extends DrawableObjects {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
       }
-    }, 1000 / 25);
+    }, 1000 / 33);
   }
 
   isAboveGround() {
@@ -35,7 +35,7 @@ class MovableObjects extends DrawableObjects {
   isHurt() {
     let timePassed = new Date().getTime() - this.lastHit;
     timePassed = timePassed / 1000;
-    return timePassed < 1;
+    return timePassed < 0.6;
   }
 
   isDead() {
@@ -51,8 +51,6 @@ class MovableObjects extends DrawableObjects {
   }
 
   playAnimation(images) {
-    this.x += this.speed;
-
     let i = this.currentImage % images.length;
     let path = images[i];
     this.img = this.imageCache[path];
