@@ -5,6 +5,7 @@ class World {
   ctx;
   keyboard;
   camera_x = 0;
+  energy = 100;
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -13,10 +14,22 @@ class World {
     this.character = new Character(this.keyboard);
     this.setWorld();
     this.draw();
+    this.checkCollisions();
   }
 
   setWorld() {
     this.character.world = this;
+  }
+
+  checkCollisions() {
+    setInterval(() => {
+      this.level.enemies.forEach((enemy) => {
+        if (this.character.isColliding(enemy)) {
+          this.character.hit();
+          console.log("Collision with character, energy", this.character.energy);
+        }
+      });
+    }, 200);
   }
 
   draw() {
