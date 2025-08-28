@@ -37,11 +37,13 @@ class Character extends MovableObjects {
     setInterval(() => {
       if (this.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
         this.moveRight();
+        this.otherDirection = false;
         // this.walking_sound.play();
       }
 
       if (this.keyboard.LEFT && this.x > 0) {
         this.moveLeft();
+        this.otherDirection = true;
         // this.walking_sound.play();
       }
 
