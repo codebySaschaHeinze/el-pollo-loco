@@ -7,6 +7,8 @@ class World {
   camera_x = 0;
   energy = 100;
   statusBar = new StatusBar();
+  moneyBar = new MoneyBar();
+  bottleBar = new BottleBar();
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -41,6 +43,8 @@ class World {
     this.ctx.translate(-this.camera_x, 0);
     // -----Space for fixed objects-----//
     this.addToMap(this.statusBar);
+    this.addToMap(this.moneyBar);
+    this.addToMap(this.bottleBar);
     this.ctx.translate(this.camera_x, 0);
 
     this.addObjectsToMap(this.level.clouds);
