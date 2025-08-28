@@ -32,6 +32,12 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/5_dead/d-56.png",
     "assets/imgs/2_character_pepe/5_dead/d-57.png",
   ];
+
+  IMAGES_HURT = [
+    "assets/imgs/2_character_pepe/4_hurt/h-41.png",
+    "assets/imgs/2_character_pepe/4_hurt/h-42.png",
+    "assets/imgs/2_character_pepe/4_hurt/h-43.png",
+  ];
   currentImage = 0;
   world;
   constructor(keyboard) {
@@ -39,6 +45,7 @@ class Character extends MovableObjects {
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
+    this.loadImages(this.IMAGES_HURT);
     this.applGravity();
     this.keyboard = keyboard;
     this.animate();
@@ -58,7 +65,7 @@ class Character extends MovableObjects {
         // this.walking_sound.play();
       }
 
-      if (this.world.keyboard.SPACE && !this.isAboveGround()) {
+      if (this.world.keyboard.UP && !this.isAboveGround()) {
         this.jump();
       }
 
@@ -68,6 +75,8 @@ class Character extends MovableObjects {
     setInterval(() => {
       if (this.isDead()) {
         this.playAnimation(this.IMAGES_DEAD);
+      } else if (this.isHurt()) {
+        this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround()) {
         this.playAnimation(this.IMAGES_JUMPING);
       } else {
