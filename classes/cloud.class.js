@@ -1,9 +1,19 @@
 class Cloud extends MovableObjects {
   y = 100;
-  width = 400;
+  width = Math.random() * 400 + 100;
   height = 200;
 
-  IMAGES = ["assets/imgs/5_background/layers/4_clouds/1.png", "assets/imgs/5_background/layers/4_clouds/2.png"];
+  IMAGES = [
+    "assets/imgs/5_background/layers/4_clouds/1.png",
+    "assets/imgs/5_background/layers/4_clouds/2.png",
+    "assets/imgs/5_background/layers/4_clouds/3.png",
+    "assets/imgs/5_background/layers/4_clouds/1.png",
+    "assets/imgs/5_background/layers/4_clouds/2.png",
+    "assets/imgs/5_background/layers/4_clouds/3.png",
+    "assets/imgs/5_background/layers/4_clouds/3.png",
+    "assets/imgs/5_background/layers/4_clouds/3.png",
+    "assets/imgs/5_background/layers/4_clouds/3.png",
+  ];
   constructor(worldWidth, xStart = null) {
     super();
     const rand = (arr) => arr[(Math.random() * arr.length) | 0];

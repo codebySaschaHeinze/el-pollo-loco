@@ -74,32 +74,20 @@ class World {
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.translate(this.camera_x, 0);
-
     this.addObjectsToMap(this.level.backgroundObjects);
-
+    this.level.clouds.forEach((c) => c.update && c.update());
+    this.addObjectsToMap(this.level.clouds);
+    this.addToMap(this.character);
+    this.level.enemies.forEach((e) => e.update && e.update());
+    this.addObjectsToMap(this.level.enemies);
+    this.addObjectsToMap(this.throwableObjects);
+    this.checkCollisions();
     this.ctx.translate(-this.camera_x, 0);
-    // -----Space for fixed objects-----//
     this.addToMap(this.statusBar);
     this.addToMap(this.moneyBar);
     this.addToMap(this.bottleBar);
-    this.ctx.translate(this.camera_x, 0);
 
-    this.level.clouds.forEach((c) => c.update());
-    this.addObjectsToMap(this.level.clouds);
-
-    this.addToMap(this.character);
-
-    this.level.enemies.forEach((e) => e.update && e.update());
-    this.addObjectsToMap(this.level.enemies);
-    this.checkCollisions();
-    this.addObjectsToMap(this.throwableObjects);
-
-    this.ctx.translate(-this.camera_x, 0);
-    let self = this;
-
-    requestAnimationFrame(function () {
-      self.draw();
-    });
+    requestAnimationFrame(() => this.draw());
   }
 
   addObjectsToMap(objects) {

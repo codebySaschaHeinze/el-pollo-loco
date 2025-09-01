@@ -10,11 +10,11 @@ class Character extends MovableObjects {
   animInterval = null;
   deathDone = false;
   deathIndex = 0;
-  ascendStartAt = 0; // Startzeit des Schwebens
-  ascendDuration = 2000; // ms bis komplett transparent
-  ascendDistance = 170; // px nach oben
-  bodyBaseY = 0; // Start-Y für die Schwebeberechnung
-  lastVisibleDeadIdx = 0; // letzter sichtbarer Dead-Frame (siehe unten)
+  ascendStartAt = 0;
+  ascendDuration = 2000;
+  ascendDistance = 300;
+  bodyBaseY = 0;
+  lastVisibleDeadIdx = 0;
 
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",
@@ -169,7 +169,7 @@ class Character extends MovableObjects {
       const elapsed = Date.now() - this.ascendStartAt;
       const t = Math.min(elapsed / this.ascendDuration, 1);
 
-      const ease = 1 - (1 - t) * (1 - t);
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
       const alpha = 1 - t;
 
       this.y = this.bodyBaseY - this.ascendDistance * ease;
