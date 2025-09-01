@@ -10,6 +10,12 @@ class Character extends MovableObjects {
   animInterval = null;
   deathDone = false;
   deathIndex = 0;
+  ascendStartAt = 0; // Startzeit des Schwebens
+  ascendDuration = 2000; // ms bis komplett transparent
+  ascendDistance = 170; // px nach oben
+  bodyBaseY = 0; // Start-Y für die Schwebeberechnung
+  lastVisibleDeadIdx = 0; // letzter sichtbarer Dead-Frame (siehe unten)
+
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",
     "assets/imgs/2_character_pepe/2_walk/w-22.png",
@@ -57,6 +63,7 @@ class Character extends MovableObjects {
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGES_HURT);
+    this.lastVisibleDeadIdx = this.IMAGES_DEAD.length - 4;
     this.applGravity();
     this.keyboard = keyboard;
     this.animate();
@@ -122,21 +129,18 @@ class Character extends MovableObjects {
     this.animInterval = setInterval(() => {
       if (this.isDead()) {
         if (!this.deathDone) {
-          const lastIdx = this.IMAGES_DEAD.length - 1;
+          const lastIdx = this.lastVisibleDeadIdx;
           const idx = Math.min(this.deathIndex, lastIdx);
-
           const frame = this.IMAGES_DEAD[idx];
-          if (frame) {
-            // 👉 WICHTIG: aus dem Cache zeichnen, nicht neu laden
-            this.img = this.imageCache[frame];
-          }
 
+          if (frame) this.img = this.imageCache[frame];
           this.deathIndex++;
 
           if (this.deathIndex > lastIdx) {
             this.deathDone = true;
 
             this.img = this.imageCache[this.IMAGES_DEAD[lastIdx]];
+
             clearInterval(this.animInterval);
           }
         }
@@ -157,12 +161,33 @@ class Character extends MovableObjects {
 
   draw(ctx) {
     if (this.dead && this.deathDone) {
-      const last = this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1];
-      const cached = this.imageCache[last];
-      if (cached && this.img !== cached) {
-        this.img = cached;
+      if (!this.ascendStartAt) {
+        this.ascendStartAt = Date.now();
+        this.bodyBaseY = this.y;
       }
+
+      const elapsed = Date.now() - this.ascendStartAt;
+      const t = Math.min(elapsed / this.ascendDuration, 1);
+
+      const ease = 1 - (1 - t) * (1 - t);
+      const alpha = 1 - t;
+
+      this.y = this.bodyBaseY - this.ascendDistance * ease;
+
+      const last = this.IMAGES_DEAD[this.lastVisibleDeadIdx];
+      const cached = this.imageCache[last];
+      if (cached) this.img = cached;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      super.draw(ctx);
+      ctx.restore();
+
+      if (t >= 1) this.gone = true;
+
+      return;
     }
+
     super.draw(ctx);
   }
 
