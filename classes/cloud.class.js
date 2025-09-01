@@ -1,7 +1,7 @@
 class Cloud extends MovableObjects {
   y = 100;
-  width = Math.random() * 400 + 100;
-  height = 200;
+  width = Math.random() * 400 + 150;
+  height = Math.random() * 150 + 100;
 
   IMAGES = [
     "assets/imgs/5_background/layers/4_clouds/1.png",
@@ -11,6 +11,10 @@ class Cloud extends MovableObjects {
     "assets/imgs/5_background/layers/4_clouds/2.png",
     "assets/imgs/5_background/layers/4_clouds/3.png",
     "assets/imgs/5_background/layers/4_clouds/3.png",
+    "assets/imgs/5_background/layers/4_clouds/3.png",
+    "assets/imgs/5_background/layers/4_clouds/3.png",
+    "assets/imgs/5_background/layers/4_clouds/1.png",
+    "assets/imgs/5_background/layers/4_clouds/2.png",
     "assets/imgs/5_background/layers/4_clouds/3.png",
     "assets/imgs/5_background/layers/4_clouds/3.png",
   ];
