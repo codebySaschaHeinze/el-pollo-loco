@@ -5,7 +5,6 @@ class World {
   ctx;
   keyboard;
   camera_x = 0;
-  energy = 100;
   statusBar = new StatusBar();
   moneyBar = new MoneyBar();
   bottleBar = new BottleBar();
@@ -49,8 +48,8 @@ class World {
         const isFalling = typeof this.character.fallingDown === "function" ? this.character.fallingDown() : this.character.speedY < 0; // ggf. auf > 0 drehen, wenn dein Y nach oben negativ ist
 
         const charBottom = this.character.y + this.character.height;
-        const overlapY = charBottom - enemy.y; // >0 = wir ragen ins Huhn hinein
-        const fromAbove = isFalling && overlapY >= 0 && overlapY <= 40; // Toleranz 40px
+        const overlapY = charBottom - enemy.y;
+        const fromAbove = isFalling && overlapY >= 0 && overlapY <= 40;
 
         if (isChicken && fromAbove) {
           if (typeof enemy.die === "function") enemy.die();

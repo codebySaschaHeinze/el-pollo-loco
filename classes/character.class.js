@@ -2,6 +2,10 @@ class Character extends MovableObjects {
   // y = 274;
   y = 180;
   speed = 6;
+  energy = 100;
+  lastHit = 0;
+  invulnMs = 700;
+  hurtMs = 350;
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",
     "assets/imgs/2_character_pepe/2_walk/w-22.png",
@@ -51,18 +55,32 @@ class Character extends MovableObjects {
     this.animate();
   }
 
+  isInvulnerable() {
+    return Date.now() - (this.lastHitAt || 0) < this.invulnMs;
+  }
+
+  hit(damage = 10) {
+    if (this.isInvulnerable() || (this.isDead && this.isDead())) return false; // schon getroffen / tot
+    this.lastHitAt = Date.now();
+    this.energy = Math.max(0, this.energy - damage);
+
+    return true;
+  }
+
+  isHurt() {
+    return Date.now() - (this.lastHitAt || 0) < this.hurtMs;
+  }
+
   animate() {
     setInterval(() => {
       if (this.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
         this.moveRight();
         this.otherDirection = false;
-        // this.walking_sound.play();
       }
 
       if (this.keyboard.LEFT && this.x > 0) {
         this.moveLeft();
         this.otherDirection = true;
-        // this.walking_sound.play();
       }
 
       if (this.world.keyboard.UP && !this.isAboveGround()) {
@@ -87,11 +105,11 @@ class Character extends MovableObjects {
     }, 100);
   }
 
-  fallingdown() {
+  fallingDown() {
     return this.speedY < 0;
   }
 
-  bounceon(enemy) {
+  bounceOn(enemy) {
     this.y = enemy.y - this.height;
     this.speedY = 15;
   }
