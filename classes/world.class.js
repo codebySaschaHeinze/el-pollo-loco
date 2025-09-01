@@ -28,7 +28,6 @@ class World {
 
   run() {
     setInterval(() => {
-      this.checkCollisions();
       this.checkThrowObjects();
     }, 200);
   }
@@ -42,9 +41,32 @@ class World {
 
   checkCollisions() {
     this.level.enemies.forEach((enemy) => {
+      if (enemy.dead) return;
+
       if (this.character.isColliding(enemy)) {
-        this.character.hit();
-        this.statusBar.setPercentage(this.character.energy);
+        const isChicken = typeof Chicken !== "undefined" && enemy instanceof Chicken;
+
+        const isFalling = typeof this.character.fallingDown === "function" ? this.character.fallingDown() : this.character.speedY < 0; // ggf. auf > 0 drehen, wenn dein Y nach oben negativ ist
+
+        const charBottom = this.character.y + this.character.height;
+        const overlapY = charBottom - enemy.y; // >0 = wir ragen ins Huhn hinein
+        const fromAbove = isFalling && overlapY >= 0 && overlapY <= 40; // Toleranz 40px
+
+        if (isChicken && fromAbove) {
+          if (typeof enemy.die === "function") enemy.die();
+          if (typeof this.character.bounceOn === "function") {
+            this.character.bounceOn(enemy);
+          } else {
+            this.character.y = enemy.y - this.character.height;
+            this.character.speedY = 15;
+          }
+          return;
+        }
+
+        if (typeof this.character.hit === "function") {
+          this.character.hit();
+          this.statusBar.setPercentage(this.character.energy);
+        }
       }
     });
   }
@@ -63,10 +85,12 @@ class World {
 
     this.level.clouds.forEach((c) => c.update());
     this.addObjectsToMap(this.level.clouds);
+
     this.addToMap(this.character);
 
     this.level.enemies.forEach((e) => e.update && e.update());
     this.addObjectsToMap(this.level.enemies);
+    this.checkCollisions();
     this.addObjectsToMap(this.throwableObjects);
 
     this.ctx.translate(-this.camera_x, 0);

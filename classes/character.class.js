@@ -86,4 +86,13 @@ class Character extends MovableObjects {
       }
     }, 100);
   }
+
+  fallingdown() {
+    return this.speedY < 0;
+  }
+
+  bounceon(enemy) {
+    this.y = enemy.y - this.height;
+    this.speedY = 15;
+  }
 }
