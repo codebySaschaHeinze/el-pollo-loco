@@ -1,6 +1,6 @@
 class ThrowableObjects extends MovableObjects {
   constructor(x, y) {
-    super().loadImage("assets/imgs/6_salsa_bottle/salsa_bottle.png");
+    super().loadImage("assets/imgs/6_salsa_bottle/bottle_rotation/rotation_sequences.gif");
     this.x = x;
     this.y = y;
     this.width = 30;
