@@ -39,6 +39,7 @@ class World {
   }
 
   checkCollisions() {
+    if (this.character.isDead && this.character.isDead()) return;
     this.level.enemies.forEach((enemy) => {
       if (enemy.dead) return;
 
@@ -73,6 +74,7 @@ class World {
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.translate(this.camera_x, 0);
+
     this.addObjectsToMap(this.level.backgroundObjects);
 
     this.ctx.translate(-this.camera_x, 0);
@@ -111,7 +113,6 @@ class World {
       this.flipImage(mo);
     }
     mo.draw(this.ctx);
-    mo.drawFrame(this.ctx);
 
     if (mo.otherDirection) {
       this.flipImageBack(mo);

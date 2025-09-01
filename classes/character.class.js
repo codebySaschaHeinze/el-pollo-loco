@@ -1,11 +1,15 @@
 class Character extends MovableObjects {
-  // y = 274;
   y = 180;
   speed = 6;
   energy = 100;
-  lastHit = 0;
+  lastHitAt = 0;
   invulnMs = 700;
   hurtMs = 350;
+  dead = false;
+  moveInterval = null;
+  animInterval = null;
+  deathDone = false;
+  deathIndex = 0;
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",
     "assets/imgs/2_character_pepe/2_walk/w-22.png",
@@ -34,7 +38,6 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/5_dead/d-54.png",
     "assets/imgs/2_character_pepe/5_dead/d-55.png",
     "assets/imgs/2_character_pepe/5_dead/d-56.png",
-    "assets/imgs/2_character_pepe/5_dead/d-57.png",
   ];
 
   IMAGES_HURT = [
@@ -46,6 +49,10 @@ class Character extends MovableObjects {
   world;
   constructor(keyboard) {
     super().loadImage("assets/imgs/2_character_pepe/1_idle/idle/i-1.png");
+    this.width = 80;
+    this.height = 150;
+    this.groundBottom = 365 + 52;
+    this.y = this.groundBottom - this.height;
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
@@ -60,9 +67,13 @@ class Character extends MovableObjects {
   }
 
   hit(damage = 10) {
-    if (this.isInvulnerable() || (this.isDead && this.isDead())) return false; // schon getroffen / tot
+    if (this.isInvulnerable() || (this.isDead && this.isDead())) return false;
     this.lastHitAt = Date.now();
     this.energy = Math.max(0, this.energy - damage);
+
+    if (this.energy <= 0) {
+      this.die();
+    }
 
     return true;
   }
@@ -71,29 +82,68 @@ class Character extends MovableObjects {
     return Date.now() - (this.lastHitAt || 0) < this.hurtMs;
   }
 
+  die() {
+    if (this.dead) return;
+    this.dead = true;
+
+    this.y = this.groundBottom - this.height;
+    this.speedY = 0;
+    this.speed = 0;
+    this.acceleration = 0;
+  }
+
+  isDead() {
+    return this.dead || this.energy <= 0;
+  }
+
+  isAboveGround() {
+    if (this.isDead()) return false;
+    return this.y + this.height < this.groundBottom;
+  }
+
   animate() {
-    setInterval(() => {
+    this.moveInterval = setInterval(() => {
+      if (this.isDead()) return;
+
       if (this.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
         this.moveRight();
         this.otherDirection = false;
       }
-
       if (this.keyboard.LEFT && this.x > 0) {
         this.moveLeft();
         this.otherDirection = true;
       }
-
       if (this.world.keyboard.UP && !this.isAboveGround()) {
         this.jump();
       }
-
       this.world.camera_x = -this.x + 100;
     }, 1000 / 60);
 
-    setInterval(() => {
+    this.animInterval = setInterval(() => {
       if (this.isDead()) {
-        this.playAnimation(this.IMAGES_DEAD);
-      } else if (this.isHurt()) {
+        if (!this.deathDone) {
+          const lastIdx = this.IMAGES_DEAD.length - 1;
+          const idx = Math.min(this.deathIndex, lastIdx);
+
+          const frame = this.IMAGES_DEAD[idx];
+          if (frame) {
+            // 👉 WICHTIG: aus dem Cache zeichnen, nicht neu laden
+            this.img = this.imageCache[frame];
+          }
+
+          this.deathIndex++;
+
+          if (this.deathIndex > lastIdx) {
+            this.deathDone = true;
+
+            this.img = this.imageCache[this.IMAGES_DEAD[lastIdx]];
+            clearInterval(this.animInterval);
+          }
+        }
+        return;
+      }
+
+      if (this.isHurt && this.isHurt()) {
         this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround()) {
         this.playAnimation(this.IMAGES_JUMPING);
@@ -103,6 +153,17 @@ class Character extends MovableObjects {
         }
       }
     }, 100);
+  }
+
+  draw(ctx) {
+    if (this.dead && this.deathDone) {
+      const last = this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1];
+      const cached = this.imageCache[last];
+      if (cached && this.img !== cached) {
+        this.img = cached;
+      }
+    }
+    super.draw(ctx);
   }
 
   fallingDown() {
