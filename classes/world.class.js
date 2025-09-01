@@ -60,8 +60,10 @@ class World {
     this.addToMap(this.bottleBar);
     this.ctx.translate(this.camera_x, 0);
 
-    this.addToMap(this.character);
+    this.level.clouds.forEach((c) => c.update());
     this.addObjectsToMap(this.level.clouds);
+    this.addToMap(this.character);
+
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.throwableObjects);
 
