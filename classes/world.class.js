@@ -23,6 +23,7 @@ class World {
 
   setWorld() {
     this.character.world = this;
+    this.level.enemies.forEach((e) => (e.world = this));
   }
 
   run() {
@@ -64,6 +65,7 @@ class World {
     this.addObjectsToMap(this.level.clouds);
     this.addToMap(this.character);
 
+    this.level.enemies.forEach((e) => e.update && e.update());
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.throwableObjects);
 

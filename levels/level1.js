@@ -1,6 +1,6 @@
 const LEVEL_WIDTH = 8000;
 const endboss = new Endboss();
-endboss.x = LEVEL_WIDTH + 350; // ggf. feintunen
+endboss.x = LEVEL_WIDTH + 150; // ggf. feintunen
 
 const clouds = [
   new Cloud(LEVEL_WIDTH, 100),
@@ -60,5 +60,26 @@ const backgrounds = [
   new BackgroundObjects("assets/imgs/5_background/layers/1_first_layer/full.png", 8540),
 ];
 
-const level1 = new Level([new Chicken(), new Chicken(), new Chicken(), endboss], clouds, backgrounds);
-level1.level_end_x = LEVEL_WIDTH;
+const enemies = [
+  new Chicken(200),
+  new Chicken(550),
+  new Chicken(900),
+  new Chicken(1250),
+  new Chicken(1600),
+  new Chicken(1950),
+  new Chicken(2300),
+  new Chicken(2650),
+  new Chicken(3000),
+  new Chicken(3350),
+  new Chicken(3700),
+  new Chicken(4050),
+  new Chicken(4400),
+  new Chicken(4750),
+  new Chicken(5100),
+  new Chicken(5450),
+  new Chicken(5800),
+  new Chicken(6150),
+];
+enemies.push(endboss);
+
+const level1 = new Level(enemies, clouds, backgrounds);
