@@ -1,17 +1,26 @@
-const LEVEL_WIDTH = 12000;
+const LEVEL_WIDTH = 8000;
 const endboss = new Endboss();
 endboss.x = LEVEL_WIDTH + 350; // ggf. feintunen
 
 const clouds = [
   new Cloud(LEVEL_WIDTH, 100),
-  new Cloud(LEVEL_WIDTH, 1200),
-  new Cloud(LEVEL_WIDTH, 2400),
-  new Cloud(LEVEL_WIDTH, 3600),
-  new Cloud(LEVEL_WIDTH, 5000),
-  new Cloud(LEVEL_WIDTH, 6500),
-  new Cloud(LEVEL_WIDTH, 8000),
-  new Cloud(LEVEL_WIDTH, 9500),
-  new Cloud(LEVEL_WIDTH, 10800),
+  new Cloud(LEVEL_WIDTH, 550),
+  new Cloud(LEVEL_WIDTH, 1000),
+  new Cloud(LEVEL_WIDTH, 1450),
+  new Cloud(LEVEL_WIDTH, 1900),
+  new Cloud(LEVEL_WIDTH, 2350),
+  new Cloud(LEVEL_WIDTH, 2800),
+  new Cloud(LEVEL_WIDTH, 3250),
+  new Cloud(LEVEL_WIDTH, 3700),
+  new Cloud(LEVEL_WIDTH, 4150),
+  new Cloud(LEVEL_WIDTH, 4600),
+  new Cloud(LEVEL_WIDTH, 5050),
+  new Cloud(LEVEL_WIDTH, 5500),
+  new Cloud(LEVEL_WIDTH, 5950),
+  new Cloud(LEVEL_WIDTH, 6400),
+  new Cloud(LEVEL_WIDTH, 6850),
+  new Cloud(LEVEL_WIDTH, 7300),
+  new Cloud(LEVEL_WIDTH, 7750),
 ];
 
 const backgrounds = [
@@ -49,21 +58,7 @@ const backgrounds = [
   new BackgroundObjects("assets/imgs/5_background/layers/3_third_layer/full.png", 8540),
   new BackgroundObjects("assets/imgs/5_background/layers/2_second_layer/full.png", 8540),
   new BackgroundObjects("assets/imgs/5_background/layers/1_first_layer/full.png", 8540),
-
-  new BackgroundObjects("assets/imgs/5_background/layers/air.png", 9980),
-  new BackgroundObjects("assets/imgs/5_background/layers/3_third_layer/full.png", 9980),
-  new BackgroundObjects("assets/imgs/5_background/layers/2_second_layer/full.png", 9980),
-  new BackgroundObjects("assets/imgs/5_background/layers/1_first_layer/full.png", 9980),
-
-  new BackgroundObjects("assets/imgs/5_background/layers/air.png", 11420),
-  new BackgroundObjects("assets/imgs/5_background/layers/3_third_layer/full.png", 11420),
-  new BackgroundObjects("assets/imgs/5_background/layers/2_second_layer/full.png", 11420),
-  new BackgroundObjects("assets/imgs/5_background/layers/1_first_layer/full.png", 11420),
-
-  new BackgroundObjects("assets/imgs/5_background/layers/air.png", 12860),
-  new BackgroundObjects("assets/imgs/5_background/layers/3_third_layer/full.png", 12860),
-  new BackgroundObjects("assets/imgs/5_background/layers/2_second_layer/full.png", 12860),
-  new BackgroundObjects("assets/imgs/5_background/layers/1_first_layer/full.png", 12860),
 ];
 
 const level1 = new Level([new Chicken(), new Chicken(), new Chicken(), endboss], clouds, backgrounds);
+level1.level_end_x = LEVEL_WIDTH;
