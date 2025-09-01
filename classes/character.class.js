@@ -51,6 +51,19 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/4_hurt/h-42.png",
     "assets/imgs/2_character_pepe/4_hurt/h-43.png",
   ];
+
+  IMAGES_IDLE = [
+    "assets/imgs/2_character_pepe/1_idle/idle/i-1.png",
+    "assets/imgs/2_character_pepe/1_idle/idle/i-2.png",
+    "assets/imgs/2_character_pepe/1_idle/idle/i-3.png",
+    "assets/imgs/2_character_pepe/1_idle/idle/i-4.png",
+    "assets/imgs/2_character_pepe/1_idle/idle/i-5.png",
+    "assets/imgs/2_character_pepe/1_idle/idle/i-6.png",
+    "assets/imgs/2_character_pepe/1_idle/idle/i-7.png",
+    "assets/imgs/2_character_pepe/1_idle/idle/i-8.png",
+    "assets/imgs/2_character_pepe/1_idle/idle/i-9.png",
+    "assets/imgs/2_character_pepe/1_idle/idle/i-10.png",
+  ];
   currentImage = 0;
   world;
   constructor(keyboard) {
@@ -63,6 +76,7 @@ class Character extends MovableObjects {
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGES_HURT);
+    this.loadImages(this.IMAGES_IDLE);
     this.lastVisibleDeadIdx = this.IMAGES_DEAD.length - 4;
     this.applGravity();
     this.keyboard = keyboard;
@@ -151,10 +165,10 @@ class Character extends MovableObjects {
         this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround()) {
         this.playAnimation(this.IMAGES_JUMPING);
+      } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+        this.playAnimation(this.IMAGES_WALKING);
       } else {
-        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-          this.playAnimation(this.IMAGES_WALKING);
-        }
+        this.playAnimation(this.IMAGES_IDLE);
       }
     }, 100);
   }
