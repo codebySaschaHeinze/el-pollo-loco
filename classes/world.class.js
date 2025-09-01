@@ -23,6 +23,12 @@ class World {
   setWorld() {
     this.character.world = this;
     this.level.enemies.forEach((e) => (e.world = this));
+    const boss = this.level.endboss || (typeof Endboss !== "undefined" && this.level.enemies.find((e) => e instanceof Endboss));
+    if (boss) {
+      boss.world = this;
+      boss.startSpawning();
+      this.level.endboss = boss;
+    }
   }
 
   run() {
@@ -69,6 +75,31 @@ class World {
         }
       }
     });
+
+    const boss = this.level.endboss || (typeof Endboss !== "undefined" && this.level.enemies.find((e) => e instanceof Endboss));
+
+    if (boss && !boss.dead) {
+      // a) Char berührt Boss -> Schaden + kleiner Knockback/Bounce
+      if (this.character.isColliding(boss)) {
+        if (this.character.hit && this.character.hit(20)) {
+          this.statusBar.setPercentage(this.character.energy);
+        }
+        const push = this.character.x < boss.x ? -40 : 40;
+        this.character.x += push;
+        this.character.speedY = 12; // kurzer Bounce nach oben (falls bei dir "hoch" negativ ist, Vorzeichen flippen)
+      }
+
+      // b) Flaschen treffen Boss -> Boss nimmt Schaden, Flasche verschwindet
+      this.throwableObjects.forEach((bottle) => {
+        if (bottle.gone) return;
+        const collides = typeof bottle.isColliding === "function" ? bottle.isColliding(boss) : this.rectsCollide(bottle, boss); // Fallback, siehe unten
+
+        if (collides) {
+          boss.takeHit && boss.takeHit(12); // Schaden pro Bottle-Treffer
+          bottle.gone = true; // Bottle "verbrauchen"
+        }
+      });
+    }
   }
 
   draw() {
@@ -81,6 +112,7 @@ class World {
     this.level.enemies.forEach((e) => e.update && e.update());
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.throwableObjects);
+    this.throwableObjects = this.throwableObjects.filter((b) => !b.gone);
     this.checkCollisions();
     this.ctx.translate(-this.camera_x, 0);
     this.addToMap(this.statusBar);

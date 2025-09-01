@@ -1,6 +1,6 @@
 const LEVEL_WIDTH = 8000;
 const endboss = new Endboss();
-endboss.x = LEVEL_WIDTH + 150; // ggf. feintunen
+endboss.x = LEVEL_WIDTH - 7000; // ggf. feintunen
 
 const clouds = [
   new Cloud(LEVEL_WIDTH, 100),

@@ -1,5 +1,5 @@
 class Cloud extends MovableObjects {
-  y = 100;
+  y = 10;
   width = Math.random() * 400 + 150;
   height = Math.random() * 150 + 100;
 
@@ -11,7 +11,7 @@ class Cloud extends MovableObjects {
     "assets/imgs/5_background/layers/4_clouds/2.png",
     "assets/imgs/5_background/layers/4_clouds/3.png",
     "assets/imgs/5_background/layers/4_clouds/3.png",
-    "assets/imgs/5_background/layers/4_clouds/3.png",
+    "assets/imgs/5_background/layers/4_clouds/1.png",
     "assets/imgs/5_background/layers/4_clouds/3.png",
     "assets/imgs/5_background/layers/4_clouds/1.png",
     "assets/imgs/5_background/layers/4_clouds/2.png",
@@ -26,7 +26,7 @@ class Cloud extends MovableObjects {
     this.worldWidth = worldWidth;
     this.x = xStart ?? worldWidth + Math.random() * 200;
     this.y = 10 + Math.random() * 40;
-    this.speed = 0.2 + Math.random() * 0.4;
+    this.speed = 0.1 + Math.random() * 0.4;
 
     this.animate();
   }
