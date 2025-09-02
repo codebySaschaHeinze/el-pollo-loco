@@ -221,11 +221,14 @@ class Character extends MovableObjects {
     return this.bottles > 0;
   }
   useBottle() {
-    if (this.bottles <= 0) return false;
-    this.bottles--;
-    return true;
+    if (this.bottles > 0) {
+      this.bottles -= 1;
+      return true;
+    }
+    return false;
   }
+
   addBottle(n = 1) {
-    this.bottles = Math.min(this.bottles + n);
+    this.bottles = Math.min(this.maxBottles, this.bottles + n);
   }
 }

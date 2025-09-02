@@ -1,11 +1,11 @@
 class BottleBar extends DrawableObjects {
   BOTTLE_IMAGES = [
-    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/0.png",
-    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png",
-    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/40.png",
-    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/60.png",
-    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/80.png",
-    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/100.png",
+    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/a.png",
+    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/b.png",
+    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/c.png",
+    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/d.png",
+    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/e.png",
+    "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/f.png",
   ];
 
   percentage = 100;

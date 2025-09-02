@@ -31,8 +31,8 @@ class World {
       boss.startSpawning();
       this.level.endboss = boss;
       if (!this.level.enemies.includes(boss)) this.level.enemies.push(boss);
-      this.updateBottleBar();
     }
+    this.updateBottleBar();
   }
 
   run() {
@@ -235,12 +235,14 @@ class World {
   }
 
   toBottlePercent() {
-    const b = this.character?.bottles || 0;
-    if (b <= 0) return 0;
-    const raw = Math.min(100, b * 10);
-    return Math.ceil(raw / 20) * 20;
+    const b = Math.min(this.character?.bottles || 0, 10); // 0..10
+    const steps = Math.floor(b / 2); // 0,1,2,3,4,5
+    return steps * 20; // 0,20,40,60,80,100
   }
+
   updateBottleBar() {
-    this.bottleBar.setPercentage(this.toBottlePercent());
+    const pct = this.toBottlePercent();
+    console.log("Bottles:", this.character?.bottles, "→ Bar:", pct, "%");
+    this.bottleBar.setPercentage(pct);
   }
 }
