@@ -52,7 +52,6 @@ class World {
     this.level.enemies.forEach((enemy) => {
       if (enemy.dead) return;
 
-      // Boss hier NICHT behandeln (machen wir unten separat)
       if (typeof Endboss !== "undefined" && enemy instanceof Endboss) return;
 
       if (this.boxesCollide(this.character, enemy)) {
@@ -76,7 +75,7 @@ class World {
             this.character.y = enemy.y - this.character.height;
             this.character.speedY = 15;
           }
-          return; // kein Schaden beim Stomp
+          return;
         }
 
         if (typeof this.character.hit === "function") {
@@ -100,10 +99,14 @@ class World {
 
       this.throwableObjects.forEach((bottle) => {
         if (bottle.gone || bottle.didDamage) return;
-        const collides = typeof bottle.isColliding === "function" ? bottle.isColliding(boss) : this.boxesCollide(bottle, boss);
 
-        if (collides) {
-          bottle.didDamage = true;
+        // Statt "irgendwie kollidiert" -> erst zerschlagen, wenn die Überlappung tief genug ist
+        const { ox, oy } = this.overlapXY(bottle, boss);
+        const DEEP_X = 26; // ~20-30px, nach Geschmack anpassen
+        const MIN_Y = 8; // bisschen vertikal überlappen
+
+        if (ox >= DEEP_X && oy >= MIN_Y) {
+          bottle.didDamage = true; // nur 1x Schaden pro Flasche
           boss.takeHit && boss.takeHit(10);
           if (typeof bottle.break === "function") bottle.break();
           else bottle.gone = true;
@@ -175,5 +178,13 @@ class World {
     const A = this.getBox(a),
       B = this.getBox(b);
     return A.x < B.x + B.w && A.x + A.w > B.x && A.y < B.y + B.h && A.y + A.h > B.y;
+  }
+
+  overlapXY(a, b) {
+    const A = this.getBox(a),
+      B = this.getBox(b);
+    const ox = Math.max(0, Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x));
+    const oy = Math.max(0, Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y));
+    return { ox, oy };
   }
 }

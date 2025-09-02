@@ -16,7 +16,7 @@ class Chick extends Chicken {
 
   startFall(startY) {
     this.y = startY;
-    this.speed = 0;
+    this.speed = 1;
     this.speedY = -5;
     this.applGravity();
     this.falling = true;
