@@ -11,6 +11,7 @@ class Chick extends Chicken {
     this.height = 38;
     this.loadImages(this.IMAGES_WALKING);
     this.falling = false;
+    this.otherDirection = true;
   }
 
   startFall(startY) {
@@ -28,11 +29,19 @@ class Chick extends Chicken {
       const ground = this.world?.character?.groundBottom || 417;
       if (this.y + this.height >= ground) {
         this.y = ground - this.height;
+
         this.speed = 0.6 + Math.random() * 0.6;
+        this.otherDirection = true;
         this.falling = false;
       }
       return;
     }
+
     super.update();
+  }
+
+  isAboveGround() {
+    const ground = this.world?.character?.groundBottom || 417;
+    return this.y + this.height < ground;
   }
 }

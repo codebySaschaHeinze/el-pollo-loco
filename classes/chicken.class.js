@@ -5,8 +5,8 @@ class Chicken extends MovableObjects {
     "assets/imgs/3_enemies_chicken/chicken_normal/1_walk/3_w.png",
   ];
   currentImage = 0;
-  width = 38;
-  height = 52;
+  width = 48;
+  height = 62;
   dead = false;
   constructor(xStart = 0, speed = null) {
     super().loadImage("assets/imgs/3_enemies_chicken/chicken_normal/1_walk/1_w.png");
@@ -42,7 +42,7 @@ class Chicken extends MovableObjects {
     this.dead = true;
     this.speed = 0;
     this.deadAt = Date.now();
-    this.fadeDuration = 1000; // 1 Sekunde
+    this.fadeDuration = 1000;
     if (this.walkInterval) clearInterval(this.walkInterval);
     this.loadImage("assets/imgs/3_enemies_chicken/chicken_normal/2_dead/dead.png");
   }
@@ -55,6 +55,7 @@ class Chicken extends MovableObjects {
 
   update() {
     if (this.dead) return;
+    this.otherDirection = false;
     this.x -= this.speed;
     if (this.x < -this.width) {
       const worldEnd = this.world?.level?.level_end_x || 8000;
@@ -64,3 +65,5 @@ class Chicken extends MovableObjects {
     }
   }
 }
+
+window.Chicken = Chicken;

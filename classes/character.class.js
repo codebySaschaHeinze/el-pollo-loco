@@ -70,6 +70,7 @@ class Character extends MovableObjects {
     super().loadImage("assets/imgs/2_character_pepe/1_idle/idle/i-1.png");
     this.width = 80;
     this.height = 150;
+    this.offset = { top: 10, right: 25, bottom: 10, left: 25 };
     this.groundBottom = 365 + 52;
     this.y = this.groundBottom - this.height;
     this.loadImages(this.IMAGES_WALKING);

@@ -50,8 +50,8 @@ class Endboss extends MovableObjects {
 
   IMAGES_DEAD = [
     "assets/imgs/4_enemie_boss_chicken/5_dead/g24.png",
-    "assets/imgs/4_enemie_boss_chicken/5_dead/g23.png",
     "assets/imgs/4_enemie_boss_chicken/5_dead/g25.png",
+    "assets/imgs/4_enemie_boss_chicken/5_dead/g26.png",
   ];
 
   constructor() {
@@ -62,6 +62,7 @@ class Endboss extends MovableObjects {
     this.loadImages(this.IMAGES_DEAD);
     this.animate();
     this.lastAttackAt = Date.now();
+    this.offset = { top: 20, right: 40, bottom: 20, left: 40 };
   }
 
   animate() {
@@ -84,19 +85,6 @@ class Endboss extends MovableObjects {
 
     const now = Date.now();
     const c = this.world?.character;
-
-    if (this.attacking && now < this.attackUntil) {
-      if (c) {
-        const myMid = this.x + this.width / 2;
-        const hisMid = c.x + c.width / 2;
-        const dir = hisMid < myMid ? -1 : 1;
-        this.x += dir * this.attackSpeed;
-        this.otherDirection = dir < 0;
-      }
-      this.clampToPatrol();
-      this.state = "attack";
-      return;
-    }
 
     if (this.attacking && now < this.attackUntil) {
       let dir = this._dir ?? -1;
@@ -165,20 +153,36 @@ class Endboss extends MovableObjects {
 
   startSpawning() {
     if (this.spawnInterval || this.dead) return;
-    this.spawnInterval = setInterval(() => this.spawnChick(), 2500);
+
+    const ensure = () => {
+      if (typeof Chick === "undefined") {
+        setTimeout(ensure, 200);
+        return;
+      }
+      // jetzt sicher starten
+      this.spawnInterval = setInterval(() => this.spawnChick(), 2500);
+    };
+
+    ensure();
   }
 
   spawnChick() {
     if (!this.world || this.dead) return;
 
     const ground = this.world?.character?.groundBottom || 417;
-    const rawY = this.y + this.height - 10;
-    const spawnY = Math.min(rawY, ground - 120); // mind. 120px Fallhöhe
-    const spawnX = this.x + this.width / 2 - 10;
 
-    const chick = new Chick(spawnX, 0.6 + Math.random() * 0.6);
+    const midX = this.x + this.width / 2;
+    const rawY = this.y + this.height - 30;
+    const spawnY = Math.min(rawY, ground - 90);
+
+    const chick = new Chick(0, 0.6 + Math.random() * 0.6);
     chick.world = this.world;
+
+    chick.x = Math.floor(midX - chick.width / 2);
     chick.startFall(spawnY);
+
+    chick.otherDirection = false;
+
     this.world.level.enemies.push(chick);
   }
 }

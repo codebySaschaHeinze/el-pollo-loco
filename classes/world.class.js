@@ -29,6 +29,7 @@ class World {
       boss.world = this;
       boss.startSpawning();
       this.level.endboss = boss;
+      if (!this.level.enemies.includes(boss)) this.level.enemies.push(boss);
     }
   }
 
@@ -47,19 +48,27 @@ class World {
 
   checkCollisions() {
     if (this.character.isDead && this.character.isDead()) return;
+
     this.level.enemies.forEach((enemy) => {
       if (enemy.dead) return;
 
-      if (this.character.isColliding(enemy)) {
-        const isChicken = typeof Chicken !== "undefined" && enemy instanceof Chicken;
+      // Boss hier NICHT behandeln (machen wir unten separat)
+      if (typeof Endboss !== "undefined" && enemy instanceof Endboss) return;
 
-        const isFalling = typeof this.character.fallingDown === "function" ? this.character.fallingDown() : this.character.speedY < 0; // ggf. auf > 0 drehen, wenn dein Y nach oben negativ ist
+      if (this.boxesCollide(this.character, enemy)) {
+        const isChicken =
+          (typeof Chicken !== "undefined" && enemy instanceof Chicken) || (typeof Chick !== "undefined" && enemy instanceof Chick);
 
-        const charBottom = this.character.y + this.character.height;
-        const overlapY = charBottom - enemy.y;
-        const fromAbove = isFalling && overlapY >= 0 && overlapY <= 40;
+        const charBox = this.getBox(this.character);
+        const enemyBox = this.getBox(enemy);
 
-        if (isChicken && fromAbove) {
+        const isFalling = typeof this.character.fallingDown === "function" ? this.character.fallingDown() : this.character.speedY < 0;
+
+        const charBottom = charBox.y + charBox.h;
+        const overlapY = charBottom - enemyBox.y;
+        const fromAbove = isChicken && isFalling && overlapY >= 0 && overlapY <= 40;
+
+        if (fromAbove) {
           if (typeof enemy.die === "function") enemy.die();
           if (typeof this.character.bounceOn === "function") {
             this.character.bounceOn(enemy);
@@ -67,7 +76,7 @@ class World {
             this.character.y = enemy.y - this.character.height;
             this.character.speedY = 15;
           }
-          return;
+          return; // kein Schaden beim Stomp
         }
 
         if (typeof this.character.hit === "function") {
@@ -80,7 +89,8 @@ class World {
     const boss = this.level.endboss || (typeof Endboss !== "undefined" && this.level.enemies.find((e) => e instanceof Endboss));
 
     if (boss && !boss.dead) {
-      if (this.character.isColliding(boss)) {
+      // Char vs Boss
+      if (this.boxesCollide(this.character, boss)) {
         if (this.character.hit && this.character.hit(20)) {
           this.statusBar.setPercentage(this.character.energy);
         }
@@ -89,9 +99,10 @@ class World {
         this.character.speedY = 12;
       }
 
+      // Bottle vs Boss
       this.throwableObjects.forEach((bottle) => {
         if (bottle.gone) return;
-        const collides = typeof bottle.isColliding === "function" ? bottle.isColliding(boss) : this.rectsCollide(bottle, boss); // Fallback, siehe unten
+        const collides = typeof bottle.isColliding === "function" ? bottle.isColliding(boss) : this.boxesCollide(bottle, boss);
 
         if (collides) {
           boss.takeHit && boss.takeHit(10);
@@ -149,5 +160,21 @@ class World {
   flipImageBack(mo) {
     this.ctx.restore();
     mo.x = mo.x * -1;
+  }
+
+  getBox(o) {
+    const off = o?.offset || { top: 0, right: 0, bottom: 0, left: 0 };
+    return {
+      x: o.x + off.left,
+      y: o.y + off.top,
+      w: Math.max(0, o.width - off.left - off.right),
+      h: Math.max(0, o.height - off.top - off.bottom),
+    };
+  }
+
+  boxesCollide(a, b) {
+    const A = this.getBox(a),
+      B = this.getBox(b);
+    return A.x < B.x + B.w && A.x + A.w > B.x && A.y < B.y + B.h && A.y + A.h > B.y;
   }
 }
