@@ -23,7 +23,6 @@ class Endboss extends MovableObjects {
   state = "walk";
   animInterval = null;
 
-  // Hurt / Death
   hurtMs = 250;
   hurtUntil = 0;
 
@@ -172,13 +171,11 @@ class Endboss extends MovableObjects {
       return;
     }
 
-    // WALK / PATROL
     this.state = "walk";
     const step = (this._dir ?? -1) * this.speed;
     this.x += step;
     moved = step;
 
-    // Kanten flippen
     if (this.x <= this.patrolMinX) {
       this.x = this.patrolMinX;
       this._dir = 1;

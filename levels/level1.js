@@ -1,6 +1,6 @@
 const LEVEL_WIDTH = 8000;
 const endboss = new Endboss();
-endboss.x = LEVEL_WIDTH - 7000; // ggf. feintunen
+endboss.x = LEVEL_WIDTH - 7000;
 
 const clouds = [
   new Cloud(LEVEL_WIDTH, 100),
@@ -61,8 +61,6 @@ const backgrounds = [
 ];
 
 const enemies = [
-  new Chicken(400),
-  new Chicken(730),
   new Chicken(1060),
   new Chicken(1390),
   new Chicken(1720),

@@ -1,6 +1,6 @@
 class Character extends MovableObjects {
   y = 180;
-  speed = 6;
+  speed = 8;
   energy = 100;
   lastHitAt = 0;
   invulnMs = 700;
@@ -164,7 +164,7 @@ class Character extends MovableObjects {
 
       if (this.isHurt && this.isHurt()) {
         this.playAnimation(this.IMAGES_HURT);
-      } else if (this.isAboveGround()) {
+      } else if (this.isAboveGround() || this.speedY > 0) {
         this.playAnimation(this.IMAGES_JUMPING);
       } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
         this.playAnimation(this.IMAGES_WALKING);
@@ -210,8 +210,8 @@ class Character extends MovableObjects {
     return this.speedY < 0;
   }
 
-  bounceOn(enemy) {
-    this.y = enemy.y - this.height;
-    this.speedY = 15;
+  bounceOn(enemy, strength = 15) {
+    this.y = enemy.y - this.height + 20;
+    this.speedY = strength;
   }
 }

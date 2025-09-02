@@ -100,13 +100,12 @@ class World {
       this.throwableObjects.forEach((bottle) => {
         if (bottle.gone || bottle.didDamage) return;
 
-        // Statt "irgendwie kollidiert" -> erst zerschlagen, wenn die Überlappung tief genug ist
         const { ox, oy } = this.overlapXY(bottle, boss);
-        const DEEP_X = 26; // ~20-30px, nach Geschmack anpassen
-        const MIN_Y = 8; // bisschen vertikal überlappen
+        const DEEP_X = 26;
+        const MIN_Y = 8;
 
         if (ox >= DEEP_X && oy >= MIN_Y) {
-          bottle.didDamage = true; // nur 1x Schaden pro Flasche
+          bottle.didDamage = true;
           boss.takeHit && boss.takeHit(10);
           if (typeof bottle.break === "function") bottle.break();
           else bottle.gone = true;
