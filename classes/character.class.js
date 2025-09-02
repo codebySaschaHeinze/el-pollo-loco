@@ -15,6 +15,8 @@ class Character extends MovableObjects {
   ascendDistance = 300;
   bodyBaseY = 0;
   lastVisibleDeadIdx = 0;
+  bottles = 0;
+  maxBottles = 5;
 
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",
@@ -138,8 +140,8 @@ class Character extends MovableObjects {
       if (this.world.keyboard.UP && !this.isAboveGround()) {
         this.jump();
       }
-      this.world.camera_x = -this.x + 100;
-    }, 1000 / 60);
+      this.world.camera_x = -this.x + 50;
+    }, 1000 / 100);
 
     this.animInterval = setInterval(() => {
       if (this.isDead()) {
@@ -213,5 +215,19 @@ class Character extends MovableObjects {
   bounceOn(enemy, strength = 15) {
     this.y = enemy.y - this.height + 20;
     this.speedY = strength;
+  }
+
+  canThrowBottle() {
+    return this.bottles > 0;
+  }
+  useBottle() {
+    if (this.bottles > 0) {
+      this.bottles--;
+      return true;
+    }
+    return false;
+  }
+  addBottle(n = 1) {
+    this.bottles = Math.min(this.bottles + n, this.maxBottles);
   }
 }

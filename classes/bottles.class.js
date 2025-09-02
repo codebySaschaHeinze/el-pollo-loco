@@ -3,8 +3,8 @@ class Bottles extends MovableObjects {
     super().loadImage("assets/imgs/6_salsa_bottle/1_salsa_bottle_on_ground.png");
     this.x = x;
     this.y = y;
-    this.width = 30;
-    this.height = 40;
+    this.width = 35;
+    this.height = 45;
     this.offset = { top: 6, right: 6, bottom: 6, left: 6 };
     this.placed = false;
   }
@@ -14,5 +14,6 @@ class Bottles extends MovableObjects {
       this.y = ground - this.height;
       this.placed = true;
     }
+    super.draw(ctx);
   }
 }

@@ -23,6 +23,7 @@ class World {
   setWorld() {
     this.character.world = this;
     this.level.enemies.forEach((e) => (e.world = this));
+    this.level.bottlePickups?.forEach((b) => (b.world = this));
 
     const boss = this.level.endboss || (typeof Endboss !== "undefined" && this.level.enemies.find((e) => e instanceof Endboss));
     if (boss) {
@@ -40,14 +41,32 @@ class World {
   }
 
   checkThrowObjects() {
-    if (this.keyboard.SPACE) {
-      let bottle = new ThrowableObjects(this.character.x + 50, this.character.y + 50);
+    if (this.keyboard.SPACE && this.character.canThrowBottle && this.character.canThrowBottle()) {
+      const bottle = new ThrowableObjects(this.character.x + 50, this.character.y + 50);
       bottle.world = this;
       this.throwableObjects.push(bottle);
+
+      if (this.character.useBottle && this.character.useBottle()) {
+        this.bottleBar.setPercentage(this.character.bottles * 20);
+      }
     }
   }
 
   checkCollisions() {
+    if (this.level.bottlePickups && this.level.bottlePickups.length) {
+      this.level.bottlePickups.forEach((p) => {
+        if (p.collected) return;
+        if (this.boxesCollide(this.character, p)) {
+          if (this.character.bottles < this.character.maxBottles) {
+            this.character.addBottle(1);
+            this.bottleBar.setPercentage(this.character.bottles * 20); // 0..5 => 0..100%
+            p.collected = true;
+          }
+        }
+      });
+      this.level.bottlePickups = this.level.bottlePickups.filter((p) => !p.collected);
+    }
+
     if (this.character.isDead && this.character.isDead()) return;
 
     this.level.enemies.forEach((enemy) => {
@@ -113,7 +132,7 @@ class World {
         }
       });
     }
-    // --- Bottles vs. Chicken/Chicks ---
+
     this.throwableObjects.forEach((bottle) => {
       if (bottle.gone || bottle.breaking || bottle.didDamage) return;
 
@@ -146,6 +165,7 @@ class World {
     this.addObjectsToMap(this.level.backgroundObjects);
     this.level.clouds.forEach((c) => c.update && c.update());
     this.addObjectsToMap(this.level.clouds);
+    this.addObjectsToMap(this.level.bottlePickups);
     this.addToMap(this.character);
     this.level.enemies.forEach((e) => e.update && e.update());
     this.addObjectsToMap(this.level.enemies);

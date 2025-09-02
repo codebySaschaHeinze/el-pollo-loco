@@ -1,6 +1,16 @@
 const LEVEL_WIDTH = 8000;
 const endboss = new Endboss();
-endboss.x = LEVEL_WIDTH - 7000;
+endboss.x = LEVEL_WIDTH;
+
+const BOTTLE_COUNT = 20;
+const bottlePickups = [];
+const step = Math.floor(LEVEL_WIDTH / BOTTLE_COUNT + 1);
+
+for (let i = 0; i < BOTTLE_COUNT; i++) {
+  const base = 200 + (i + 1) * step;
+  const jitter = Math.floor(Math.random() * Math.max(80, step - 300)) - 40;
+  bottlePickups.push(new Bottles(base + jitter));
+}
 
 const clouds = [
   new Cloud(LEVEL_WIDTH, 100),
@@ -98,4 +108,4 @@ const enemies = [
 ];
 enemies.push(endboss);
 
-const level1 = new Level(enemies, clouds, backgrounds);
+const level1 = new Level(enemies, clouds, backgrounds, bottlePickups);
