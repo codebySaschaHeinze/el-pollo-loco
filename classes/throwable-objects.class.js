@@ -3,7 +3,7 @@ class ThrowableObjects extends MovableObjects {
   moveInterval = null;
   breaking = false;
   brokenAt = 0;
-  breakDuration = 400;
+  breakDuration = 600;
   didDamage = false;
 
   IMAGES_BREAK = [
@@ -58,6 +58,12 @@ class ThrowableObjects extends MovableObjects {
         ctx.restore();
       }
       if (t >= 1) this.gone = true;
+      return;
+    }
+    const ground = this.world?.character?.groundBottom || 417;
+    if (this.y + this.height >= ground) {
+      this.y = ground - this.height + 10;
+      this.break();
       return;
     }
     ctx.save();

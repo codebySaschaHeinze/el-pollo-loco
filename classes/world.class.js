@@ -42,6 +42,7 @@ class World {
   checkThrowObjects() {
     if (this.keyboard.SPACE) {
       let bottle = new ThrowableObjects(this.character.x + 50, this.character.y + 50);
+      bottle.world = this;
       this.throwableObjects.push(bottle);
     }
   }
@@ -112,6 +113,31 @@ class World {
         }
       });
     }
+    // --- Bottles vs. Chicken/Chicks ---
+    this.throwableObjects.forEach((bottle) => {
+      if (bottle.gone || bottle.breaking || bottle.didDamage) return;
+
+      for (let i = 0; i < this.level.enemies.length; i++) {
+        const e = this.level.enemies[i];
+        if (e.dead) continue;
+
+        if (typeof Endboss !== "undefined" && e instanceof Endboss) continue;
+
+        const { ox, oy } = this.overlapXY(bottle, e);
+        const HIT_X = 18;
+        const HIT_Y = 8;
+
+        if (ox >= HIT_X && oy >= HIT_Y) {
+          if (typeof e.die === "function") e.die();
+
+          bottle.didDamage = true;
+          if (typeof bottle.break === "function") bottle.break();
+          else bottle.gone = true;
+
+          break;
+        }
+      }
+    });
   }
 
   draw() {
