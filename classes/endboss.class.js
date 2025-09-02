@@ -8,8 +8,8 @@ class Endboss extends MovableObjects {
   spawnInterval = null;
   currentImage = 0;
 
-  patrolMinX = 3000;
-  patrolMaxX = 3600;
+  patrolMinX = 7000;
+  patrolMaxX = 7600;
   speed = 1.5;
 
   attackEveryMs = 3000;

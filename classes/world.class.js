@@ -31,6 +31,7 @@ class World {
       boss.startSpawning();
       this.level.endboss = boss;
       if (!this.level.enemies.includes(boss)) this.level.enemies.push(boss);
+      this.updateBottleBar();
     }
   }
 
@@ -47,7 +48,7 @@ class World {
       this.throwableObjects.push(bottle);
 
       if (this.character.useBottle && this.character.useBottle()) {
-        this.bottleBar.setPercentage(this.character.bottles * 20);
+        this.updateBottleBar();
       }
     }
   }
@@ -59,7 +60,7 @@ class World {
         if (this.boxesCollide(this.character, p)) {
           if (this.character.bottles < this.character.maxBottles) {
             this.character.addBottle(1);
-            this.bottleBar.setPercentage(this.character.bottles * 20); // 0..5 => 0..100%
+            this.updateBottleBar();
             p.collected = true;
           }
         }
@@ -231,5 +232,15 @@ class World {
     const ox = Math.max(0, Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x));
     const oy = Math.max(0, Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y));
     return { ox, oy };
+  }
+
+  toBottlePercent() {
+    const b = this.character?.bottles || 0;
+    if (b <= 0) return 0;
+    const raw = Math.min(100, b * 10);
+    return Math.ceil(raw / 20) * 20;
+  }
+  updateBottleBar() {
+    this.bottleBar.setPercentage(this.toBottlePercent());
   }
 }

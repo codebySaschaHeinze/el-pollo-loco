@@ -16,7 +16,7 @@ class Character extends MovableObjects {
   bodyBaseY = 0;
   lastVisibleDeadIdx = 0;
   bottles = 0;
-  maxBottles = 5;
+  maxBottles = 10;
 
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",
@@ -221,13 +221,11 @@ class Character extends MovableObjects {
     return this.bottles > 0;
   }
   useBottle() {
-    if (this.bottles > 0) {
-      this.bottles--;
-      return true;
-    }
-    return false;
+    if (this.bottles <= 0) return false;
+    this.bottles--;
+    return true;
   }
   addBottle(n = 1) {
-    this.bottles = Math.min(this.bottles + n, this.maxBottles);
+    this.bottles = Math.min(this.bottles + n);
   }
 }
