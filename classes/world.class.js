@@ -20,6 +20,44 @@ class World {
     this.run();
   }
 
+  draw() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.translate(this.camera_x, 0);
+    this.addObjectsToMap(this.level.backgroundObjects);
+    this.level.clouds.forEach((c) => c.update && c.update());
+    this.addObjectsToMap(this.level.clouds);
+    this.addObjectsToMap(this.level.bottlePickups);
+    this.addToMap(this.character);
+    this.level.enemies.forEach((e) => e.update && e.update());
+    this.addObjectsToMap(this.level.enemies);
+    this.addObjectsToMap(this.throwableObjects);
+    this.throwableObjects = this.throwableObjects.filter((b) => !b.gone);
+    this.checkCollisions();
+    this.ctx.translate(-this.camera_x, 0);
+    this.addToMap(this.statusBar);
+    this.addToMap(this.moneyBar);
+    this.addToMap(this.bottleBar);
+
+    requestAnimationFrame(() => this.draw());
+  }
+
+  addObjectsToMap(objects) {
+    objects.forEach((o) => {
+      this.addToMap(o);
+    });
+  }
+
+  addToMap(mo) {
+    if (mo.otherDirection) {
+      this.flipImage(mo);
+    }
+    mo.draw(this.ctx);
+
+    if (mo.otherDirection) {
+      this.flipImageBack(mo);
+    }
+  }
+
   setWorld() {
     this.character.world = this;
     this.level.enemies.forEach((e) => (e.world = this));
@@ -160,44 +198,6 @@ class World {
     });
   }
 
-  draw() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.translate(this.camera_x, 0);
-    this.addObjectsToMap(this.level.backgroundObjects);
-    this.level.clouds.forEach((c) => c.update && c.update());
-    this.addObjectsToMap(this.level.clouds);
-    this.addObjectsToMap(this.level.bottlePickups);
-    this.addToMap(this.character);
-    this.level.enemies.forEach((e) => e.update && e.update());
-    this.addObjectsToMap(this.level.enemies);
-    this.addObjectsToMap(this.throwableObjects);
-    this.throwableObjects = this.throwableObjects.filter((b) => !b.gone);
-    this.checkCollisions();
-    this.ctx.translate(-this.camera_x, 0);
-    this.addToMap(this.statusBar);
-    this.addToMap(this.moneyBar);
-    this.addToMap(this.bottleBar);
-
-    requestAnimationFrame(() => this.draw());
-  }
-
-  addObjectsToMap(objects) {
-    objects.forEach((o) => {
-      this.addToMap(o);
-    });
-  }
-
-  addToMap(mo) {
-    if (mo.otherDirection) {
-      this.flipImage(mo);
-    }
-    mo.draw(this.ctx);
-
-    if (mo.otherDirection) {
-      this.flipImageBack(mo);
-    }
-  }
-
   flipImage(mo) {
     this.ctx.save();
     this.ctx.translate(mo.width, 0);
@@ -235,9 +235,9 @@ class World {
   }
 
   toBottlePercent() {
-    const b = Math.min(this.character?.bottles || 0, 10); // 0..10
-    const steps = Math.floor(b / 2); // 0,1,2,3,4,5
-    return steps * 20; // 0,20,40,60,80,100
+    const b = Math.min(this.character?.bottles || 0, 10);
+    const steps = Math.floor(b / 2);
+    return steps * 20;
   }
 
   updateBottleBar() {

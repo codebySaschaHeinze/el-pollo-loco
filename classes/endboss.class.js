@@ -236,7 +236,7 @@ class Endboss extends MovableObjects {
         return;
       }
 
-      this.spawnInterval = setInterval(() => this.spawnChick(), 4500);
+      this.spawnInterval = setInterval(() => this.spawnChick(), 6000);
     };
 
     ensure();
