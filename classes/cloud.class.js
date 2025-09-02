@@ -36,9 +36,9 @@ class Cloud extends MovableObjects {
   update() {
     this.x -= this.speed;
     if (this.x < -this.width) {
-      this.x = this.worldWidth + 50 + Math.random() * 200; // rechts „spawnen“
-      this.y = 10 + Math.random() * 40; // neue Höhe
-      this.speed = 0.2 + Math.random() * 0.4; // neue Speed
+      this.x = this.worldWidth + 50 + Math.random() * 200;
+      this.y = 10 + Math.random() * 40;
+      this.speed = 0.2 + Math.random() * 0.4;
     }
   }
 }

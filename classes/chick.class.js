@@ -13,7 +13,7 @@ class Chick extends Chicken {
     this.falling = false;
   }
 
-  startFall(start) {
+  startFall(startY) {
     this.y = startY;
     this.speed = 0;
     this.speedY = -5;
@@ -23,6 +23,7 @@ class Chick extends Chicken {
 
   update() {
     if (this.dead) return;
+
     if (this.falling) {
       const ground = this.world?.character?.groundBottom || 417;
       if (this.y + this.height >= ground) {
