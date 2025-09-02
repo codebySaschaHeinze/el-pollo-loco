@@ -3,7 +3,7 @@ class Endboss extends MovableObjects {
   height = 400;
   x = 700;
   y = 50;
-  energy = 200;
+  energy = 100;
   dead = false;
   spawnInterval = null;
 
@@ -21,6 +21,18 @@ class Endboss extends MovableObjects {
 
   state = "walk";
   animInterval = null;
+
+  // Hurt / Death
+  hurtMs = 250;
+  hurtUntil = 0;
+
+  dying = false;
+  deathIndex = 0;
+  deathDone = false;
+  deathFrameMs = 120;
+  fadeOutMs = 1000;
+  fadeStartAt = 0;
+  vanished = false;
 
   IMAGES_WALKING = [
     "assets/imgs/4_enemie_boss_chicken/2_alert/g5.png",
@@ -67,13 +79,36 @@ class Endboss extends MovableObjects {
 
   animate() {
     this.animInterval = setInterval(() => {
+      if (this.dying) {
+        const last = this.IMAGES_DEAD.length - 1;
+        const idx = Math.min(this.deathIndex, last);
+        const frame = this.IMAGES_DEAD[idx];
+        if (frame) this.loadImage(frame);
+
+        if (this.deathIndex < last) {
+          this.deathIndex++;
+        } else {
+          this.deathDone = true;
+          if (!this.fadeStartAt) this.fadeStartAt = Date.now();
+        }
+        return;
+      }
+
       if (this.dead) return;
-      const frames = this.state === "attack" ? this.IMAGES_ATTACK : this.IMAGES_WALKING;
+
+      let frames = this.IMAGES_WALKING;
+      if (Date.now() < this.hurtUntil) {
+        frames = this.IMAGES_HURT;
+      } else if (this.state === "attack") {
+        frames = this.IMAGES_ATTACK;
+      }
       this.playAnimation(frames);
-    }, 100);
+    }, this.deathFrameMs); // 120ms ist meist stimmig
   }
 
   update() {
+    if (this.vanished) return;
+    if (this.dying) return;
     if (this.dead) return;
 
     if (!this._initd) {
@@ -138,17 +173,36 @@ class Endboss extends MovableObjects {
   }
 
   takeHit(damage = 10) {
-    if (this.dead) return;
+    if (this.dead || this.dying) return;
     this.energy = Math.max(0, this.energy - damage);
-    if (this.energy <= 0) this.die();
+    if (this.energy <= 0) {
+      this.die();
+    } else {
+      this.hurtUntil = Date.now() + this.hurtMs; // kurz Hurt-Frames
+      // Optional: kleines Zurückzucken o.ä. kannst du hier ergänzen
+    }
   }
 
   die() {
-    if (this.dead) return;
-    this.dead = true;
-    if (this.spawnInterval) clearInterval(this.spawnInterval);
+    if (this.dead || this.dying) return;
 
-    this.loadImages(this.IMAGES_DEAD);
+    // Gameplay sofort beenden
+    this.dead = true; // -> World behandelt ihn nicht mehr als gefährlich
+    this.dying = true; // -> erlaubt Death-Anim + Fade
+    this.state = "die";
+
+    // Death-Anim Startwerte
+    this.deathIndex = 0;
+    this.deathDone = false;
+    this.fadeStartAt = 0;
+
+    // Angriffe/Spawns aus
+    this.lastAttackAt = Infinity;
+    this.attacking = false;
+    if (this.spawnInterval) {
+      clearInterval(this.spawnInterval);
+      this.spawnInterval = null;
+    }
   }
 
   startSpawning() {
@@ -159,7 +213,7 @@ class Endboss extends MovableObjects {
         setTimeout(ensure, 200);
         return;
       }
-      // jetzt sicher starten
+
       this.spawnInterval = setInterval(() => this.spawnChick(), 2500);
     };
 

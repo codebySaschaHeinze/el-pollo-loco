@@ -4,6 +4,7 @@ class ThrowableObjects extends MovableObjects {
   breaking = false;
   brokenAt = 0;
   breakDuration = 400;
+  didDamage = false;
 
   IMAGES_BREAK = [
     "assets/imgs/6_salsa_bottle/bottle_rotation/bottle_splash/1_bottle_splash.png",

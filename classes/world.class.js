@@ -89,7 +89,6 @@ class World {
     const boss = this.level.endboss || (typeof Endboss !== "undefined" && this.level.enemies.find((e) => e instanceof Endboss));
 
     if (boss && !boss.dead) {
-      // Char vs Boss
       if (this.boxesCollide(this.character, boss)) {
         if (this.character.hit && this.character.hit(20)) {
           this.statusBar.setPercentage(this.character.energy);
@@ -99,12 +98,12 @@ class World {
         this.character.speedY = 12;
       }
 
-      // Bottle vs Boss
       this.throwableObjects.forEach((bottle) => {
-        if (bottle.gone) return;
+        if (bottle.gone || bottle.didDamage) return;
         const collides = typeof bottle.isColliding === "function" ? bottle.isColliding(boss) : this.boxesCollide(bottle, boss);
 
         if (collides) {
+          bottle.didDamage = true;
           boss.takeHit && boss.takeHit(10);
           if (typeof bottle.break === "function") bottle.break();
           else bottle.gone = true;
