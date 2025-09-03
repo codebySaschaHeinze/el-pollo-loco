@@ -28,7 +28,7 @@ for (let g = 0; g < COIN_GROUPS; g++) {
 
   for (let i = 0; i < GROUP_SIZE; i++) {
     const x = groupX + i * COIN_GAP_X;
-    coinPickups.push(new Coins(x)); // oder new Coin(x) falls du umbenannt hast
+    coinPickups.push(new Coins(x));
   }
 }
 
@@ -54,6 +54,11 @@ const clouds = [
 ];
 
 const backgrounds = [
+  new BackgroundObjects("assets/imgs/5_background/layers/air.png", -1240),
+  new BackgroundObjects("assets/imgs/5_background/layers/3_third_layer/full.png", -1240),
+  new BackgroundObjects("assets/imgs/5_background/layers/2_second_layer/full.png", -1240),
+  new BackgroundObjects("assets/imgs/5_background/layers/1_first_layer/full.png", -1240),
+
   new BackgroundObjects("assets/imgs/5_background/layers/air.png", -100),
   new BackgroundObjects("assets/imgs/5_background/layers/3_third_layer/full.png", -100),
   new BackgroundObjects("assets/imgs/5_background/layers/2_second_layer/full.png", -100),
