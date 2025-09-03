@@ -12,15 +12,24 @@ for (let i = 0; i < BOTTLE_COUNT; i++) {
   bottlePickups.push(new Bottles(base + jitter));
 }
 
-const COIN_COUNT = 30;
-const coinPickups = [];
-const coinStep = Math.floor(LEVEL_WIDTH / (COIN_COUNT + 1));
+const COIN_GROUPS = 10;
+const GROUP_SIZE = 3;
+const COIN_GAP_X = 60;
+const COIN_MARGIN = 200;
 
-for (let i = 0; i < COIN_COUNT; i++) {
-  const base = 200 + (i + 1) * coinStep;
-  const jitter = Math.floor(Math.random() * 200) - 100;
-  const x = Math.max(120, Math.min(LEVEL_WIDTH - 120, base + jitter));
-  coinPickups.push(new Coins(x));
+const coinPickups = [];
+const usableWidth = LEVEL_WIDTH - COIN_MARGIN * 2;
+const groupStride = Math.floor(usableWidth / COIN_GROUPS);
+
+for (let g = 0; g < COIN_GROUPS; g++) {
+  const base = COIN_MARGIN + g * groupStride;
+  const jitter = Math.floor(groupStride * 0.3 * (Math.random() * 2 - 1));
+  const groupX = Math.max(120, Math.min(LEVEL_WIDTH - 120 - (GROUP_SIZE - 1) * COIN_GAP_X, base + jitter));
+
+  for (let i = 0; i < GROUP_SIZE; i++) {
+    const x = groupX + i * COIN_GAP_X;
+    coinPickups.push(new Coins(x)); // oder new Coin(x) falls du umbenannt hast
+  }
 }
 
 const clouds = [
