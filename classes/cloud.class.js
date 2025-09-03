@@ -9,13 +9,13 @@ class Cloud extends MovableObjects {
     "assets/imgs/5_background/layers/4_clouds/3.png",
     "assets/imgs/5_background/layers/4_clouds/1.png",
     "assets/imgs/5_background/layers/4_clouds/2.png",
-    "assets/imgs/5_background/layers/4_clouds/3.png",
+    "assets/imgs/5_background/layers/4_clouds/1.png",
     "assets/imgs/5_background/layers/4_clouds/3.png",
     "assets/imgs/5_background/layers/4_clouds/1.png",
     "assets/imgs/5_background/layers/4_clouds/3.png",
     "assets/imgs/5_background/layers/4_clouds/1.png",
     "assets/imgs/5_background/layers/4_clouds/2.png",
-    "assets/imgs/5_background/layers/4_clouds/3.png",
+    "assets/imgs/5_background/layers/4_clouds/2.png",
     "assets/imgs/5_background/layers/4_clouds/3.png",
   ];
   constructor(worldWidth, xStart = null) {
