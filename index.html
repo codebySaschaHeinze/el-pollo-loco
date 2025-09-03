@@ -31,17 +31,30 @@
   <body onload="init()">
     <nav>
       <div class="nav_content">
-        <a href="/" class="brand">Logo und Marke</a>
+        <a href="/" class="brand">El Pollo Loco</a>
       </div>
     </nav>
     <main>
-      <canvas id="canvas" width="720" height="480"></canvas>
-      <section id="overlay-1" class="overlay_1"></section>
+      <div class="canvas_container">
+        <canvas id="canvas" width="720" height="480"></canvas>
+        <section id="overlay-1" class="overlay_1">
+          <div id="overlay-buttons">
+            <div class="buttons-left">
+              <button id="button-left"><img src="assets/buttons/left.png" alt="Move right button" /></button>
+              <button id="button-right"><img src="assets/buttons/right.png" alt="Move left button" /></button>
+            </div>
+            <div class="buttons-right">
+              <button id="button-jump"><img src="assets/buttons/jump.png" alt="Jump button" /></button>
+              <button id="button-throw"><img src="assets/buttons/throw.png" alt="Throw bottles button" /></button>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
 
     <footer>
       <div class="footer_content">
-        <p>ein fiktives Übungsprojekt</p>
+        <p>Sascha Heinze 2025</p>
         <div class="footer_links">
           <a href="./datenschutz.html">Datenschutz</a>
           <a href="./impressum.html">Impressum</a>
