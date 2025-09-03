@@ -27,6 +27,7 @@ class World {
     this.level.clouds.forEach((c) => c.update && c.update());
     this.addObjectsToMap(this.level.clouds);
     this.addObjectsToMap(this.level.bottlePickups);
+    this.addObjectsToMap(this.level.coinPickups);
     this.addToMap(this.character);
     this.level.enemies.forEach((e) => e.update && e.update());
     this.addObjectsToMap(this.level.enemies);
@@ -62,6 +63,7 @@ class World {
     this.character.world = this;
     this.level.enemies.forEach((e) => (e.world = this));
     this.level.bottlePickups?.forEach((b) => (b.world = this));
+    this.level.coinPickups?.forEach((c) => (c.world = this));
 
     const boss = this.level.endboss || (typeof Endboss !== "undefined" && this.level.enemies.find((e) => e instanceof Endboss));
     if (boss) {
@@ -71,6 +73,7 @@ class World {
       if (!this.level.enemies.includes(boss)) this.level.enemies.push(boss);
     }
     this.updateBottleBar();
+    this.updateMoneyBar();
   }
 
   run() {
@@ -92,6 +95,20 @@ class World {
   }
 
   checkCollisions() {
+    if (this.level.coinPickups && this.level.coinPickups.length) {
+      this.level.coinPickups.forEach((c) => {
+        if (c.collected) return;
+        if (this.boxesCollide(this.character, c)) {
+          if (typeof this.character.addCoin === "function") this.character.addCoin(1);
+          else this.character.coins = (this.character.coins || 0) + 1;
+
+          this.updateMoneyBar();
+          c.collected = true;
+        }
+      });
+      this.level.coinPickups = this.level.coinPickups.filter((c) => !c.collected);
+    }
+
     if (this.level.bottlePickups && this.level.bottlePickups.length) {
       this.level.bottlePickups.forEach((p) => {
         if (p.collected) return;
@@ -244,5 +261,16 @@ class World {
     const pct = this.toBottlePercent();
     console.log("Bottles:", this.character?.bottles, "→ Bar:", pct, "%");
     this.bottleBar.setPercentage(pct);
+  }
+
+  toCoinPercent() {
+    // Standard: 10 Coins = 100%, 0..10 → 0,20,40,60,80,100
+    const coins = Math.min(this.character?.coins || 0, 10);
+    const steps = Math.floor(coins / 2); // 0..5
+    return steps * 20;
+  }
+
+  updateMoneyBar() {
+    this.moneyBar.setPercentage(this.toCoinPercent());
   }
 }

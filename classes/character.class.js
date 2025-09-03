@@ -17,6 +17,7 @@ class Character extends MovableObjects {
   lastVisibleDeadIdx = 0;
   bottles = 0;
   maxBottles = 10;
+  coins = 0;
 
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",
@@ -230,5 +231,9 @@ class Character extends MovableObjects {
 
   addBottle(n = 1) {
     this.bottles = Math.min(this.maxBottles, this.bottles + n);
+  }
+
+  addCoin(n = 1) {
+    this.coins = Math.max(0, (this.coins || 0) + n);
   }
 }

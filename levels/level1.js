@@ -12,6 +12,17 @@ for (let i = 0; i < BOTTLE_COUNT; i++) {
   bottlePickups.push(new Bottles(base + jitter));
 }
 
+const COIN_COUNT = 30;
+const coinPickups = [];
+const coinStep = Math.floor(LEVEL_WIDTH / (COIN_COUNT + 1));
+
+for (let i = 0; i < COIN_COUNT; i++) {
+  const base = 200 + (i + 1) * coinStep;
+  const jitter = Math.floor(Math.random() * 200) - 100;
+  const x = Math.max(120, Math.min(LEVEL_WIDTH - 120, base + jitter));
+  coinPickups.push(new Coins(x));
+}
+
 const clouds = [
   new Cloud(LEVEL_WIDTH, 100),
   new Cloud(LEVEL_WIDTH, 550),
@@ -108,4 +119,4 @@ const enemies = [
 ];
 enemies.push(endboss);
 
-const level1 = new Level(enemies, clouds, backgrounds, bottlePickups);
+const level1 = new Level(enemies, clouds, backgrounds, bottlePickups, coinPickups);
