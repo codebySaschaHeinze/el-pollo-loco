@@ -46,13 +46,14 @@
 }
 
 #overlay-1 {
+  background-image: url("assets/imgs/9_intro_outro_screens/start/startscreen_1.png");
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: rgba(255, 0, 0, 0);
-  z-index: 10;
+  z-index: 12;
 }
 
 #overlay-buttons {
