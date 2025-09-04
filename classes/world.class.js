@@ -33,6 +33,7 @@ class World {
     this.addObjectsToMap(this.level.enemies);
     this.addToMap(this.character);
     this.addObjectsToMap(this.throwableObjects);
+    this.addObjectsToMap(this.level.foregroundObjects);
     this.throwableObjects = this.throwableObjects.filter((b) => !b.gone);
     this.checkCollisions();
     this.ctx.translate(-this.camera_x, 0);
@@ -65,6 +66,7 @@ class World {
     this.level.enemies.forEach((e) => (e.world = this));
     this.level.bottlePickups?.forEach((b) => (b.world = this));
     this.level.coinPickups?.forEach((c) => (c.world = this));
+    this.level.foregroundObjects?.forEach((f) => (f.world = this));
 
     const boss = this.level.endboss || (typeof Endboss !== "undefined" && this.level.enemies.find((e) => e instanceof Endboss));
     if (boss) {

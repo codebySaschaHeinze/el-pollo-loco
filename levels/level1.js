@@ -33,7 +33,7 @@ for (let g = 0; g < COIN_GROUPS; g++) {
 }
 
 const sign1 = new WarningSign(endboss.x - 600);
-const sign2 = new AdventureSign(300);
+const sign2 = new AdventureSign(330);
 const sign3 = new KeepGoingSign(endboss.x - 4000);
 
 const wheel1 = new Wheel1(845);
@@ -43,12 +43,12 @@ const wheel4 = new Wheel1(6400);
 const wheel5 = new Wheel1(5900);
 const wheel6 = new Wheel1(7200);
 
-const wheel7 = new Wheel2(400);
+const wheel7 = new Wheel2(430);
 const wheel8 = new Wheel2(2250);
 const wheel9 = new Wheel2(3400);
 const wheel10 = new Wheel2(6900);
 const wheel11 = new Wheel2(5260);
-const wheel12 = new Wheel2(7500);
+const wheel12 = new Wheel2(7200);
 
 const wheelbarrow1 = new Wheelbarrow(1550);
 const wheelbarrow2 = new Wheelbarrow(6600);
@@ -72,18 +72,33 @@ const lantern8 = new LanternBig(1600);
 const lantern9 = new LanternBig(2300);
 const lantern10 = new LanternBig(3000);
 const lantern11 = new LanternBig(3700);
-const lantern12 = new LanternBig(4700);
-const lantern13 = new LanternBig(5400);
-const lantern14 = new LanternBig(6100);
-const lantern15 = new LanternBig(6800);
-const lantern16 = new LanternBig(7500);
-const lantern17 = new LanternBig(8400);
+const lantern12 = new LanternBig(4400);
+const lantern13 = new LanternBig(5100);
+const lantern14 = new LanternBig(5800);
+const lantern15 = new LanternBig(6500);
+const lantern16 = new LanternBig(7200);
+const lantern17 = new LanternBig(7900);
 
 const guitar1 = new Guitar(190);
 const guitar2 = new Guitar(2600);
 const guitar3 = new Guitar(4020);
 const guitar4 = new Guitar(6090);
 const guitar5 = new Guitar(7475);
+
+const foreground = [
+  new LanternBigTurned(230),
+  new LanternBigTurned(930),
+  new LanternBigTurned(1630),
+  new LanternBigTurned(2330),
+  new LanternBigTurned(3030),
+  new LanternBigTurned(3730),
+  new LanternBigTurned(4430),
+  new LanternBigTurned(5130),
+  new LanternBigTurned(5830),
+  new LanternBigTurned(6530),
+  new LanternBigTurned(7230),
+  new LanternBigTurned(7930),
+];
 
 const skull1 = new Skull(endboss.x - 590);
 
@@ -192,6 +207,9 @@ backgrounds.push(lantern11);
 backgrounds.push(lantern12);
 backgrounds.push(lantern13);
 backgrounds.push(lantern14);
+backgrounds.push(lantern15);
+backgrounds.push(lantern16);
+backgrounds.push(lantern17);
 
 backgrounds.push(guitar1);
 backgrounds.push(guitar2);
@@ -239,4 +257,4 @@ const enemies = [
 ];
 enemies.push(endboss);
 
-const level1 = new Level(enemies, clouds, backgrounds, bottlePickups, coinPickups);
+const level1 = new Level(enemies, clouds, backgrounds, bottlePickups, coinPickups, foreground);
