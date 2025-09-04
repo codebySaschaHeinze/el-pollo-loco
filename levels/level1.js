@@ -24,7 +24,7 @@ const groupStride = Math.floor(usableWidth / COIN_GROUPS);
 for (let g = 0; g < COIN_GROUPS; g++) {
   const base = COIN_MARGIN + g * groupStride;
   const jitter = Math.floor(groupStride * 0.3 * (Math.random() * 2 - 1));
-  const groupX = Math.max(120, Math.min(LEVEL_WIDTH - 120 - (GROUP_SIZE - 1) * COIN_GAP_X, base + jitter));
+  const groupX = Math.max(120, Math.min(LEVEL_WIDTH - 120 - (GROUP_SIZE - 2) * COIN_GAP_X, base + jitter));
 
   for (let i = 0; i < GROUP_SIZE; i++) {
     const x = groupX + i * COIN_GAP_X;
@@ -32,7 +32,8 @@ for (let g = 0; g < COIN_GROUPS; g++) {
   }
 }
 
-const sign = new Signs(endboss.x - 600);
+const sign1 = new WarningSign(endboss.x - 600);
+const sign2 = new AdventureSign(endboss.x - 7700);
 
 const clouds = [
   new Cloud(LEVEL_WIDTH, 100),
@@ -97,7 +98,8 @@ const backgrounds = [
   new BackgroundObjects("assets/imgs/5_background/layers/1_first_layer/full.png", 8540),
 ];
 
-backgrounds.push(sign);
+backgrounds.push(sign1);
+backgrounds.push(sign2);
 
 const enemies = [
   new Chicken(1060),
