@@ -32,6 +32,8 @@ for (let g = 0; g < COIN_GROUPS; g++) {
   }
 }
 
+const sign = new Signs(endboss.x - 600);
+
 const clouds = [
   new Cloud(LEVEL_WIDTH, 100),
   new Cloud(LEVEL_WIDTH, 550),
@@ -94,6 +96,8 @@ const backgrounds = [
   new BackgroundObjects("assets/imgs/5_background/layers/2_second_layer/full.png", 8540),
   new BackgroundObjects("assets/imgs/5_background/layers/1_first_layer/full.png", 8540),
 ];
+
+backgrounds.push(sign);
 
 const enemies = [
   new Chicken(1060),
