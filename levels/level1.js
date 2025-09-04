@@ -83,7 +83,7 @@ const guitar1 = new Guitar(190);
 const guitar2 = new Guitar(2600);
 const guitar3 = new Guitar(4020);
 const guitar4 = new Guitar(6090);
-const guitar5 = new Guitar(7475);
+const guitar5 = new Guitar(7445);
 
 const foreground = [
   new LanternBigForeground(230),
@@ -124,10 +124,10 @@ const clouds = [
 ];
 
 const backgrounds = [
-  new BackgroundObjects("assets/imgs/5_background/layers/air.png", -1240),
-  new BackgroundObjects("assets/imgs/5_background/layers/3_third_layer/full.png", -1240),
-  new BackgroundObjects("assets/imgs/5_background/layers/2_second_layer/full.png", -1240),
-  new BackgroundObjects("assets/imgs/5_background/layers/1_first_layer/full.png", -1240),
+  new BackgroundObjects("assets/imgs/5_background/layers/air.png", -1540),
+  new BackgroundObjects("assets/imgs/5_background/layers/3_third_layer/full.png", -1540),
+  new BackgroundObjects("assets/imgs/5_background/layers/2_second_layer/full.png", -1540),
+  new BackgroundObjects("assets/imgs/5_background/layers/1_first_layer/full.png", -1540),
 
   new BackgroundObjects("assets/imgs/5_background/layers/air.png", -100),
   new BackgroundObjects("assets/imgs/5_background/layers/3_third_layer/full.png", -100),
