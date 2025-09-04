@@ -25,7 +25,7 @@ class Cloud extends MovableObjects {
 
     this.worldWidth = worldWidth;
     this.x = xStart ?? worldWidth + Math.random() * 200;
-    this.y = 10 + Math.random() * 40;
+    this.y = 10 + Math.random() * 50;
     this.speed = 0.1 + Math.random() * 0.4;
 
     this.animate();

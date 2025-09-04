@@ -52,7 +52,7 @@ const wheel12 = new Wheel2(7500);
 
 const wheelbarrow1 = new Wheelbarrow(1550);
 const wheelbarrow2 = new Wheelbarrow(6600);
-const wheelbarrow3 = new Wheelbarrow(7050);
+const wheelbarrow3 = new Wheelbarrow(7010);
 
 const barrel1 = new Barrel(800);
 const barrel2 = new Barrel(1640);
