@@ -34,6 +34,7 @@ for (let g = 0; g < COIN_GROUPS; g++) {
 
 const sign1 = new WarningSign(endboss.x - 600);
 const sign2 = new AdventureSign(endboss.x - 7700);
+const sign3 = new KeepGoingSign(endboss.x - 4000);
 
 const clouds = [
   new Cloud(LEVEL_WIDTH, 100),
@@ -100,6 +101,7 @@ const backgrounds = [
 
 backgrounds.push(sign1);
 backgrounds.push(sign2);
+backgrounds.push(sign3);
 
 const enemies = [
   new Chicken(1060),
