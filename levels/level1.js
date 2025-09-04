@@ -85,6 +85,8 @@ const guitar3 = new Guitar(4020);
 const guitar4 = new Guitar(6090);
 const guitar5 = new Guitar(7445);
 
+const bigSignLegend = new BigSignLegend(330);
+
 const foreground = [
   new LanternBigForeground(230),
   new LanternBigForeground(930),
@@ -218,6 +220,8 @@ backgrounds.push(guitar4);
 backgrounds.push(guitar5);
 
 backgrounds.push(skull1);
+
+backgrounds.push(bigSignLegend);
 
 const enemies = [
   new Chicken(1060),

@@ -8,6 +8,7 @@ class World {
   statusBar = new StatusBar();
   moneyBar = new MoneyBar();
   bottleBar = new BottleBar();
+  // bigSignLegend = new BigSignLegend();
   throwableObjects = [];
 
   constructor(canvas, keyboard) {
@@ -267,9 +268,8 @@ class World {
   }
 
   toCoinPercent() {
-    // Standard: 10 Coins = 100%, 0..10 → 0,20,40,60,80,100
     const coins = Math.min(this.character?.coins || 0, 10);
-    const steps = Math.floor(coins / 2); // 0..5
+    const steps = Math.floor(coins / 2);
     return steps * 20;
   }
 
