@@ -4,6 +4,6 @@ class Wheel1 extends MovableObjects {
     this.width = 70;
     this.height = 70;
     this.x = x;
-    this.y = 427 - this.height;
+    this.y = 426 - this.height;
   }
 }

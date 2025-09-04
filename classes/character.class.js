@@ -1,6 +1,6 @@
 class Character extends MovableObjects {
   y = 180;
-  speed = 6;
+  speed = 10;
   energy = 100;
   lastHitAt = 0;
   invulnMs = 700;
