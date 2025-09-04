@@ -12,8 +12,8 @@ for (let i = 0; i < BOTTLE_COUNT; i++) {
   bottlePickups.push(new Bottles(base + jitter));
 }
 
-const COIN_GROUPS = 10;
-const GROUP_SIZE = 3;
+const COIN_GROUPS = 8;
+const GROUP_SIZE = Math.floor(Math.random() * 2) + 3;
 const COIN_GAP_X = 60;
 const COIN_MARGIN = 200;
 
@@ -35,6 +35,24 @@ for (let g = 0; g < COIN_GROUPS; g++) {
 const sign1 = new WarningSign(endboss.x - 600);
 const sign2 = new AdventureSign(endboss.x - 7700);
 const sign3 = new KeepGoingSign(endboss.x - 4000);
+
+const wheel1 = new Wheel1(1100);
+const wheel2 = new Wheel1(2900);
+const wheel3 = new Wheel1(3700);
+const wheel4 = new Wheel1(6400);
+const wheel5 = new Wheel1(5900);
+const wheel6 = new Wheel1(7200);
+
+const wheel7 = new Wheel2(420);
+const wheel8 = new Wheel2(2300);
+const wheel9 = new Wheel2(3400);
+const wheel10 = new Wheel2(6900);
+const wheel11 = new Wheel2(5300);
+const wheel12 = new Wheel2(7600);
+
+const wheelbarrow1 = new Wheelbarrow(1600);
+const wheelbarrow2 = new Wheelbarrow(6600);
+const wheelbarrow3 = new Wheelbarrow(7400);
 
 const clouds = [
   new Cloud(LEVEL_WIDTH, 100),
@@ -102,6 +120,23 @@ const backgrounds = [
 backgrounds.push(sign1);
 backgrounds.push(sign2);
 backgrounds.push(sign3);
+
+backgrounds.push(wheel1);
+backgrounds.push(wheel2);
+backgrounds.push(wheel3);
+backgrounds.push(wheel4);
+backgrounds.push(wheel5);
+backgrounds.push(wheel6);
+backgrounds.push(wheel7);
+backgrounds.push(wheel8);
+backgrounds.push(wheel9);
+backgrounds.push(wheel10);
+backgrounds.push(wheel11);
+backgrounds.push(wheel12);
+
+backgrounds.push(wheelbarrow1);
+backgrounds.push(wheelbarrow2);
+backgrounds.push(wheelbarrow3);
 
 const enemies = [
   new Chicken(1060),

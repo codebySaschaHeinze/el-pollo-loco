@@ -29,9 +29,9 @@ class World {
     this.addObjectsToMap(this.level.clouds);
     this.addObjectsToMap(this.level.bottlePickups);
     this.addObjectsToMap(this.level.coinPickups);
-    this.addToMap(this.character);
     this.level.enemies.forEach((e) => e.update && e.update());
     this.addObjectsToMap(this.level.enemies);
+    this.addToMap(this.character);
     this.addObjectsToMap(this.throwableObjects);
     this.throwableObjects = this.throwableObjects.filter((b) => !b.gone);
     this.checkCollisions();
