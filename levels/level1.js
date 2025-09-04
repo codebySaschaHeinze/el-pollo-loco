@@ -24,7 +24,7 @@ const groupStride = Math.floor(usableWidth / COIN_GROUPS);
 for (let g = 0; g < COIN_GROUPS; g++) {
   const base = COIN_MARGIN + g * groupStride;
   const jitter = Math.floor(groupStride * 0.3 * (Math.random() * 2 - 1));
-  const groupX = Math.max(120, Math.min(LEVEL_WIDTH - 120 - (GROUP_SIZE - 2) * COIN_GAP_X, base + jitter));
+  const groupX = Math.max(500, Math.min(LEVEL_WIDTH - 120 - (GROUP_SIZE - 2) * COIN_GAP_X, base + jitter));
 
   for (let i = 0; i < GROUP_SIZE; i++) {
     const x = groupX + i * COIN_GAP_X;
