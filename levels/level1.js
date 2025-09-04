@@ -86,18 +86,18 @@ const guitar4 = new Guitar(6090);
 const guitar5 = new Guitar(7475);
 
 const foreground = [
-  new LanternBigTurned(230),
-  new LanternBigTurned(930),
-  new LanternBigTurned(1630),
-  new LanternBigTurned(2330),
-  new LanternBigTurned(3030),
-  new LanternBigTurned(3730),
-  new LanternBigTurned(4430),
-  new LanternBigTurned(5130),
-  new LanternBigTurned(5830),
-  new LanternBigTurned(6530),
-  new LanternBigTurned(7230),
-  new LanternBigTurned(7930),
+  new LanternBigForeground(230),
+  new LanternBigForeground(930),
+  new LanternBigForeground(1630),
+  new LanternBigForeground(2330),
+  new LanternBigForeground(3030),
+  new LanternBigForeground(3730),
+  new LanternBigForeground(4430),
+  new LanternBigForeground(5130),
+  new LanternBigForeground(5830),
+  new LanternBigForeground(6530),
+  new LanternBigForeground(7230),
+  new LanternBigForeground(7930),
 ];
 
 const skull1 = new Skull(endboss.x - 590);
