@@ -1,4 +1,4 @@
-class Wheelbarrow extends MovableObjects {
+class Wheelbarrow extends DrawableObjects {
   constructor(x) {
     super().loadImage("assets/imgs/extras/wheelbarrow.png");
     this.width = 73;

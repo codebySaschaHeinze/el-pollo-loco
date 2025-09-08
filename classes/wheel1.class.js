@@ -1,4 +1,4 @@
-class Wheel1 extends MovableObjects {
+class Wheel1 extends DrawableObjects {
   constructor(x) {
     super().loadImage("assets/imgs/extras/wheel1.png");
     this.width = 70;

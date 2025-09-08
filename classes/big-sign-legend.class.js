@@ -1,4 +1,4 @@
-class BigSignLegend extends MovableObjects {
+class BigSignLegend extends DrawableObjects {
   constructor(x) {
     super().loadImage("assets/imgs/extras/big-sign-legend.png");
     this.width = 300;

@@ -1,4 +1,4 @@
-class LanternBigForeground extends MovableObjects {
+class LanternBigForeground extends DrawableObjects {
   constructor(x) {
     super().loadImage("assets/imgs/extras/lantern-big-foreground.png");
     this.width = 130;

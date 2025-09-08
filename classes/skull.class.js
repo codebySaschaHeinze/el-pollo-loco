@@ -1,4 +1,4 @@
-class Skull extends MovableObjects {
+class Skull extends DrawableObjects {
   constructor(x) {
     super().loadImage("assets/imgs/extras/skull.png");
     this.width = 50;

@@ -1,4 +1,4 @@
-class Barrel extends MovableObjects {
+class Barrel extends DrawableObjects {
   constructor(x) {
     super().loadImage("assets/imgs/extras/barrel.png");
     this.width = 65;

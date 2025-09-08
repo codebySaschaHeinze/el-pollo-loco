@@ -1,4 +1,4 @@
-class KeepGoingSign extends MovableObjects {
+class KeepGoingSign extends DrawableObjects {
   constructor(x) {
     super().loadImage("assets/imgs/extras/keep-going-sign.png");
     this.width = 140;

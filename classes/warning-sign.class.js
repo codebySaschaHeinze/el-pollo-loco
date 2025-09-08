@@ -1,4 +1,4 @@
-class WarningSign extends MovableObjects {
+class WarningSign extends DrawableObjects {
   constructor(x) {
     super().loadImage("assets/imgs/extras/warning-sign.png");
     this.width = 170;

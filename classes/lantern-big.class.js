@@ -1,4 +1,4 @@
-class LanternBig extends MovableObjects {
+class LanternBig extends DrawableObjects {
   constructor(x) {
     super().loadImage("assets/imgs/extras/lantern-big.png");
     this.width = 80;

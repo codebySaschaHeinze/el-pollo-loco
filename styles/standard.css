@@ -5,7 +5,10 @@
 }
 
 body {
-  background-color: rgb(120, 160, 235);
+  background-image: url(../assets/imgs/5_background/big-background.jpg);
+  background-size: cover;
+  background-position: center;
+  /* background-color: rgb(120, 160, 235); */
   margin: 0;
   display: flex;
   min-height: 100vh;

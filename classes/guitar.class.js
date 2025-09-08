@@ -1,4 +1,4 @@
-class Guitar extends MovableObjects {
+class Guitar extends DrawableObjects {
   constructor(x) {
     super().loadImage("assets/imgs/extras/guitar.png");
     this.width = 50;
