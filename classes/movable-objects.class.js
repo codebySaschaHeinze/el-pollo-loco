@@ -6,7 +6,7 @@ class MovableObjects extends DrawableObjects {
   energy = 100;
   lastHit = 0;
 
-  applGravity() {
+  applyGravity() {
     setInterval(() => {
       if (this.world?.paused) return;
       if (this.isAboveGround() || this.speedY > 0) {

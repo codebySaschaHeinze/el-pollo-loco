@@ -27,7 +27,7 @@ class ThrowableObjects extends MovableObjects {
 
   throw() {
     this.speedY = 15;
-    this.applGravity();
+    this.applyGravity();
     this.moveInterval = setInterval(() => {
       if (this.world?.paused) return;
       this.x += 30;

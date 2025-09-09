@@ -83,7 +83,7 @@ class Character extends MovableObjects {
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_IDLE);
     this.lastVisibleDeadIdx = this.IMAGES_DEAD.length - 4;
-    this.applGravity();
+    this.applyGravity();
     this.keyboard = keyboard;
     this.animate();
   }

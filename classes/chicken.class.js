@@ -14,7 +14,7 @@ class Chicken extends MovableObjects {
 
     this.x = xStart;
     this.y = 365 + Math.random() * 10;
-    this.speed = speed ?? 0.8 + Math.random() * 0.7; // 0.8–1.5 px/Frame
+    this.speed = speed ?? 0.8 + Math.random() * 0.7;
 
     this.animate();
   }
@@ -34,7 +34,6 @@ class Chicken extends MovableObjects {
     super.draw(ctx);
     ctx.restore();
 
-    // Nach kompletter Fade-Zeit als "verschwunden" markieren
     if (t >= 1) this.gone = true;
   }
 
@@ -66,5 +65,3 @@ class Chicken extends MovableObjects {
     }
   }
 }
-
-window.Chicken = Chicken;

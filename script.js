@@ -8,59 +8,75 @@ function init() {
   canvas = document.getElementById("canvas");
   keyboard = new Keyboard();
   world = new World(canvas, keyboard);
-  
+
   world.paused = true;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const ovStart   = document.getElementById('overlay-1');
-  const ovSettings= document.getElementById('overlay-settings');
-  const btnStart  = document.getElementById('btn-start');
-  const btnFab    = document.getElementById('btn-settings-fab');
-  const btnClose  = document.getElementById('btn-close-settings');
-  const btnResume = document.getElementById('btn-resume');
-  const resumeRow = document.getElementById('resume-row');
-  const slider = document.getElementById('volume-slider');
-  const lbl    = document.getElementById('volume-value');
+document.addEventListener("DOMContentLoaded", () => {
+  const ovStart = document.getElementById("overlay-1");
+  const ovSettings = document.getElementById("overlay-settings");
+  const btnBack = document.getElementById("btn-back-start");
+  const btnStart = document.getElementById("btn-start");
+  function backToStartHardReset() {
+    location.reload();
+  }
+  const btnFab = document.getElementById("btn-settings-fab");
+  const btnClose = document.getElementById("btn-close-settings");
+  const btnResume = document.getElementById("btn-resume");
+  const resumeRow = document.getElementById("resume-row");
+  const btnBackStart = document.getElementById("btn-back-start");
+  const backRow = document.getElementById("back-row");
+  const slider = document.getElementById("volume-slider");
+  const lbl = document.getElementById("volume-value");
+
+  btnBack?.addEventListener("click", backToStartHardReset);
+
   if (slider && lbl) {
     const setVol = (pct) => {
-      const p = Math.min(100, Math.max(0, Number(pct)||0));
+      const p = Math.min(100, Math.max(0, Number(pct) || 0));
       slider.value = p;
       lbl.textContent = `${p}%`;
-      gameVolume = p/100;
+      gameVolume = p / 100;
       localStorage.setItem("gameVolume", String(gameVolume));
     };
     setVol(Math.round(gameVolume * 100));
-    slider.addEventListener('input', e => setVol(e.target.value));
+    slider.addEventListener("input", (e) => setVol(e.target.value));
   }
 
-  const isInStart = () => ovStart && !ovStart.classList.contains('hidden');
+  const isInStart = () => ovStart && !ovStart.classList.contains("hidden");
 
   function startGame() {
-    ovStart.classList.add('hidden');
+    ovStart.classList.add("hidden");
     if (world) world.paused = false;
   }
 
   function openSettings() {
-   
-    if (resumeRow) resumeRow.classList.toggle('hidden', isInStart());
-    ovSettings.classList.remove('hidden');
-    
-    if (world && !isInStart()) world.paused = true;
+    const inStart = isInStart();
+    if (resumeRow) resumeRow.classList.toggle("hidden", inStart);
+    if (backRow) backRow.classList.toggle("hidden", inStart);
+    ovSettings.classList.remove("hidden");
+    if (world && !inStart) world.paused = true;
   }
 
   function closeSettings() {
-    ovSettings.classList.add('hidden');
-    
+    ovSettings.classList.add("hidden");
     if (world && !isInStart()) world.paused = false;
   }
 
-  btnStart?.addEventListener('click', startGame);
-  btnFab?.addEventListener('click', openSettings);
-  btnClose?.addEventListener('click', closeSettings);
-  btnResume?.addEventListener('click', closeSettings);
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !ovSettings.classList.contains('hidden')) {
+  function backToStart() {
+    ovSettings.classList.add("hidden");
+    ovStart.classList.remove("hidden");
+    if (world) world.paused = true;
+  }
+
+  btnStart?.addEventListener("click", startGame);
+  btnFab?.addEventListener("click", openSettings);
+  btnClose?.addEventListener("click", closeSettings);
+  btnResume?.addEventListener("click", closeSettings);
+  btnBackStart?.addEventListener("click", backToStart);
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !ovSettings.classList.contains("hidden")) {
       closeSettings();
     }
   });
