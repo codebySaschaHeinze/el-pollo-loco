@@ -207,10 +207,10 @@
 
 .settings-fab {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 22px;
+  right: 22px;
   width: 44px;
-  height: 44px;
+  height: 57px;
   padding: 0;
   border: none;
   background: transparent;
@@ -237,6 +237,7 @@
 }
 
 .settings-inner {
+  background-image: url("assets/imgs/extras/setting-background.png");
   min-width: 280px;
   padding: 16px 18px;
   border-radius: 12px;
