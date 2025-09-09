@@ -18,6 +18,7 @@ class Character extends MovableObjects {
   bottles = 0;
   maxBottles = 10;
   coins = 0;
+  maxCoins = 999;
 
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",

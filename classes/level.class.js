@@ -6,6 +6,7 @@ class Level {
   coinPickups = [];
   foregroundObjects = [];
   level_end_x = 8000;
+  totalCoins = 0;
 
   constructor(enemies, clouds, backgroundObjects, bottlePickups = [], coinPickups = [], foregroundObjects = []) {
     this.enemies = enemies;
@@ -14,5 +15,6 @@ class Level {
     this.bottlePickups = bottlePickups;
     this.coinPickups = coinPickups;
     this.foregroundObjects = foregroundObjects;
+    this.totalCoins = this.coinPickups.length;
   }
 }

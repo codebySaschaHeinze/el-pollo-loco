@@ -6,9 +6,8 @@ class World {
   keyboard;
   camera_x = 0;
   statusBar = new StatusBar();
-  moneyBar = new MoneyBar();
   bottleBar = new BottleBar();
-  // bigSignLegend = new BigSignLegend();
+  coinHUD = new CoinHUD();
   throwableObjects = [];
 
   constructor(canvas, keyboard) {
@@ -39,16 +38,15 @@ class World {
     this.checkCollisions();
     this.ctx.translate(-this.camera_x, 0);
     this.addToMap(this.statusBar);
-    this.addToMap(this.moneyBar);
+    this.addToMap(this.coinHUD);
     this.addToMap(this.bottleBar);
 
     requestAnimationFrame(() => this.draw());
   }
 
   addObjectsToMap(objects) {
-    objects.forEach((o) => {
-      this.addToMap(o);
-    });
+    if (!objects || !objects.length) return;
+    objects.forEach((o) => this.addToMap(o));
   }
 
   addToMap(mo) {
@@ -76,8 +74,8 @@ class World {
       this.level.endboss = boss;
       if (!this.level.enemies.includes(boss)) this.level.enemies.push(boss);
     }
+    this.updateCoinHUD();
     this.updateBottleBar();
-    this.updateMoneyBar();
   }
 
   run() {
@@ -106,7 +104,7 @@ class World {
           if (typeof this.character.addCoin === "function") this.character.addCoin(1);
           else this.character.coins = (this.character.coins || 0) + 1;
 
-          this.updateMoneyBar();
+          this.updateCoinHUD();
           c.collected = true;
         }
       });
@@ -273,7 +271,8 @@ class World {
     return steps * 20;
   }
 
-  updateMoneyBar() {
-    this.moneyBar.setPercentage(this.toCoinPercent());
+  updateCoinHUD() {
+    const coins = this.character?.coins || 0;
+    this.coinHUD.setCount(coins);
   }
 }
