@@ -14,11 +14,12 @@
 
     <script defer src="./classes/status-bar.class.js"></script>
     <script defer src="./classes/bottle-bar.class.js"></script>
-    <script defer src="./classes/coin.hud.class.js"></script>
+    <script defer src="./classes/coin-hud.class.js"></script>
     <script defer src="./classes/boss-health-bar.class.js"></script>
 
     <script defer src="./classes/background-objects.class.js"></script>
     <script defer src="./classes/cloud.class.js"></script>
+    <script defer src="./classes/birds.class.js"></script>
 
     <script defer src="./classes/warning-sign.class.js"></script>
     <script defer src="./classes/adventure-sign.class.js"></script>
@@ -58,51 +59,47 @@
     </nav>
     <main>
       <div class="canvas_container">
-  <canvas id="canvas" width="720" height="480"></canvas>
+        <canvas id="canvas" width="720" height="480"></canvas>
 
-  
-  <button id="btn-settings-fab" class="settings-fab" aria-label="Settings">
-    <img src="assets/buttons/settings.png" alt="Settings" />
-  </button>
+        <button id="btn-settings-fab" class="settings-fab" aria-label="Settings">
+          <img src="assets/buttons/settings.png" alt="Settings" />
+        </button>
 
-  
-  <section id="overlay-1" class="overlay_1">
-    <div class="overlay-inner">
-      <div class="menu-buttons">
-        <img id="btn-start" class="menu-btn" src="assets/buttons/start.png" alt="Start" />
-      </div>
+        <section id="overlay-1" class="overlay_1">
+          <div class="overlay-inner">
+            <div class="menu-buttons">
+              <img id="btn-start" class="menu-btn" src="assets/buttons/start.png" alt="Start" />
+            </div>
 
-      <div class="volume-block">
-        <span>Volume</span>
-        <input id="volume-slider" type="range" min="0" max="100" step="1" />
-        <span id="volume-value">100%</span>
-      </div>
-    </div>
-  </section>
+            <div class="volume-block">
+              <span>Volume</span>
+              <input id="volume-slider" type="range" min="0" max="100" step="1" />
+              <span id="volume-value">100%</span>
+            </div>
+          </div>
+        </section>
 
-  
-  <section id="overlay-settings" class="overlay_settings hidden">
-    <div class="settings-inner">
-      <h2>Einstellungen</h2>
+        <section id="overlay-settings" class="overlay_settings hidden">
+          <div class="settings-inner">
+            <h2>Einstellungen</h2>
 
-      <div id="resume-row" class="settings-row hidden">
-        <button id="btn-resume" class="settings-action">Resume</button>
-      </div>
-        <div id="back-row" class="settings-row hidden">
-      <button id="btn-back-start" class="settings-action">Zurück zum Start</button>
-    </div>
-      <div class="settings-row">
-        <a href="./datenschutz.html" target="_blank" rel="noopener">Privacy</a>
-        <a href="./impressum.html"  target="_blank" rel="noopener">Imprint</a>
-      </div>
+            <div id="resume-row" class="settings-row hidden">
+              <button id="btn-resume" class="settings-action">Zum Spiel</button>
+            </div>
+            <div id="back-row" class="settings-row hidden">
+              <button id="btn-back-start" class="settings-action">Zurück zum Start</button>
+            </div>
+            <div class="settings-row">
+              <a href="./datenschutz.html" target="_blank" rel="noopener">Datenschutz</a>
+              <a href="./impressum.html" target="_blank" rel="noopener">Impressum</a>
+            </div>
 
-      <div class="settings-row">
-        
-        <button id="btn-close-settings" class="settings-action">Close</button>
-      </div>
-    </div>
-  </section>
-  <!-- <div id="overlay-buttons">
+            <div class="settings-row">
+              <button id="btn-close-settings" class="settings-action">Schließen</button>
+            </div>
+          </div>
+        </section>
+        <!-- <div id="overlay-buttons">
             <div class="buttons-left">
               <button id="button-left"><img src="assets/buttons/left.png" alt="Move right button" /></button>
               <button id="button-right"><img src="assets/buttons/right.png" alt="Move left button" /></button>
@@ -112,8 +109,7 @@
               <button id="button-throw"><img src="assets/buttons/throw.png" alt="Throw bottles button" /></button>
             </div>
           </div> -->
-</div>
-
+      </div>
     </main>
 
     <footer>

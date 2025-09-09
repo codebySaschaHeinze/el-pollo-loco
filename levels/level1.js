@@ -32,6 +32,16 @@ for (let g = 0; g < COIN_GROUPS; g++) {
   }
 }
 
+const BIRD_COUNT = 12;
+const birds = [];
+const stride = Math.floor(LEVEL_WIDTH / (BIRD_COUNT - 2));
+
+for (let i = 0; i < BIRD_COUNT; i++) {
+  const jitter = Math.random() * 200 - 100; // bisschen Streuung
+  const x = -400 + i * stride + jitter; // beginnt teils links außerhalb
+  birds.push(new Birds(LEVEL_WIDTH, x));
+}
+
 const sign1 = new WarningSign(endboss.x - 600);
 const sign2 = new AdventureSign(330);
 const sign3 = new KeepGoingSign(endboss.x - 4000);
@@ -261,4 +271,4 @@ const enemies = [
 ];
 enemies.push(endboss);
 
-const level1 = new Level(enemies, clouds, backgrounds, bottlePickups, coinPickups, foreground);
+const level1 = new Level(enemies, clouds, backgrounds, bottlePickups, coinPickups, foreground, birds);

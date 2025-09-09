@@ -23,46 +23,49 @@ class World {
   }
 
   draw() {
-  this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  this.ctx.translate(this.camera_x, 0);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.translate(this.camera_x, 0);
 
-  this.addObjectsToMap(this.level.backgroundObjects);
+    this.addObjectsToMap(this.level.backgroundObjects);
 
-  if (!this.paused) {                         // ⟵ neu
-    this.level.clouds.forEach(c => c.update && c.update());
+    if (!this.paused) {
+      this.level.clouds.forEach((c) => c.update && c.update());
+    }
+    this.addObjectsToMap(this.level.clouds);
+
+    if (!this.paused) {
+      this.level.birds?.forEach((b) => b.update && b.update());
+    }
+    this.addObjectsToMap(this.level.birds);
+
+    this.addObjectsToMap(this.level.bottlePickups);
+    this.addObjectsToMap(this.level.coinPickups);
+
+    if (!this.paused) {
+      this.level.enemies.forEach((e) => e.update && e.update());
+    }
+    this.addObjectsToMap(this.level.enemies);
+
+    const boss = this.level.endboss;
+    if (boss && boss.healthBar) this.addToMap(boss.healthBar);
+
+    this.addToMap(this.character);
+    this.addObjectsToMap(this.throwableObjects);
+    this.throwableObjects = this.throwableObjects.filter((b) => !b.gone);
+
+    this.addObjectsToMap(this.level.foregroundObjects);
+
+    if (!this.paused) {
+      this.checkCollisions();
+    }
+
+    this.ctx.translate(-this.camera_x, 0);
+    this.addToMap(this.statusBar);
+    this.addToMap(this.coinHUD);
+    this.addToMap(this.bottleBar);
+
+    requestAnimationFrame(() => this.draw());
   }
-  this.addObjectsToMap(this.level.clouds);
-
-  this.addObjectsToMap(this.level.bottlePickups);
-  this.addObjectsToMap(this.level.coinPickups);
-
-  if (!this.paused) {                         // ⟵ neu
-    this.level.enemies.forEach(e => e.update && e.update());
-  }
-  this.addObjectsToMap(this.level.enemies);
-
-  const boss = this.level.endboss;
-  if (boss && boss.healthBar) this.addToMap(boss.healthBar);
-
-  this.addToMap(this.character);
-  this.addObjectsToMap(this.throwableObjects);
-
-  this.addObjectsToMap(this.level.foregroundObjects);
-
-  
-  if (!this.paused) { 
-    this.checkCollisions();
-  }
-
-  this.ctx.translate(-this.camera_x, 0);
-  this.addToMap(this.statusBar);
-  this.addToMap(this.coinHUD);
-  this.addToMap(this.bottleBar);
-
-  requestAnimationFrame(() => this.draw());
-}
-
-
 
   addObjectsToMap(objects) {
     if (!objects || !objects.length) return;
@@ -87,10 +90,16 @@ class World {
     this.level.coinPickups?.forEach((c) => (c.world = this));
     this.level.foregroundObjects?.forEach((f) => (f.world = this));
 
+    if (!this.level.birds || !this.level.birds.length) {
+      const W = this.level?.level_end_x || 8000;
+      this.level.birds = Birds.spawnFlock(50, W);
+    }
+    this.level.birds.forEach((b) => (b.world = this));
+
     const boss = this.level.endboss || (typeof Endboss !== "undefined" && this.level.enemies.find((e) => e instanceof Endboss));
     if (boss) {
       boss.world = this;
-      if (boss.healthBar) boss.healthBar.world = this; // ← WICHTIG
+      if (boss.healthBar) boss.healthBar.world = this;
       boss.startSpawning();
       this.level.endboss = boss;
       if (!this.level.enemies.includes(boss)) this.level.enemies.push(boss);
@@ -107,8 +116,7 @@ class World {
   }
 
   checkThrowObjects() {
-    
-    if (this.paused) return; 
+    if (this.paused) return;
 
     if (this.keyboard.SPACE && this.character.canThrowBottle && this.character.canThrowBottle()) {
       const bottle = new ThrowableObjects(this.character.x + 50, this.character.y + 50);
@@ -287,12 +295,6 @@ class World {
   updateBottleBar() {
     const pct = this.toBottlePercent();
     this.bottleBar.setPercentage(pct);
-  }
-
-  toCoinPercent() {
-    const coins = Math.min(this.character?.coins || 0, 10);
-    const steps = Math.floor(coins / 2);
-    return steps * 20;
   }
 
   updateCoinHUD() {
