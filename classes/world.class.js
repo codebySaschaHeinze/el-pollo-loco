@@ -31,6 +31,10 @@ class World {
     this.addObjectsToMap(this.level.coinPickups);
     this.level.enemies.forEach((e) => e.update && e.update());
     this.addObjectsToMap(this.level.enemies);
+    const boss = this.level.endboss;
+    if (boss && boss.healthBar) {
+      this.addToMap(boss.healthBar);
+    }
     this.addToMap(this.character);
     this.addObjectsToMap(this.throwableObjects);
     this.addObjectsToMap(this.level.foregroundObjects);
@@ -70,10 +74,12 @@ class World {
     const boss = this.level.endboss || (typeof Endboss !== "undefined" && this.level.enemies.find((e) => e instanceof Endboss));
     if (boss) {
       boss.world = this;
+      if (boss.healthBar) boss.healthBar.world = this; // ← WICHTIG
       boss.startSpawning();
       this.level.endboss = boss;
       if (!this.level.enemies.includes(boss)) this.level.enemies.push(boss);
     }
+
     this.updateCoinHUD();
     this.updateBottleBar();
   }

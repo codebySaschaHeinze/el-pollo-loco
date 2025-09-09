@@ -20,7 +20,7 @@ class CoinHUD extends DrawableObjects {
     ctx.font = "24px ubuntu";
     ctx.lineWidth = 4;
     ctx.strokeStyle = "rgba(0,0,0,.6)";
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = "#f2d21eff";
     const text = String(this.count);
     const tx = this.x + this.width + 8;
     const ty = this.y + this.height - 25;

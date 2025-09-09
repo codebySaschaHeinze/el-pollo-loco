@@ -67,6 +67,8 @@ class Endboss extends MovableObjects {
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_ATTACK);
     this.loadImages(this.IMAGES_HURT);
+    this.maxEnergy = this.energy;
+    this.healthBar = new BossHealthBar(this);
     this.loadImages(this.IMAGES_DEAD);
     this.animate();
     this.lastAttackAt = Date.now();
@@ -201,6 +203,9 @@ class Endboss extends MovableObjects {
   takeHit(damage = 10) {
     if (this.dead || this.dying) return;
     this.energy = Math.max(0, this.energy - damage);
+    if (this.healthBar) {
+      this.healthBar.setPercentage((this.energy / this.maxEnergy) * 100);
+    }
     if (this.energy <= 0) {
       this.die();
     } else {
