@@ -8,39 +8,47 @@
     <link rel="stylesheet" href="./styles/assets.css" />
     <link rel="stylesheet" href="./styles/standard.css" />
     <link rel="stylesheet" href="./styles/fonts.css" />
-    <script src="./classes/drawable-objects.class.js" defer></script>
-    <script src="./classes/movable-objects.class.js" defer></script>
-    <script src="./classes/warning-sign.class.js" defer></script>
-    <script src="./classes/adventure-sign.class.js" defer></script>
-    <script src="./classes/keep-going-sign.class.js" defer></script>
-    <script src="./classes/wheel1.class.js" defer></script>
-    <script src="./classes/wheel2.class.js" defer></script>
-    <script src="./classes/wheelbarrow.class.js" defer></script>
-    <script src="./classes/barrel.class.js" defer></script>
-    <script src="./classes/lantern-small.class.js" defer></script>
-    <script src="./classes/lantern-big.class.js" defer></script>
-    <script src="./classes/lantern-big-foreground.class.js" defer></script>
-    <script src="./classes/guitar.class.js" defer></script>
-    <script src="./classes/skull.class.js" defer></script>
-    <script src="./classes/big-sign-legend.class.js" defer></script>
-    <script src="./classes/character.class.js" defer></script>
-    <script src="./classes/chicken.class.js" defer></script>
-    <script src="./classes/chick.class.js" defer></script>
-    <script src="./classes/endboss.class.js" defer></script>
-    <script src="./classes/boss-health-bar.class.js"></script>
-    <script src="./classes/cloud.class.js" defer></script>
-    <script src="./classes/status-bar.class.js" defer></script>
-    <script src="./classes/coin.hud.class.js" defer></script>
-    <script src="./classes/bottle-bar.class.js" defer></script>
-    <script src="./classes/bottles.class.js" defer></script>
-    <script src="./classes/coins.class.js" defer></script>
-    <script src="./classes/background-objects.class.js" defer></script>
-    <script src="./classes/level.class.js" defer></script>
-    <script src="./classes/throwable-objects.class.js" defer></script>
-    <script src="./classes/world.class.js" defer></script>
-    <script src="./classes/keyboard.class.js" defer></script>
-    <script src="./levels/level1.js" defer></script>
-    <script src="./script.js" defer></script>
+
+    <script defer src="./classes/drawable-objects.class.js"></script>
+    <script defer src="./classes/movable-objects.class.js"></script>
+
+    <script defer src="./classes/status-bar.class.js"></script>
+    <script defer src="./classes/bottle-bar.class.js"></script>
+    <script defer src="./classes/coin.hud.class.js"></script>
+    <script defer src="./classes/boss-health-bar.class.js"></script>
+
+    <script defer src="./classes/background-objects.class.js"></script>
+    <script defer src="./classes/cloud.class.js"></script>
+
+    <script defer src="./classes/warning-sign.class.js"></script>
+    <script defer src="./classes/adventure-sign.class.js"></script>
+    <script defer src="./classes/keep-going-sign.class.js"></script>
+    <script defer src="./classes/wheel1.class.js"></script>
+    <script defer src="./classes/wheel2.class.js"></script>
+    <script defer src="./classes/wheelbarrow.class.js"></script>
+    <script defer src="./classes/barrel.class.js"></script>
+    <script defer src="./classes/lantern-small.class.js"></script>
+    <script defer src="./classes/lantern-big.class.js"></script>
+    <script defer src="./classes/lantern-big-foreground.class.js"></script>
+    <script defer src="./classes/guitar.class.js"></script>
+    <script defer src="./classes/skull.class.js"></script>
+    <script defer src="./classes/big-sign-legend.class.js"></script>
+
+    <script defer src="./classes/character.class.js"></script>
+    <script defer src="./classes/chicken.class.js"></script>
+    <script defer src="./classes/chick.class.js"></script>
+    <script defer src="./classes/endboss.class.js"></script>
+
+    <script defer src="./classes/bottles.class.js"></script>
+    <script defer src="./classes/coins.class.js"></script>
+    <script defer src="./classes/throwable-objects.class.js"></script>
+
+    <script defer src="./classes/level.class.js"></script>
+    <script defer src="./levels/level1.js"></script>
+
+    <script defer src="./classes/world.class.js"></script>
+    <script defer src="./classes/keyboard.class.js"></script>
+    <script defer src="./script.js"></script>
   </head>
   <body onload="init()">
     <nav>
@@ -50,9 +58,49 @@
     </nav>
     <main>
       <div class="canvas_container">
-        <canvas id="canvas" width="720" height="480"></canvas>
-        <section id="overlay-1" class="overlay_1">
-          <div id="overlay-buttons">
+  <canvas id="canvas" width="720" height="480"></canvas>
+
+  <!-- immer sichtbarer Settings-Button -->
+  <button id="btn-settings-fab" class="settings-fab" aria-label="Settings">
+    <img src="assets/buttons/settings.png" alt="Settings" />
+  </button>
+
+  <!-- START-OVERLAY -->
+  <section id="overlay-1" class="overlay_1">
+    <div class="overlay-inner">
+      <div class="menu-buttons">
+        <img id="btn-start" class="menu-btn" src="assets/buttons/start.png" alt="Start" />
+      </div>
+
+      <div class="volume-block">
+        <span>Volume</span>
+        <input id="volume-slider" type="range" min="0" max="100" step="1" />
+        <span id="volume-value">100%</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS-OVERLAY (nicht im Start-Overlay verschachteln!) -->
+  <section id="overlay-settings" class="overlay_settings hidden">
+    <div class="settings-inner">
+      <h2>Settings</h2>
+
+      <div id="resume-row" class="settings-row hidden">
+        <button id="btn-resume" class="settings-action">Resume</button>
+      </div>
+
+      <div class="settings-row">
+        <a href="./datenschutz.html" target="_blank" rel="noopener">Privacy</a>
+        <a href="./impressum.html"  target="_blank" rel="noopener">Imprint</a>
+      </div>
+
+      <div class="settings-row">
+        
+        <button id="btn-close-settings" class="settings-action">Close</button>
+      </div>
+    </div>
+  </section>
+  <!-- <div id="overlay-buttons">
             <div class="buttons-left">
               <button id="button-left"><img src="assets/buttons/left.png" alt="Move right button" /></button>
               <button id="button-right"><img src="assets/buttons/right.png" alt="Move left button" /></button>
@@ -61,9 +109,9 @@
               <button id="button-jump"><img src="assets/buttons/jump.png" alt="Jump button" /></button>
               <button id="button-throw"><img src="assets/buttons/throw.png" alt="Throw bottles button" /></button>
             </div>
-          </div>
-        </section>
-      </div>
+          </div> -->
+</div>
+
     </main>
 
     <footer>

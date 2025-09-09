@@ -36,16 +36,199 @@
 }
 
 .canvas_container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   position: relative;
-  width: 720px;
-  height: 480px;
-  margin: 0 auto;
 }
 
-#overlay-1 {
+.overlay_1 {
+  position: absolute;
+  inset: 0;
+  background: url("assets/imgs/5_background/start-background.png");
+  background-position: center;
+  background-size: 101%;
+  z-index: 5;
+}
+
+.overlay_1::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.overlay-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-btn {
+  margin-top: 200px;
+  width: 120px;
+  height: auto;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 120ms ease, filter 120ms ease;
+}
+.menu-btn:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
+}
+.menu-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
+
+.volume-block {
+  display: grid;
+  grid-template-columns: 50px 100px 40px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: #fff;
+  font-family: var(--hud-font, "Rye", "Rockwell", serif);
+  margin-top: 55px;
+}
+#volume-slider {
+  width: 100%;
+}
+.hidden {
+  display: none;
+}
+
+
+.settings-btn{
+  position:absolute;
+  top:12px; right:12px;
+  z-index: 8;                 
+  width:40px; height:40px;
+  border:none; border-radius:10px;
+  background: rgba(0,0,0,0.45);
+  color:#fff; font-size:20px; line-height:40px;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition: transform .12s ease, filter .12s ease, background .12s ease;
+}
+.settings-btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+.settings-btn:active{ transform: translateY(0);    filter: brightness(0.95); }
+.settings-btn img{ width:100%; height:100%; object-fit: contain; }
+
+/* Settings-Overlay */
+.overlay_settings{
+  position:absolute; inset:0;
+  z-index: 9;                 /* über allem */
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(2px);
+}
+.overlay_settings.hidden{ display:none; 
+}
+
+.settings-inner{
+  min-width: 260px;
+  display:flex; flex-direction:column; gap:12px; align-items:center;
+  padding:16px 18px;
+  background: rgba(0,0,0,0.70);
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  color:#fff;
+  font-family: var(--hud-font, "Rye", "Rockwell", serif);
+}
+
+.menu-link{
+  width: 100%;
+  padding: 10px 14px;
+  border:1px solid rgba(255,255,255,0.25);
+  border-radius:10px;
+  background: rgba(255,255,255,0.08);
+  color:#fff; cursor:pointer;
+  text-align:center;
+}
+.menu-link.subtle{
+  background: transparent;
+  border-color: rgba(255,255,255,0.15);
+}
+.menu-link:hover{ filter: brightness(1.1); }
+
+.legal-links{
+  display:flex; gap:12px; align-items:center; justify-content:center;
+}
+.legal-links a{
+  color:#fff; text-decoration: underline;
+  opacity: .9;
+}
+.legal-links a:hover{ opacity: 1; }
+
+.settings-fab {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 9; /* über Start-Overlay (das hat bei dir z-index:5) */
+}
+.settings-fab img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* simples Settings-Overlay */
+.overlay_settings {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0,0,0,.45);
+  z-index: 10;
+}
+.overlay_settings.hidden { display: none; }
+
+.settings-inner {
+  min-width: 280px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: rgba(20, 18, 16, .85);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.15);
+  font-family: var(--hud-font, "Rye", "Rockwell", serif);
+  display: grid;
+  gap: 12px;
+}
+.settings-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+.settings-action {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  cursor: pointer;
+}
+.hidden { display: none; }
+
+
+/* #overlay-1 {
   background-image: url("assets/imgs/9_intro_outro_screens/start/startscreen_1.png");
   position: absolute;
   top: 0;
@@ -54,9 +237,9 @@
   height: 100%;
   background: rgba(255, 0, 0, 0);
   z-index: 12;
-}
+} */
 
-#overlay-buttons {
+/* #overlay-buttons {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -68,7 +251,7 @@
   height: 100%;
 
   z-index: 11;
-}
+} */
 
 .buttons-left {
   display: flex;

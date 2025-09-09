@@ -68,7 +68,9 @@ class Endboss extends MovableObjects {
     this.loadImages(this.IMAGES_ATTACK);
     this.loadImages(this.IMAGES_HURT);
     this.maxEnergy = this.energy;
-    this.healthBar = new BossHealthBar(this);
+    if (typeof BossHealthBar !== "undefined") {
+      this.healthBar = new BossHealthBar(this);
+    }
     this.loadImages(this.IMAGES_DEAD);
     this.animate();
     this.lastAttackAt = Date.now();
@@ -144,9 +146,8 @@ class Endboss extends MovableObjects {
 
     const now = Date.now();
     const c = this.world?.character;
-    let moved = 0; // ← hier merken wir die X-Bewegung dieses Frames
+    let moved = 0;
 
-    // ATTACK
     if (this.attacking && now < this.attackUntil) {
       let dir = this._dir ?? -1;
       if (c) {

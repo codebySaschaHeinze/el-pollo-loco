@@ -1,17 +1,20 @@
 class DrawableObjects {
   x = 0;
-  img;
+  img = null;
   width = 80;
   height = 150;
   imageCache = {};
   currentImage = 0;
 
   loadImage(path) {
-    this.img = new Image();
-    this.img.src = path;
+    const img = new Image();
+    img.src = path;
+    this.img = img;
+    this.imageCache[path] = img;
   }
 
   loadImages(arr) {
+    if (!arr || typeof arr.forEach !== "function") return;
     arr.forEach((path) => {
       const img = new Image();
       img.src = path;
@@ -20,6 +23,7 @@ class DrawableObjects {
   }
 
   draw(ctx) {
+    if (!this.img) return;
     ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
   }
 

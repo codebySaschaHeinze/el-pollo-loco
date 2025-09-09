@@ -9,6 +9,7 @@ class World {
   bottleBar = new BottleBar();
   coinHUD = new CoinHUD();
   throwableObjects = [];
+  paused = false;
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -21,32 +22,40 @@ class World {
     this.run();
   }
 
-  draw() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.translate(this.camera_x, 0);
-    this.addObjectsToMap(this.level.backgroundObjects);
-    this.level.clouds.forEach((c) => c.update && c.update());
-    this.addObjectsToMap(this.level.clouds);
-    this.addObjectsToMap(this.level.bottlePickups);
-    this.addObjectsToMap(this.level.coinPickups);
-    this.level.enemies.forEach((e) => e.update && e.update());
-    this.addObjectsToMap(this.level.enemies);
-    const boss = this.level.endboss;
-    if (boss && boss.healthBar) {
-      this.addToMap(boss.healthBar);
-    }
-    this.addToMap(this.character);
-    this.addObjectsToMap(this.throwableObjects);
-    this.addObjectsToMap(this.level.foregroundObjects);
-    this.throwableObjects = this.throwableObjects.filter((b) => !b.gone);
-    this.checkCollisions();
-    this.ctx.translate(-this.camera_x, 0);
-    this.addToMap(this.statusBar);
-    this.addToMap(this.coinHUD);
-    this.addToMap(this.bottleBar);
+  draw(){
+  this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+  this.ctx.translate(this.camera_x, 0);
 
-    requestAnimationFrame(() => this.draw());
+  this.addObjectsToMap(this.level.backgroundObjects);
+
+  if (!this.paused) this.level.clouds.forEach(c=>c.update && c.update());
+  this.addObjectsToMap(this.level.clouds);
+
+  this.addObjectsToMap(this.level.bottlePickups);
+  this.addObjectsToMap(this.level.coinPickups);
+
+  if (!this.paused) this.level.enemies.forEach(e=>e.update && e.update());
+  this.addObjectsToMap(this.level.enemies);
+
+  const boss = this.level.endboss;
+  if (boss && boss.healthBar) this.addToMap(boss.healthBar);
+
+  this.addToMap(this.character);
+  this.addObjectsToMap(this.throwableObjects);
+
+  if (!this.paused){
+    this.throwableObjects = this.throwableObjects.filter(b=>!b.gone);
+    this.checkCollisions();
   }
+
+  this.ctx.translate(-this.camera_x, 0);
+  this.addToMap(this.statusBar);
+  this.addToMap(this.coinHUD);
+  this.addToMap(this.bottleBar);
+
+  requestAnimationFrame(()=>this.draw());
+}
+
 
   addObjectsToMap(objects) {
     if (!objects || !objects.length) return;
@@ -91,6 +100,8 @@ class World {
   }
 
   checkThrowObjects() {
+    if (this.paused) return; 
+
     if (this.keyboard.SPACE && this.character.canThrowBottle && this.character.canThrowBottle()) {
       const bottle = new ThrowableObjects(this.character.x + 50, this.character.y + 50);
       bottle.world = this;
@@ -267,7 +278,6 @@ class World {
 
   updateBottleBar() {
     const pct = this.toBottlePercent();
-    console.log("Bottles:", this.character?.bottles, "→ Bar:", pct, "%");
     this.bottleBar.setPercentage(pct);
   }
 
