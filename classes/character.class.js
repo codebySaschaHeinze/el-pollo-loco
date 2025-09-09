@@ -130,6 +130,7 @@ class Character extends MovableObjects {
   animate() {
     this.moveInterval = setInterval(() => {
       if (this.isDead()) return;
+      if (this.world?.paused) return;
 
       if (this.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
         this.moveRight();
@@ -165,6 +166,7 @@ class Character extends MovableObjects {
         }
         return;
       }
+      if (this.world?.paused) return;
 
       if (this.isHurt && this.isHurt()) {
         this.playAnimation(this.IMAGES_HURT);

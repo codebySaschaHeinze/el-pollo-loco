@@ -111,7 +111,8 @@
 
 .settings-btn{
   position:absolute;
-  top:12px; right:12px;
+  top:12px; 
+  right:12px;
   z-index: 8;                 
   width:40px; height:40px;
   border:none; border-radius:10px;
@@ -121,11 +122,22 @@
   display:flex; align-items:center; justify-content:center;
   transition: transform .12s ease, filter .12s ease, background .12s ease;
 }
-.settings-btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
-.settings-btn:active{ transform: translateY(0);    filter: brightness(0.95); }
-.settings-btn img{ width:100%; height:100%; object-fit: contain; }
+.settings-btn:hover {
+   transform: translateY(-1px); 
+   filter: brightness(1.1); 
+  }
 
-/* Settings-Overlay */
+.settings-btn:active{
+   transform: scale(1.05);    
+   filter: brightness(0.95); 
+  }
+  
+.settings-btn img{ 
+  width:100%; 
+  height:100%; 
+  object-fit: contain; }
+
+
 .overlay_settings{
   position:absolute; inset:0;
   z-index: 9;                 /* über allem */
@@ -181,7 +193,7 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  z-index: 9; /* über Start-Overlay (das hat bei dir z-index:5) */
+  z-index: 9; 
 }
 .settings-fab img {
   width: 100%;
@@ -190,7 +202,6 @@
   pointer-events: none;
 }
 
-/* simples Settings-Overlay */
 .overlay_settings {
   position: absolute;
   inset: 0;

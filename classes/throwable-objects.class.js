@@ -29,6 +29,7 @@ class ThrowableObjects extends MovableObjects {
     this.speedY = 15;
     this.applGravity();
     this.moveInterval = setInterval(() => {
+      if (this.world?.paused) return;
       this.x += 30;
     }, 50);
   }
@@ -45,6 +46,7 @@ class ThrowableObjects extends MovableObjects {
   }
 
   draw(ctx) {
+    if (this.world?.paused) return;
     if (this.breaking) {
       const t = Math.min((Date.now() - this.brokenAt) / this.breakDuration, 1);
       const idx = Math.min(Math.floor(t * this.IMAGES_BREAK.length), this.IMAGES_BREAK.length - 1);

@@ -106,6 +106,7 @@ class Endboss extends MovableObjects {
   }
 
   animate() {
+    if (this.world?.paused) return;
     this.animInterval = setInterval(() => {
       if (this.dying) {
         const last = this.IMAGES_DEAD.length - 1;

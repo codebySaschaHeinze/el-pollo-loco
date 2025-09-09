@@ -48,6 +48,7 @@ class Chicken extends MovableObjects {
   }
 
   animate() {
+    if (this.world?.paused) return;
     this.walkInterval = setInterval(() => {
       this.playAnimation(this.IMAGES_WALKING);
     }, 100);
