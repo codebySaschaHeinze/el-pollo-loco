@@ -1,4 +1,4 @@
-class AdventureSign extends MovableObjects {
+class AdventureSign extends DrawableObjects {
   constructor(x) {
     super().loadImage("assets/imgs/extras/adventure-sign.png");
     this.width = 140;
