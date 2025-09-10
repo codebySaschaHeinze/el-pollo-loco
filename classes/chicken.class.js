@@ -4,6 +4,7 @@ class Chicken extends MovableObjects {
     "assets/imgs/3_enemies_chicken/chicken_normal/1_walk/2_w.png",
     "assets/imgs/3_enemies_chicken/chicken_normal/1_walk/3_w.png",
   ];
+
   currentImage = 0;
   width = 48;
   height = 62;
@@ -11,11 +12,9 @@ class Chicken extends MovableObjects {
   constructor(xStart = 0, speed = null) {
     super().loadImage("assets/imgs/3_enemies_chicken/chicken_normal/1_walk/1_w.png");
     this.loadImages(this.IMAGES_WALKING);
-
     this.x = xStart;
     this.y = 365 + Math.random() * 10;
     this.speed = speed ?? 0.8 + Math.random() * 0.7;
-
     this.animate();
   }
 
@@ -28,12 +27,10 @@ class Chicken extends MovableObjects {
     const elapsed = Date.now() - (this.deadAt || 0);
     const t = Math.min(elapsed / (this.fadeDuration || 2000), 1);
     const alpha = 1 - t;
-
     ctx.save();
     ctx.globalAlpha = alpha;
     super.draw(ctx);
     ctx.restore();
-
     if (t >= 1) this.gone = true;
   }
 

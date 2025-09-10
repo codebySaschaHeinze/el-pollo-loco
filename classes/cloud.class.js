@@ -15,16 +15,15 @@ class Cloud extends MovableObjects {
     "assets/imgs/5_background/layers/4_clouds/9.png",
     "assets/imgs/5_background/layers/4_clouds/10.png",
   ];
+
   constructor(worldWidth, xStart = null) {
     super();
     const rand = (arr) => arr[(Math.random() * arr.length) | 0];
     this.loadImage(rand(this.IMAGES));
-
     this.worldWidth = worldWidth;
     this.x = xStart ?? worldWidth + Math.random() * 200;
     this.y = 1 + Math.random() * 50;
     this.speed = 0.1 + Math.random() * 0.4;
-
     this.animate();
   }
 

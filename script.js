@@ -165,14 +165,10 @@ window.addEventListener("keyup", (event) => {
 function showResult(type) {
   const ov = document.getElementById("overlay-result");
   const img = document.getElementById("result-img");
-
   const WIN_IMG = "assets/imgs/You_won_you_lost/won.png";
   const LOSE_IMG = "assets/imgs/You_won_you_lost/lost.png";
-
   img.src = type === "win" ? WIN_IMG : LOSE_IMG;
-
   if (window.world) world.paused = true;
-
   ov.classList.remove("hidden");
   void ov.offsetWidth;
   ov.classList.add("show");

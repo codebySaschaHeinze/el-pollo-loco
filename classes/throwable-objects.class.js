@@ -42,7 +42,6 @@ class ThrowableObjects extends MovableObjects {
     if (this.moveInterval) {
       clearInterval(this.moveInterval);
       this.moveInterval = null;
-
       const a = window.SFX?.bottleBreak;
       if (a) {
         try {
@@ -61,7 +60,6 @@ class ThrowableObjects extends MovableObjects {
       const idx = Math.min(Math.floor(t * this.IMAGES_BREAK.length), this.IMAGES_BREAK.length - 1);
       const frame = this.IMAGES_BREAK[idx];
       const img = this.imageCache[frame];
-
       if (img) {
         ctx.save();
         ctx.globalAlpha = 1;
@@ -78,14 +76,11 @@ class ThrowableObjects extends MovableObjects {
       return;
     }
     ctx.save();
-
     ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
     ctx.rotate(this.angle);
     ctx.translate(-this.width / 2, -this.height / 2);
-
     ctx.drawImage(this.img, 0, 0, this.width, this.height);
     ctx.restore();
-
     this.angle += 0.25;
   }
 }

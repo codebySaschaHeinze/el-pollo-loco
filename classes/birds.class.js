@@ -14,7 +14,7 @@ class Birds extends MovableObjects {
     const arr = [];
     const stride = worldWidth / (n + 1);
     for (let i = 0; i < n; i++) {
-      const jitter = (Math.random() - 0.5) * stride * 0.4; // leichte Streuung
+      const jitter = (Math.random() - 0.5) * stride * 0.4;
       const x = Math.max(-200, Math.min(worldWidth + 200, Math.floor((i + 1) * stride + jitter)));
       const b = new Birds(worldWidth, x);
       b.y = yMin + Math.random() * (yMax - yMin);

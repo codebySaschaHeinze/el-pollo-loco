@@ -1,7 +1,6 @@
+endboss.x = LEVEL_WIDTH;
 const LEVEL_WIDTH = 8000;
 const endboss = new Endboss();
-endboss.x = LEVEL_WIDTH;
-
 const BOTTLE_COUNT = 20;
 const bottlePickups = [];
 const step = Math.floor(LEVEL_WIDTH / BOTTLE_COUNT + 1);
@@ -16,7 +15,6 @@ const COIN_GROUPS = 8;
 const GROUP_SIZE = Math.floor(Math.random() * 2) + 3;
 const COIN_GAP_X = 60;
 const COIN_MARGIN = 200;
-
 const coinPickups = [];
 const usableWidth = LEVEL_WIDTH - COIN_MARGIN * 2;
 const groupStride = Math.floor(usableWidth / COIN_GROUPS);
@@ -273,6 +271,7 @@ const enemies = [
   new Chicken(11620),
   new Chicken(11950),
 ];
+
 enemies.push(endboss);
 
 const level1 = new Level(enemies, clouds, backgrounds, bottlePickups, coinPickups, foreground, birds, saloon);
