@@ -1,20 +1,11 @@
 class Saloon extends MovableObjects {
-  width = 480;
-  height = 480;
-  placed = false;
+  width = 500;
+  height = 500;
 
-  constructor(imagePath, x) {
+  // y ist optional: wenn weggelassen → an den unteren Rand "kleben"
+  constructor(imagePath, x, y = null) {
     super().loadImage(imagePath);
     this.x = x;
-    this.y = 420;
-  }
-
-  draw(ctx) {
-    if (!this.placed && this.world && this.world.character) {
-      const ground = this.world.character.groundBottom || 417;
-      this.y = ground - this.height;
-      this.placed = true;
-    }
-    super.draw(ctx);
+    this.y = y == null ? 470 - this.height : y; // Canvas-Höhe = 480
   }
 }

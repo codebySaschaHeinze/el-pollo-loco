@@ -52,6 +52,11 @@ class World {
     if (boss && boss.healthBar) this.addToMap(boss.healthBar);
 
     this.addToMap(this.character);
+    if (!this.paused) {
+      this.character.updateStepSound();
+    } else {
+      this.character.pauseStep();
+    }
     this.addObjectsToMap(this.throwableObjects);
     this.throwableObjects = this.throwableObjects.filter((b) => !b.gone);
 

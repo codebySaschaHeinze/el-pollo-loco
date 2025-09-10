@@ -30,7 +30,6 @@ class Birds extends MovableObjects {
 
     this.worldWidth = worldWidth;
 
-    // Größe & Startposition
     this.width = 30 + Math.random() * 10;
     this.height = Math.floor(this.width * 0.3);
     this.x = xStart;
@@ -41,7 +40,7 @@ class Birds extends MovableObjects {
 
   update() {
     if (this.world?.paused) return;
-    this.x += this.speed; // L→R
+    this.x += this.speed;
 
     if (this.x > this.worldWidth + this.width + 200) {
       this.x = -this.width - 200;

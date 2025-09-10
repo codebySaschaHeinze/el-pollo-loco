@@ -97,7 +97,7 @@ const guitar5 = new Guitar(7445);
 
 const bigSignLegend = new BigSignLegend(330);
 
-const saloon = new Saloon("assets/imgs/extras/saloon.png", -700);
+const saloon = new Saloon("assets/imgs/extras/saloon.png", -420);
 
 const foreground = [
   new LanternBigForeground(230),
