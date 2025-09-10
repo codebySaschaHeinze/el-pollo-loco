@@ -10,6 +10,7 @@ class World {
   coinHUD = new CoinHUD();
   throwableObjects = [];
   paused = false;
+  _ending = false;
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -63,6 +64,8 @@ class World {
     this.addToMap(this.statusBar);
     this.addToMap(this.coinHUD);
     this.addToMap(this.bottleBar);
+
+    this.checkEndConditions();
 
     requestAnimationFrame(() => this.draw());
   }
@@ -248,6 +251,29 @@ class World {
         }
       }
     });
+  }
+
+  checkEndConditions() {
+    if (this._ending) return;
+
+    // Character tot?
+    if (this.character?.isDead && this.character.isDead()) {
+      this._ending = true;
+      showResult("lose");
+      return;
+    }
+
+    // Boss besiegt?
+    const boss = this.level?.endboss;
+    if (boss) {
+      // Du hast in deinem Endboss Flags wie dead/dying/deathDone/vanished.
+      // Für "direkt" nach dem Kill reicht oft boss.dead.
+      // Willst du erst nach kompletter Animation: nutze boss.deathDone oder boss.vanished.
+      if (boss.dead /* oder: boss.deathDone || boss.vanished */) {
+        this._ending = true;
+        showResult("win");
+      }
+    }
   }
 
   flipImage(mo) {

@@ -39,7 +39,7 @@ nav {
   right: 0;
   height: 60px;
   z-index: 10;
-  background-color: rgb(6, 23, 53);
+  background-color: rgb(125, 71, 0);
 }
 
 footer {
@@ -51,7 +51,7 @@ footer {
   right: 0;
   height: 60px;
   z-index: 10;
-  background-color: rgb(6, 23, 53);
+  background-color: rgb(125, 71, 0);
 }
 
 canvas {

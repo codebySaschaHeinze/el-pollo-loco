@@ -6,7 +6,7 @@
 
 .impressum_data_protection_container {
   padding: 30px;
-  background-color: white;
+  background-color: rgb(148, 111, 1);
 }
 
 .nav_content {
@@ -209,14 +209,20 @@
   position: absolute;
   top: 22px;
   right: 22px;
-  width: 44px;
-  height: 57px;
+  width: 50px;
+  height: 50px;
   padding: 0;
   border: none;
   background: transparent;
   cursor: pointer;
   z-index: 9;
 }
+
+.settings-fab:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
 .settings-fab img {
   width: 100%;
   height: 100%;
@@ -263,6 +269,59 @@
 }
 .hidden {
   display: none;
+}
+
+/* --- Result Overlay (oberste Ebene) --- */
+.overlay_result {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 999; /* über allem */
+  pointer-events: none; /* blockiert nichts darunter (wir pausieren eh) */
+  background: rgba(0, 0, 0, 0.25); /* leichter Dim */
+}
+
+/* Panel/Container für das Bild */
+.overlay_result .result-inner {
+  display: grid;
+  place-items: center;
+}
+
+/* Das Bild startet "klein" und unsichtbar */
+.overlay_result .result-inner img {
+  width: 0;
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+/* Sichtbar-Zustand mit Pop-Animation */
+.overlay_result.show .result-inner img {
+  width: 420px; /* Größe nach Wunsch */
+  max-width: 80vw;
+  height: auto;
+  animation: result-pop 320ms ease-out forwards;
+}
+
+/* Pop-Animation */
+@keyframes result-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Utility */
+.hidden {
+  display: none !important;
 }
 
 /* #overlay-1 {
