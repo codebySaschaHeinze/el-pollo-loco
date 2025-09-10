@@ -83,9 +83,9 @@ document.addEventListener("DOMContentLoaded", () => {
     slider.value = p;
     lbl.textContent = `${p}%`;
     gameVolume = p / 100;
-    window.gameVolume = gameVolume; // wichtig für SFX in Character
+    window.gameVolume = gameVolume;
     localStorage.setItem("gameVolume", String(gameVolume));
-    if (window.BGM) window.BGM.volume = gameVolume; // Musik live anpassen
+    if (window.BGM) window.BGM.volume = gameVolume;
   };
 
   btnBack?.addEventListener("click", backToStartHardReset);
