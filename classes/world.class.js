@@ -148,6 +148,14 @@ class World {
           else this.character.coins = (this.character.coins || 0) + 1;
 
           this.updateCoinHUD();
+          const s = window.SFX?.coinPickup;
+          if (s) {
+            try {
+              const k = s.cloneNode();
+              k.volume = window.gameVolume ?? 1;
+              k.play();
+            } catch (_) {}
+          }
           c.collected = true;
         }
       });
@@ -161,6 +169,16 @@ class World {
           if (this.character.bottles < this.character.maxBottles) {
             this.character.addBottle(1);
             this.updateBottleBar();
+
+            const s = window.SFX?.bottlePickup;
+            if (s) {
+              try {
+                s.currentTime = 0;
+                s.volume = window.gameVolume ?? 1;
+                s.play();
+              } catch (_) {}
+            }
+
             p.collected = true;
           }
         }
@@ -190,6 +208,14 @@ class World {
 
         if (fromAbove) {
           if (typeof enemy.die === "function") enemy.die();
+          const s = window.SFX?.chickenHit;
+          if (s) {
+            try {
+              s.currentTime = 0;
+              s.volume = window.gameVolume ?? 1;
+              s.play();
+            } catch (_) {}
+          }
           if (typeof this.character.bounceOn === "function") {
             this.character.bounceOn(enemy);
           } else {

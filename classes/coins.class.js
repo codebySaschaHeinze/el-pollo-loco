@@ -10,7 +10,7 @@ class Coins extends MovableObjects {
 
   draw(ctx) {
     if (!this.placed && this.world && this.world.character) {
-      const ground = this.world.character.groundBottom || 417;
+      const ground = this.world.character.groundBottom - 70 || 417;
       this.y = ground - this.height - this.yOffset;
       this.placed = true;
     }

@@ -5,6 +5,7 @@ class Bottles extends MovableObjects {
     this.y = y;
     this.width = 45;
     this.height = 55;
+    this.offset = { top: 20, right: 6, bottom: 6, left: 6 };
     this.placed = false;
   }
   draw(ctx) {

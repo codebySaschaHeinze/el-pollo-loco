@@ -14,8 +14,14 @@ function makeSfx(src, loop = false) {
 
 window.SFX = window.SFX || {};
 window.SFX.step = makeSfx("audio/footstep.wav", true);
+window.SFX.bottleBreak = makeSfx("audio/broken-bottle.wav");
+window.SFX.chickenHit = makeSfx("audio/chicken-noise.wav");
+window.SFX.bossHurt = makeSfx("audio/big-chicken-noise.wav");
+window.SFX.hurt = makeSfx("audio/hurt.wav");
+window.SFX.bottlePickup = makeSfx("audio/collect-bottle.wav");
+window.SFX.coinPickup = makeSfx("audio/collect-coin.wav");
+window.SFX.jump = makeSfx("audio/jump.wav");
 
-window.SFX.jump = makeSfx("audio/jump.mp3");
 window.playSfx = function (name) {
   const a = window.SFX?.[name];
   if (!a) return;
@@ -25,6 +31,15 @@ window.playSfx = function (name) {
     a.play();
   } catch (e) {}
 };
+
+function makeBgm(src) {
+  const a = new Audio(src);
+  a.preload = "auto";
+  a.loop = true;
+  a.volume = window.gameVolume ?? 1;
+  return a;
+}
+window.BGM = null;
 
 function setGameVolumeFromSlider(pct) {
   const v = Math.min(1, Math.max(0, (Number(pct) || 0) / 100));
@@ -63,6 +78,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const slider = document.getElementById("volume-slider");
   const lbl = document.getElementById("volume-value");
 
+  const setVol = (pct) => {
+    const p = Math.min(100, Math.max(0, Number(pct) || 0));
+    slider.value = p;
+    lbl.textContent = `${p}%`;
+    gameVolume = p / 100;
+    window.gameVolume = gameVolume; // wichtig für SFX in Character
+    localStorage.setItem("gameVolume", String(gameVolume));
+    if (window.BGM) window.BGM.volume = gameVolume; // Musik live anpassen
+  };
+
   btnBack?.addEventListener("click", backToStartHardReset);
 
   if (slider && lbl) {
@@ -82,6 +107,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startGame() {
     ovStart.classList.add("hidden");
+
+    if (!window.BGM) window.BGM = makeBgm("audio/bg-music.wav");
+    window.BGM.volume = window.gameVolume ?? 1;
+    window.BGM.play().catch(console.warn);
+
     if (world) world.paused = false;
   }
 

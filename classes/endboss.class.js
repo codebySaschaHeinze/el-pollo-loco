@@ -204,6 +204,14 @@ class Endboss extends MovableObjects {
 
   takeHit(damage = 10) {
     if (this.dead || this.dying) return;
+    const s = window.SFX?.bossHurt;
+    if (s) {
+      try {
+        s.currentTime = 0;
+        s.volume = window.gameVolume ?? 1;
+        s.play();
+      } catch (_) {}
+    }
     this.energy = Math.max(0, this.energy - damage);
     if (this.healthBar) {
       this.healthBar.setPercentage((this.energy / this.maxEnergy) * 100);

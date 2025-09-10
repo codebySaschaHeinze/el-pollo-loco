@@ -26,7 +26,7 @@ class Chicken extends MovableObjects {
     }
 
     const elapsed = Date.now() - (this.deadAt || 0);
-    const t = Math.min(elapsed / (this.fadeDuration || 2000), 1); // 0..1
+    const t = Math.min(elapsed / (this.fadeDuration || 2000), 1);
     const alpha = 1 - t;
 
     ctx.save();

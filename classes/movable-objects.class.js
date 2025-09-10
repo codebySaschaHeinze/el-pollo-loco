@@ -72,5 +72,12 @@ class MovableObjects extends DrawableObjects {
 
   jump() {
     this.speedY = 20;
+
+    const a = window.SFX?.jump;
+    if (a) {
+      a.currentTime = 0;
+      a.volume = window.gameVolume;
+      a.play().catch(() => {});
+    }
   }
 }

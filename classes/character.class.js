@@ -75,7 +75,7 @@ class Character extends MovableObjects {
     super().loadImage("assets/imgs/2_character_pepe/1_idle/idle/i-1.png");
     this.width = 85;
     this.height = 160;
-    this.offset = { top: 10, right: 30, bottom: 10, left: 30 };
+    this.offset = { top: 90, right: 30, bottom: 10, left: 30 };
     this.groundBottom = 365 + 52;
     this.y = this.groundBottom - this.height;
     this.loadImages(this.IMAGES_WALKING);
@@ -89,6 +89,14 @@ class Character extends MovableObjects {
     this.animate();
   }
 
+  playJump() {
+    const a = window.SFX?.jump;
+    if (!a) return;
+    a.currentTime = 0;
+    a.volume = window.gameVolume;
+    a.play().catch(() => {});
+  }
+
   isInvulnerable() {
     return Date.now() - (this.lastHitAt || 0) < this.invulnMs;
   }
@@ -96,6 +104,14 @@ class Character extends MovableObjects {
   hit(damage = 10) {
     if (this.isInvulnerable() || (this.isDead && this.isDead())) return false;
     this.lastHitAt = Date.now();
+    const s = window.SFX?.hurt;
+    if (s) {
+      try {
+        s.currentTime = 0;
+        s.volume = window.gameVolume ?? 1;
+        s.play();
+      } catch (_) {}
+    }
     this.energy = Math.max(0, this.energy - damage);
 
     if (this.energy <= 0) {
@@ -220,6 +236,7 @@ class Character extends MovableObjects {
   bounceOn(enemy, strength = 15) {
     this.y = enemy.y - this.height + 20;
     this.speedY = strength;
+    this.playJump();
   }
 
   canThrowBottle() {
@@ -245,8 +262,8 @@ class Character extends MovableObjects {
     const a = window.SFX?.step;
     if (!a) return;
     if (!this.stepPlaying) {
-      a.currentTime = 0; // von vorne starten
-      a.volume = window.gameVolume; // aktuelle Lautstärke
+      a.currentTime = 0;
+      a.volume = window.gameVolume;
       a.play().catch(() => {});
       this.stepPlaying = true;
     }

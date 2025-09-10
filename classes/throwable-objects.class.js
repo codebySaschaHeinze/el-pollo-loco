@@ -42,6 +42,15 @@ class ThrowableObjects extends MovableObjects {
     if (this.moveInterval) {
       clearInterval(this.moveInterval);
       this.moveInterval = null;
+
+      const a = window.SFX?.bottleBreak;
+      if (a) {
+        try {
+          a.currentTime = 0;
+          a.volume = window.gameVolume ?? 1;
+          a.play();
+        } catch (_) {}
+      }
     }
   }
 
