@@ -2,7 +2,41 @@ let canvas;
 let world;
 let keyboard = new Keyboard();
 
-let gameVolume = Math.min(1, Math.max(0, parseFloat(localStorage.getItem("gameVolume") ?? "1")));
+window.gameVolume = Math.min(1, Math.max(0, parseFloat(localStorage.getItem("gameVolume") ?? "1")));
+
+function makeSfx(src, loop = false) {
+  const a = new Audio(src);
+  a.preload = "auto";
+  a.loop = loop;
+  a.volume = window.gameVolume;
+  return a;
+}
+
+window.SFX = window.SFX || {};
+window.SFX.step = makeSfx("audio/footstep.wav", true);
+
+window.SFX.jump = makeSfx("audio/jump.mp3");
+window.playSfx = function (name) {
+  const a = window.SFX?.[name];
+  if (!a) return;
+  a.volume = window.gameVolume;
+  try {
+    a.currentTime = 0;
+    a.play();
+  } catch (e) {}
+};
+
+function setGameVolumeFromSlider(pct) {
+  const v = Math.min(1, Math.max(0, (Number(pct) || 0) / 100));
+  window.gameVolume = v;
+  localStorage.setItem("gameVolume", String(v));
+
+  if (window.SFX) {
+    Object.values(window.SFX).forEach((a) => {
+      if (a && typeof a.volume === "number") a.volume = v;
+    });
+  }
+}
 
 function init() {
   canvas = document.getElementById("canvas");
@@ -32,15 +66,16 @@ document.addEventListener("DOMContentLoaded", () => {
   btnBack?.addEventListener("click", backToStartHardReset);
 
   if (slider && lbl) {
-    const setVol = (pct) => {
-      const p = Math.min(100, Math.max(0, Number(pct) || 0));
-      slider.value = p;
-      lbl.textContent = `${p}%`;
-      gameVolume = p / 100;
-      localStorage.setItem("gameVolume", String(gameVolume));
-    };
-    setVol(Math.round(gameVolume * 100));
-    slider.addEventListener("input", (e) => setVol(e.target.value));
+    const startPct = Math.round((window.gameVolume ?? 1) * 100);
+    slider.value = String(startPct);
+    lbl.textContent = `${startPct}%`;
+    setGameVolumeFromSlider(startPct);
+
+    slider.addEventListener("input", (e) => {
+      const pct = e.target.value;
+      lbl.textContent = `${pct}%`;
+      setGameVolumeFromSlider(pct);
+    });
   }
 
   const isInStart = () => ovStart && !ovStart.classList.contains("hidden");

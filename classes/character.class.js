@@ -19,6 +19,7 @@ class Character extends MovableObjects {
   maxBottles = 10;
   coins = 0;
   maxCoins = 999;
+  stepPlaying = false;
 
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",
@@ -74,7 +75,7 @@ class Character extends MovableObjects {
     super().loadImage("assets/imgs/2_character_pepe/1_idle/idle/i-1.png");
     this.width = 85;
     this.height = 160;
-    this.offset = { top: 10, right: 25, bottom: 10, left: 25 };
+    this.offset = { top: 10, right: 30, bottom: 10, left: 30 };
     this.groundBottom = 365 + 52;
     this.y = this.groundBottom - this.height;
     this.loadImages(this.IMAGES_WALKING);
@@ -238,5 +239,41 @@ class Character extends MovableObjects {
 
   addCoin(n = 1) {
     this.coins = Math.max(0, (this.coins || 0) + n);
+  }
+
+  playStep() {
+    const a = window.SFX?.step;
+    if (!a) return;
+    if (!this.stepPlaying) {
+      a.currentTime = 0; // von vorne starten
+      a.volume = window.gameVolume; // aktuelle Lautstärke
+      a.play().catch(() => {});
+      this.stepPlaying = true;
+    }
+  }
+
+  pauseStep() {
+    const a = window.SFX?.step;
+    if (!a) return;
+    if (this.stepPlaying) {
+      a.pause();
+      this.stepPlaying = false;
+    }
+  }
+
+  updateStepSound() {
+    const kb = this.world?.keyboard;
+    const moving = !!(kb?.LEFT || kb?.RIGHT);
+
+    const onGround = !this.isAboveGround();
+
+    const alive = !(this.isDead?.() || this.dead);
+    const paused = !!this.world?.paused;
+
+    if (moving && onGround && alive && !paused) {
+      this.playStep();
+    } else {
+      this.pauseStep();
+    }
   }
 }
