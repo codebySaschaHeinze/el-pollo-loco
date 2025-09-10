@@ -28,6 +28,7 @@ class World {
     this.ctx.translate(this.camera_x, 0);
 
     this.addObjectsToMap(this.level.backgroundObjects);
+    this.addObjectsToMap(this.level.saloon);
 
     if (!this.paused) {
       this.level.clouds.forEach((c) => c.update && c.update());
@@ -88,6 +89,7 @@ class World {
 
   setWorld() {
     this.character.world = this;
+    this.level.backgroundObjects?.forEach((o) => (o.world = this));
     this.level.enemies.forEach((e) => (e.world = this));
     this.level.bottlePickups?.forEach((b) => (b.world = this));
     this.level.coinPickups?.forEach((c) => (c.world = this));
@@ -256,20 +258,15 @@ class World {
   checkEndConditions() {
     if (this._ending) return;
 
-    // Character tot?
     if (this.character?.isDead && this.character.isDead()) {
       this._ending = true;
       showResult("lose");
       return;
     }
 
-    // Boss besiegt?
     const boss = this.level?.endboss;
     if (boss) {
-      // Du hast in deinem Endboss Flags wie dead/dying/deathDone/vanished.
-      // Für "direkt" nach dem Kill reicht oft boss.dead.
-      // Willst du erst nach kompletter Animation: nutze boss.deathDone oder boss.vanished.
-      if (boss.dead /* oder: boss.deathDone || boss.vanished */) {
+      if (boss.dead) {
         this._ending = true;
         showResult("win");
       }

@@ -37,8 +37,8 @@ const birds = [];
 const stride = Math.floor(LEVEL_WIDTH / (BIRD_COUNT - 2));
 
 for (let i = 0; i < BIRD_COUNT; i++) {
-  const jitter = Math.random() * 200 - 100; // bisschen Streuung
-  const x = -400 + i * stride + jitter; // beginnt teils links außerhalb
+  const jitter = Math.random() * 200 - 100;
+  const x = -400 + i * stride + jitter;
   birds.push(new Birds(LEVEL_WIDTH, x));
 }
 
@@ -96,6 +96,8 @@ const guitar4 = new Guitar(6090);
 const guitar5 = new Guitar(7445);
 
 const bigSignLegend = new BigSignLegend(330);
+
+const saloon = new Saloon("assets/imgs/extras/saloon.png", -700);
 
 const foreground = [
   new LanternBigForeground(230),
@@ -233,6 +235,8 @@ backgrounds.push(skull1);
 
 backgrounds.push(bigSignLegend);
 
+backgrounds.push(saloon);
+
 const enemies = [
   new Chicken(1060),
   new Chicken(1390),
@@ -271,4 +275,4 @@ const enemies = [
 ];
 enemies.push(endboss);
 
-const level1 = new Level(enemies, clouds, backgrounds, bottlePickups, coinPickups, foreground, birds);
+const level1 = new Level(enemies, clouds, backgrounds, bottlePickups, coinPickups, foreground, birds, saloon);
