@@ -99,8 +99,8 @@
   color: #fff;
   font-family: var(--hud-font, "Rye", "Rockwell", serif);
   margin-top: 40px;
-  display: inline-flex; /* sorgt für korrektes Zentrieren */
-  transform: scale(0.7); /* 50% Größe */
+  display: inline-flex;
+  transform: scale(0.7);
   transform-origin: center;
 }
 
@@ -400,12 +400,10 @@
   opacity: 0.5;
 }
 
-/* --- Rotate-Hinweis (nur auf Touch-Geräten im Hochformat) --- */
 .rotate-overlay {
   display: none;
 }
 
-/* Portrait: nur der Dreh-Hinweis, Spiel ausblenden */
 @media (orientation: portrait) and (max-width: 1024px) {
   .rotate-overlay {
     position: fixed;
@@ -426,7 +424,6 @@
   }
 }
 
-/* Landscape (Mobile/Tablet): Vollbild quetschen */
 @media (orientation: landscape) and (max-width: 1024px) {
   html,
   body {
@@ -444,7 +441,6 @@
     background: #000;
   }
 
-  /* Canvas vollflächig (verzerren erlaubt) */
   #canvas {
     width: 100vw;
     height: 100vh;
@@ -452,20 +448,17 @@
     object-fit: fill;
   }
 
-  /* Start-Overlay vollflächig + Hintergrund STRETCHEN */
   .overlay_1 {
     position: absolute;
     inset: 0;
-    background-size: 100% 100%; /* statt 101% -> wirklich „reinquetschen“ */
+    background-size: 100% 100%;
   }
 
-  /* UI im Start-Overlay proportional STRETCHEN auf 720x480-Layout */
   .overlay-inner {
     transform-origin: center;
     transform: scaleX(calc(100vw / 720)) scaleY(calc(100vh / 480));
   }
 
-  /* Settings-/Result-Overlays deckungsgleich zum Canvas */
   .overlay_settings,
   .overlay_result {
     position: absolute;
