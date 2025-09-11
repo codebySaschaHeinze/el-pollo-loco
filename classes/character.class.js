@@ -90,7 +90,7 @@ class Character extends MovableObjects {
   }
 
   playJump() {
-    if (window.getEffectiveVolume && window.getEffectiveVolume() === 0) return; // Hard Mute
+    if (window.getEffectiveVolume && window.getEffectiveVolume() === 0) return;
 
     const a = window.SFX?.jump;
     if (!a) return;
@@ -163,7 +163,7 @@ class Character extends MovableObjects {
         this.pauseStep();
         this.jump();
       }
-      this.world.camera_x = -this.x + 170;
+      this.world.camera_x = -this.x + 250;
     }, 1000 / 100);
 
     this.animInterval = setInterval(() => {

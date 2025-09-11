@@ -211,6 +211,7 @@ class World {
         if (this.character.hit && this.character.hit(20)) {
           this.statusBar.setPercentage(this.character.energy);
         }
+
         const push = this.character.x < boss.x ? -40 : 40;
         this.character.x += push;
         this.character.speedY = 12;
@@ -249,6 +250,7 @@ class World {
       }
     });
   }
+
   checkEndConditions() {
     if (this._ending) return;
     if (this.character?.isDead && this.character.isDead()) {
@@ -256,6 +258,7 @@ class World {
       showResult("lose");
       return;
     }
+
     const boss = this.level?.endboss;
     if (boss) {
       if (boss.dead) {

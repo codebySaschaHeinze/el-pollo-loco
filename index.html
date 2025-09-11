@@ -101,17 +101,22 @@
             <img id="result-img" alt="Result" />
           </div>
         </section>
-        <!-- <div id="overlay-buttons">
-            <div class="buttons-left">
-              <button id="button-left"><img src="assets/buttons/left.png" alt="Move right button" /></button>
-              <button id="button-right"><img src="assets/buttons/right.png" alt="Move left button" /></button>
-            </div>
-            <div class="buttons-right">
-              <button id="button-jump"><img src="assets/buttons/jump.png" alt="Jump button" /></button>
-              <button id="button-throw"><img src="assets/buttons/throw.png" alt="Throw bottles button" /></button>
-            </div>
-          </div> -->
+        <section id="overlay-rotate" class="overlay_rotate hidden" aria-hidden="true">
+          <div class="rotate-inner"></div>
+        </section>
+
+        <div id="overlay-buttons" class="hidden">
+          <div class="buttons-left">
+            <button id="button-left"><img src="assets/buttons/left.png" alt="Move right button" /></button>
+            <button id="button-right"><img src="assets/buttons/right.png" alt="Move left button" /></button>
+          </div>
+          <div class="buttons-right">
+            <button id="button-jump"><img src="assets/buttons/jump.png" alt="Jump button" /></button>
+            <button id="button-throw"><img src="assets/buttons/throw.png" alt="Throw bottles button" /></button>
+          </div>
+        </div>
       </div>
+      <section class="rotate-overlay" aria-hidden="true">Bitte Gerät drehen</section>
     </main>
   </body>
 </html>

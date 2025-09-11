@@ -236,8 +236,6 @@ backgrounds.push(bigSignLegend);
 backgrounds.push(saloon);
 
 const enemies = [
-  new Chicken(1060),
-  new Chicken(1390),
   new Chicken(1720),
   new Chicken(2050),
   new Chicken(2380),

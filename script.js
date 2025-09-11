@@ -2,19 +2,17 @@ let canvas;
 let world;
 let keyboard = new Keyboard();
 
+/* =======================
+   Lautstärke / Mute
+======================= */
 window.gameMuted = localStorage.getItem("gameMuted") === "1";
 window.gameVolume = Math.min(1, Math.max(0, parseFloat(localStorage.getItem("gameVolume") ?? "1")));
 window.getEffectiveVolume = () => (window.gameMuted ? 0 : window.gameVolume);
 
 function applyVolumeAll() {
   const vol = window.getEffectiveVolume();
-  const auds = [];
-  if (window.SFX) auds.push(...Object.values(window.SFX));
-  if (window.BGM) auds.push(window.BGM.main ?? window.BGM);
-
-  auds.forEach((a) => {
-    if (a) a.volume = vol;
-  });
+  if (window.SFX) Object.values(window.SFX).forEach((a) => a && (a.volume = vol));
+  if (window.BGM) window.BGM.volume = vol; // <<< BGM mitnehmen
 }
 
 function updateMuteUI() {
@@ -24,6 +22,9 @@ function updateMuteUI() {
   icon.alt = window.gameMuted ? "Unmute" : "Mute";
 }
 
+/* =======================
+   Audio-Helfer / SFX / BGM
+======================= */
 function makeSfx(src, loop = false) {
   const a = new Audio(src);
   a.preload = "auto";
@@ -49,7 +50,7 @@ window.playSfx = function (name) {
   try {
     a.currentTime = 0;
     a.play();
-  } catch (e) {}
+  } catch (_) {}
 };
 
 function makeBgm(src) {
@@ -66,19 +67,42 @@ function setGameVolumeFromSlider(pct) {
   window.gameVolume = v;
   localStorage.setItem("gameVolume", String(v));
   applyVolumeAll();
+}
 
-  if (window.SFX) {
-    Object.values(window.SFX).forEach((a) => {
-      if (a && typeof a.volume === "number") a.volume = v;
-    });
-  }
+/* =======================
+   Sichtbarkeits-Helfer (global)
+======================= */
+function isStartVisible() {
+  const ov = document.getElementById("overlay-1");
+  return !!(ov && !ov.classList.contains("hidden"));
+}
+function isSettingsVisible() {
+  const ov = document.getElementById("overlay-settings");
+  return !!(ov && !ov.classList.contains("hidden"));
+}
+function isTouch() {
+  return matchMedia("(pointer: coarse)").matches;
+}
+function isLandscape() {
+  return matchMedia("(orientation: landscape)").matches;
+}
+
+/* Touch-Buttons nur zeigen, wenn:
+   - Touch-Gerät
+   - Landscape
+   - nicht Start-Overlay, nicht Settings-Overlay
+*/
+function updateTouchButtonsVisibility() {
+  const overlayButtons = document.getElementById("overlay-buttons");
+  if (!overlayButtons) return;
+  const show = isTouch() && isLandscape() && !isStartVisible() && !isSettingsVisible();
+  overlayButtons.classList.toggle("hidden", !show);
 }
 
 function init() {
   canvas = document.getElementById("canvas");
   keyboard = new Keyboard();
   world = new World(canvas, keyboard);
-
   world.paused = true;
 }
 
@@ -87,9 +111,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const ovSettings = document.getElementById("overlay-settings");
   const btnBack = document.getElementById("btn-back-start");
   const btnStart = document.getElementById("btn-start");
-  function backToStartHardReset() {
-    location.reload();
-  }
   const btnFab = document.getElementById("btn-settings-fab");
   const btnClose = document.getElementById("btn-close-settings");
   const btnResume = document.getElementById("btn-resume");
@@ -111,16 +132,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.world?.character?.pauseStep?.();
   });
 
-  const setVol = (pct) => {
-    const p = Math.min(100, Math.max(0, Number(pct) || 0));
-    slider.value = p;
-    lbl.textContent = `${p}%`;
-    gameVolume = p / 100;
-    window.gameVolume = gameVolume;
-    localStorage.setItem("gameVolume", String(gameVolume));
-    if (window.BGM) (window.BGM.main ?? window.BGM).volume = window.getEffectiveVolume();
-  };
-
   if (slider && lbl) {
     const startPct = Math.round((window.gameVolume ?? 1) * 100);
     slider.value = String(startPct);
@@ -134,40 +145,54 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const isInStart = () => ovStart && !ovStart.classList.contains("hidden");
-
   function startGame() {
     ovStart.classList.add("hidden");
 
     if (!window.BGM) window.BGM = makeBgm("audio/bg-music.wav");
     window.BGM.volume = window.getEffectiveVolume();
-    window.BGM.play().catch(console.warn);
+    window.BGM.play().catch(() => {});
 
     if (world) world.paused = false;
+    updateTouchButtonsVisibility();
   }
 
   function openSettings() {
-    const inStart = isInStart();
+    const inStart = isStartVisible();
     if (resumeRow) resumeRow.classList.toggle("hidden", inStart);
     if (backRow) backRow.classList.toggle("hidden", inStart);
     ovSettings.classList.remove("hidden");
     if (world && !inStart) world.paused = true;
+    updateTouchButtonsVisibility();
   }
 
   function closeSettings() {
     ovSettings.classList.add("hidden");
-    if (world && !isInStart()) world.paused = false;
+    if (world && !isStartVisible()) world.paused = false;
+    updateTouchButtonsVisibility();
   }
 
   function backToStart() {
     ovSettings.classList.add("hidden");
     ovStart.classList.remove("hidden");
     if (world) world.paused = true;
+    updateTouchButtonsVisibility();
+  }
+
+  function backToStartHardReset() {
+    location.reload();
   }
 
   btnBack?.addEventListener("click", backToStartHardReset);
   btnStart?.addEventListener("click", startGame);
   btnFab?.addEventListener("click", openSettings);
+  btnFab?.addEventListener(
+    "touchstart",
+    (e) => {
+      e.preventDefault();
+      openSettings();
+    },
+    { passive: false }
+  );
   btnClose?.addEventListener("click", closeSettings);
   btnResume?.addEventListener("click", closeSettings);
   btnBackStart?.addEventListener("click", backToStart);
@@ -177,6 +202,39 @@ document.addEventListener("DOMContentLoaded", () => {
       closeSettings();
     }
   });
+
+  const btnLeft = document.getElementById("button-left");
+  const btnRight = document.getElementById("button-right");
+  const btnJump = document.getElementById("button-jump");
+  const btnThrow = document.getElementById("button-throw");
+
+  function bindHold(el, flag) {
+    if (!el) return;
+    const down = (e) => {
+      e.preventDefault();
+      keyboard[flag] = true;
+    };
+    const up = (e) => {
+      e.preventDefault();
+      keyboard[flag] = false;
+    };
+
+    el.addEventListener("pointerdown", down, { passive: false });
+    el.addEventListener("pointerup", up, { passive: false });
+    el.addEventListener("pointercancel", up, { passive: false });
+    el.addEventListener("mouseleave", up, { passive: false });
+    el.addEventListener("touchstart", down, { passive: false });
+    el.addEventListener("touchend", up, { passive: false });
+    el.addEventListener("touchcancel", up, { passive: false });
+    el.addEventListener("mousedown", down);
+    el.addEventListener("mouseup", up);
+  }
+
+  bindHold(btnLeft, "LEFT");
+  bindHold(btnRight, "RIGHT");
+  bindHold(btnJump, "UP");
+  bindHold(btnThrow, "SPACE");
+  updateTouchButtonsVisibility();
 });
 
 window.addEventListener("keydown", (event) => {
@@ -204,6 +262,24 @@ function showResult(type) {
   ov.classList.remove("hidden");
   void ov.offsetWidth;
   ov.classList.add("show");
-
   setTimeout(() => location.reload(), 2000);
 }
+
+function syncPauseToOrientation() {
+  if (!window.world) return;
+  if (isTouch() && !isLandscape()) {
+    world.paused = true;
+  }
+}
+window.addEventListener("resize", () => {
+  syncPauseToOrientation();
+  updateTouchButtonsVisibility();
+});
+window.addEventListener("orientationchange", () => {
+  syncPauseToOrientation();
+  updateTouchButtonsVisibility();
+});
+document.addEventListener("DOMContentLoaded", () => {
+  syncPauseToOrientation();
+  updateTouchButtonsVisibility();
+});
