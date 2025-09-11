@@ -90,10 +90,12 @@ class Character extends MovableObjects {
   }
 
   playJump() {
+    if (window.getEffectiveVolume && window.getEffectiveVolume() === 0) return; // Hard Mute
+
     const a = window.SFX?.jump;
     if (!a) return;
     a.currentTime = 0;
-    a.volume = window.gameVolume;
+    a.volume = window.getEffectiveVolume ? window.getEffectiveVolume() : window.gameVolume ?? 1;
     a.play().catch(() => {});
   }
 
@@ -108,7 +110,7 @@ class Character extends MovableObjects {
     if (s) {
       try {
         s.currentTime = 0;
-        s.volume = window.gameVolume ?? 1;
+        s.volume = window.getEffectiveVolume();
         s.play();
       } catch (_) {}
     }
@@ -158,6 +160,7 @@ class Character extends MovableObjects {
         this.otherDirection = true;
       }
       if (this.world.keyboard.UP && !this.isAboveGround()) {
+        this.pauseStep();
         this.jump();
       }
       this.world.camera_x = -this.x + 170;
@@ -263,7 +266,7 @@ class Character extends MovableObjects {
     if (!a) return;
     if (!this.stepPlaying) {
       a.currentTime = 0;
-      a.volume = window.gameVolume;
+      a.volume = window.getEffectiveVolume();
       a.play().catch(() => {});
       this.stepPlaying = true;
     }
@@ -281,12 +284,9 @@ class Character extends MovableObjects {
   updateStepSound() {
     const kb = this.world?.keyboard;
     const moving = !!(kb?.LEFT || kb?.RIGHT);
-
     const onGround = !this.isAboveGround();
-
     const alive = !(this.isDead?.() || this.dead);
     const paused = !!this.world?.paused;
-
     if (moving && onGround && alive && !paused) {
       this.playStep();
     } else {

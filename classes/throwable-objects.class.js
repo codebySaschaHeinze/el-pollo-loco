@@ -46,7 +46,7 @@ class ThrowableObjects extends MovableObjects {
       if (a) {
         try {
           a.currentTime = 0;
-          a.volume = window.gameVolume ?? 1;
+          a.volume = window.getEffectiveVolume();
           a.play();
         } catch (_) {}
       }

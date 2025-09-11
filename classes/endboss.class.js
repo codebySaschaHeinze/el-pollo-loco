@@ -194,7 +194,7 @@ class Endboss extends MovableObjects {
     if (s) {
       try {
         s.currentTime = 0;
-        s.volume = window.gameVolume ?? 1;
+        s.volume = window.getEffectiveVolume();
         s.play();
       } catch (_) {}
     }

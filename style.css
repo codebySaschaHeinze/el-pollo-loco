@@ -89,22 +89,31 @@
 }
 
 .volume-block {
-  display: grid;
-  grid-template-columns: 50px 100px 40px;
+  display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 2px;
   padding: 10px 12px;
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
   color: #fff;
   font-family: var(--hud-font, "Rye", "Rockwell", serif);
-  margin-top: 55px;
+  margin-top: 80px;
+  display: inline-flex; /* sorgt für korrektes Zentrieren */
+  transform: scale(0.7); /* 50% Größe */
+  transform-origin: center;
 }
+
+.volume-block > span:first-child {
+  min-width: 70px;
+  text-align: left;
+}
+
 #volume-slider {
-  width: 100%;
-  margin-top: 3px;
+  flex: 1 1 2200px;
+  min-width: 140px;
 }
+
 .hidden {
   display: none;
 }
@@ -148,7 +157,7 @@
 .overlay_settings {
   position: absolute;
   inset: 0;
-  z-index: 9; /* über allem */
+  z-index: 9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,11 +264,29 @@
   display: grid;
   gap: 12px;
 }
+
 .settings-row {
   display: flex;
   gap: 16px;
   justify-content: center;
 }
+
+.settings-row button:hover {
+  transform: scale(1.05);
+}
+
+.settings-row1 button:hover {
+  transform: scale(1.05);
+}
+
+.settings-row1 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
 .settings-action {
   padding: 8px 14px;
   border-radius: 10px;
@@ -272,39 +299,34 @@
   display: none;
 }
 
-/* --- Result Overlay (oberste Ebene) --- */
 .overlay_result {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  z-index: 999; /* über allem */
-  pointer-events: none; /* blockiert nichts darunter (wir pausieren eh) */
-  background: rgba(0, 0, 0, 0.25); /* leichter Dim */
+  z-index: 999;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.25);
 }
 
-/* Panel/Container für das Bild */
 .overlay_result .result-inner {
   display: grid;
   place-items: center;
 }
 
-/* Das Bild startet "klein" und unsichtbar */
 .overlay_result .result-inner img {
   width: 0;
   opacity: 0;
   transform: scale(0.6);
 }
 
-/* Sichtbar-Zustand mit Pop-Animation */
 .overlay_result.show .result-inner img {
-  width: 420px; /* Größe nach Wunsch */
+  width: 420px;
   max-width: 80vw;
   height: auto;
   animation: result-pop 320ms ease-out forwards;
 }
 
-/* Pop-Animation */
 @keyframes result-pop {
   0% {
     opacity: 0;
@@ -320,9 +342,43 @@
   }
 }
 
-/* Utility */
 .hidden {
   display: none !important;
+}
+
+.mute-btn {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 120ms ease, filter 120ms ease;
+}
+
+.mute-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+.mute-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
+
+.mute-btn img {
+  width: 30px;
+  height: 30px;
+  transform: scale(1.6);
+  margin-right: 18px;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+#volume-value {
+  min-width: 50px;
+  text-align: right;
 }
 
 /* #overlay-1 {

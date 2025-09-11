@@ -1,6 +1,6 @@
-endboss.x = LEVEL_WIDTH;
 const LEVEL_WIDTH = 8000;
 const endboss = new Endboss();
+endboss.x = LEVEL_WIDTH;
 const BOTTLE_COUNT = 20;
 const bottlePickups = [];
 const step = Math.floor(LEVEL_WIDTH / BOTTLE_COUNT + 1);

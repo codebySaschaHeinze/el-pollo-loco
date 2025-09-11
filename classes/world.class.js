@@ -135,7 +135,7 @@ class World {
           if (s) {
             try {
               const k = s.cloneNode();
-              k.volume = window.gameVolume ?? 1;
+              k.volume = window.getEffectiveVolume();
               k.play();
             } catch (_) {}
           }
@@ -156,7 +156,7 @@ class World {
             if (s) {
               try {
                 s.currentTime = 0;
-                s.volume = window.gameVolume ?? 1;
+                s.volume = window.getEffectiveVolume();
                 s.play();
               } catch (_) {}
             }
@@ -185,7 +185,7 @@ class World {
           if (s) {
             try {
               s.currentTime = 0;
-              s.volume = window.gameVolume ?? 1;
+              s.volume = window.getEffectiveVolume();
               s.play();
             } catch (_) {}
           }

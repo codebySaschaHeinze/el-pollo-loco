@@ -69,7 +69,10 @@
             </div>
 
             <div class="volume-block">
-              <span>Volume</span>
+              <span>Volume</span
+              ><button id="btn-mute" class="mute-btn" aria-label="Mute/Unmute">
+                <img id="icon-mute" src="assets/buttons/mute-off.png" alt="Mute" />
+              </button>
               <input id="volume-slider" type="range" min="0" max="100" step="1" />
               <span id="volume-value">100%</span>
             </div>
@@ -80,7 +83,7 @@
           <div class="settings-inner">
             <h2>Einstellungen</h2>
 
-            <div id="back-row" class="settings-row hidden">
+            <div id="back-row" class="settings-row1 hidden">
               <button id="btn-back-start" class="settings-action">Zurück zum Start</button>
             </div>
             <div class="settings-row">
@@ -89,7 +92,7 @@
             </div>
 
             <div class="settings-row">
-              <button id="btn-close-settings" class="settings-action">Schließen</button>
+              <button id="btn-close-settings" class="settings-action">Zurück zum Spiel</button>
             </div>
           </div>
         </section>

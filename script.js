@@ -2,13 +2,33 @@ let canvas;
 let world;
 let keyboard = new Keyboard();
 
+window.gameMuted = localStorage.getItem("gameMuted") === "1";
 window.gameVolume = Math.min(1, Math.max(0, parseFloat(localStorage.getItem("gameVolume") ?? "1")));
+window.getEffectiveVolume = () => (window.gameMuted ? 0 : window.gameVolume);
+
+function applyVolumeAll() {
+  const vol = window.getEffectiveVolume();
+  const auds = [];
+  if (window.SFX) auds.push(...Object.values(window.SFX));
+  if (window.BGM) auds.push(window.BGM.main ?? window.BGM);
+
+  auds.forEach((a) => {
+    if (a) a.volume = vol;
+  });
+}
+
+function updateMuteUI() {
+  const icon = document.getElementById("icon-mute");
+  if (!icon) return;
+  icon.src = window.gameMuted ? "assets/buttons/mute-on.png" : "assets/buttons/mute-off.png";
+  icon.alt = window.gameMuted ? "Unmute" : "Mute";
+}
 
 function makeSfx(src, loop = false) {
   const a = new Audio(src);
   a.preload = "auto";
   a.loop = loop;
-  a.volume = window.gameVolume;
+  a.volume = window.getEffectiveVolume();
   return a;
 }
 
@@ -25,7 +45,7 @@ window.SFX.jump = makeSfx("audio/jump.wav");
 window.playSfx = function (name) {
   const a = window.SFX?.[name];
   if (!a) return;
-  a.volume = window.gameVolume;
+  a.volume = window.getEffectiveVolume();
   try {
     a.currentTime = 0;
     a.play();
@@ -36,7 +56,7 @@ function makeBgm(src) {
   const a = new Audio(src);
   a.preload = "auto";
   a.loop = true;
-  a.volume = window.gameVolume ?? 1;
+  a.volume = window.getEffectiveVolume();
   return a;
 }
 window.BGM = null;
@@ -45,6 +65,7 @@ function setGameVolumeFromSlider(pct) {
   const v = Math.min(1, Math.max(0, (Number(pct) || 0) / 100));
   window.gameVolume = v;
   localStorage.setItem("gameVolume", String(v));
+  applyVolumeAll();
 
   if (window.SFX) {
     Object.values(window.SFX).forEach((a) => {
@@ -77,6 +98,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const backRow = document.getElementById("back-row");
   const slider = document.getElementById("volume-slider");
   const lbl = document.getElementById("volume-value");
+  const btnMute = document.getElementById("btn-mute");
+
+  updateMuteUI();
+  applyVolumeAll();
+
+  btnMute?.addEventListener("click", () => {
+    window.gameMuted = !window.gameMuted;
+    localStorage.setItem("gameMuted", window.gameMuted ? "1" : "0");
+    updateMuteUI();
+    applyVolumeAll();
+    window.world?.character?.pauseStep?.();
+  });
 
   const setVol = (pct) => {
     const p = Math.min(100, Math.max(0, Number(pct) || 0));
@@ -85,10 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
     gameVolume = p / 100;
     window.gameVolume = gameVolume;
     localStorage.setItem("gameVolume", String(gameVolume));
-    if (window.BGM) window.BGM.volume = gameVolume;
+    if (window.BGM) (window.BGM.main ?? window.BGM).volume = window.getEffectiveVolume();
   };
-
-  btnBack?.addEventListener("click", backToStartHardReset);
 
   if (slider && lbl) {
     const startPct = Math.round((window.gameVolume ?? 1) * 100);
@@ -109,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ovStart.classList.add("hidden");
 
     if (!window.BGM) window.BGM = makeBgm("audio/bg-music.wav");
-    window.BGM.volume = window.gameVolume ?? 1;
+    window.BGM.volume = window.getEffectiveVolume();
     window.BGM.play().catch(console.warn);
 
     if (world) world.paused = false;
@@ -134,6 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (world) world.paused = true;
   }
 
+  btnBack?.addEventListener("click", backToStartHardReset);
   btnStart?.addEventListener("click", startGame);
   btnFab?.addEventListener("click", openSettings);
   btnClose?.addEventListener("click", closeSettings);
