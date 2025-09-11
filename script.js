@@ -1,20 +1,51 @@
+/**
+ * @file Orchestrates game bootstrapping, global audio state (volume/mute),
+ * overlay visibility, touch controls, and basic orientation handling.
+ * Exposes some helpers on `window` for reuse across classes (e.g., SFX/BGM).
+ */
+
+/** @type {HTMLCanvasElement} */
 let canvas;
+/** @type {World} */
 let world;
+/** @type {Keyboard} */
 let keyboard = new Keyboard();
 
-/* =======================
-   Lautstärke / Mute
-======================= */
+/**
+ * Whether game audio is muted (persisted in localStorage).
+ * @global
+ * @type {boolean}
+ */
 window.gameMuted = localStorage.getItem("gameMuted") === "1";
+
+/**
+ * Master game volume in the range [0..1] (persisted in localStorage).
+ * @global
+ * @type {number}
+ */
 window.gameVolume = Math.min(1, Math.max(0, parseFloat(localStorage.getItem("gameVolume") ?? "1")));
+
+/**
+ * Effective volume that respects the mute toggle.
+ * @global
+ * @returns {number} 0 when muted, otherwise the current master volume [0..1].
+ */
 window.getEffectiveVolume = () => (window.gameMuted ? 0 : window.gameVolume);
 
+/**
+ * Applies the current effective volume to all registered SFX and BGM.
+ * @returns {void}
+ */
 function applyVolumeAll() {
   const vol = window.getEffectiveVolume();
   if (window.SFX) Object.values(window.SFX).forEach((a) => a && (a.volume = vol));
-  if (window.BGM) window.BGM.volume = vol; // <<< BGM mitnehmen
+  if (window.BGM) window.BGM.volume = vol;
 }
 
+/**
+ * Updates the mute button icon and alt text according to the mute state.
+ * @returns {void}
+ */
 function updateMuteUI() {
   const icon = document.getElementById("icon-mute");
   if (!icon) return;
@@ -22,9 +53,12 @@ function updateMuteUI() {
   icon.alt = window.gameMuted ? "Unmute" : "Mute";
 }
 
-/* =======================
-   Audio-Helfer / SFX / BGM
-======================= */
+/**
+ * Creates an HTMLAudioElement for sound effects (SFX).
+ * @param {string} src - Path to the audio file.
+ * @param {boolean} [loop=false] - Whether the sound should loop.
+ * @returns {HTMLAudioElement}
+ */
 function makeSfx(src, loop = false) {
   const a = new Audio(src);
   a.preload = "auto";
@@ -33,6 +67,11 @@ function makeSfx(src, loop = false) {
   return a;
 }
 
+/**
+ * Global SFX registry.
+ * @global
+ * @type {Record<string, HTMLAudioElement>}
+ */
 window.SFX = window.SFX || {};
 window.SFX.step = makeSfx("audio/footstep.wav", true);
 window.SFX.bottleBreak = makeSfx("audio/broken-bottle.wav");
@@ -43,6 +82,11 @@ window.SFX.bottlePickup = makeSfx("audio/collect-bottle.wav");
 window.SFX.coinPickup = makeSfx("audio/collect-coin.wav");
 window.SFX.jump = makeSfx("audio/jump.wav");
 
+/**
+ * Plays an SFX by name from the global registry, respecting mute/volume.
+ * @param {string} name - Key in the `window.SFX` map.
+ * @returns {void}
+ */
 window.playSfx = function (name) {
   const a = window.SFX?.[name];
   if (!a) return;
@@ -53,6 +97,11 @@ window.playSfx = function (name) {
   } catch (_) {}
 };
 
+/**
+ * Creates an HTMLAudioElement for background music (BGM).
+ * @param {string} src - Path to the audio file.
+ * @returns {HTMLAudioElement}
+ */
 function makeBgm(src) {
   const a = new Audio(src);
   a.preload = "auto";
@@ -60,8 +109,19 @@ function makeBgm(src) {
   a.volume = window.getEffectiveVolume();
   return a;
 }
+
+/**
+ * Active background music audio element (created on start).
+ * @global
+ * @type {HTMLAudioElement|null}
+ */
 window.BGM = null;
 
+/**
+ * Sets the master volume from a 0–100 slider value and applies it globally.
+ * @param {number|string} pct - Slider value (0..100).
+ * @returns {void}
+ */
 function setGameVolumeFromSlider(pct) {
   const v = Math.min(1, Math.max(0, (Number(pct) || 0) / 100));
   window.gameVolume = v;
@@ -69,29 +129,48 @@ function setGameVolumeFromSlider(pct) {
   applyVolumeAll();
 }
 
-/* =======================
-   Sichtbarkeits-Helfer (global)
-======================= */
+/**
+ * Checks if the start overlay is currently visible.
+ * @returns {boolean}
+ */
 function isStartVisible() {
   const ov = document.getElementById("overlay-1");
   return !!(ov && !ov.classList.contains("hidden"));
 }
+
+/**
+ * Checks if the settings overlay is currently visible.
+ * @returns {boolean}
+ */
 function isSettingsVisible() {
   const ov = document.getElementById("overlay-settings");
   return !!(ov && !ov.classList.contains("hidden"));
 }
+
+/**
+ * Detects coarse pointer (touch) devices via media query.
+ * @returns {boolean}
+ */
 function isTouch() {
   return matchMedia("(pointer: coarse)").matches;
 }
+
+/**
+ * Detects landscape orientation via media query.
+ * @returns {boolean}
+ */
 function isLandscape() {
   return matchMedia("(orientation: landscape)").matches;
 }
 
-/* Touch-Buttons nur zeigen, wenn:
-   - Touch-Gerät
-   - Landscape
-   - nicht Start-Overlay, nicht Settings-Overlay
-*/
+/**
+ * Shows/hides touch buttons based on environment:
+ * - touch device
+ * - landscape orientation
+ * - not on start overlay
+ * - not on settings overlay
+ * @returns {void}
+ */
 function updateTouchButtonsVisibility() {
   const overlayButtons = document.getElementById("overlay-buttons");
   if (!overlayButtons) return;
@@ -99,6 +178,10 @@ function updateTouchButtonsVisibility() {
   overlayButtons.classList.toggle("hidden", !show);
 }
 
+/**
+ * Initializes canvas, keyboard, and world. Starts paused by default.
+ * @returns {void}
+ */
 function init() {
   canvas = document.getElementById("canvas");
   keyboard = new Keyboard();
@@ -107,23 +190,40 @@ function init() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  /** @type {HTMLElement|null} */
   const ovStart = document.getElementById("overlay-1");
+  /** @type {HTMLElement|null} */
   const ovSettings = document.getElementById("overlay-settings");
+  /** @type {HTMLButtonElement|null} */
   const btnBack = document.getElementById("btn-back-start");
+  /** @type {HTMLImageElement|null} */
   const btnStart = document.getElementById("btn-start");
+  /** @type {HTMLButtonElement|null} */
   const btnFab = document.getElementById("btn-settings-fab");
+  /** @type {HTMLButtonElement|null} */
   const btnClose = document.getElementById("btn-close-settings");
+  /** @type {HTMLButtonElement|null} */
   const btnResume = document.getElementById("btn-resume");
+  /** @type {HTMLElement|null} */
   const resumeRow = document.getElementById("resume-row");
+  /** @type {HTMLButtonElement|null} */
   const btnBackStart = document.getElementById("btn-back-start");
+  /** @type {HTMLElement|null} */
   const backRow = document.getElementById("back-row");
+  /** @type {HTMLInputElement|null} */
   const slider = document.getElementById("volume-slider");
+  /** @type {HTMLElement|null} */
   const lbl = document.getElementById("volume-value");
+  /** @type {HTMLButtonElement|null} */
   const btnMute = document.getElementById("btn-mute");
 
   updateMuteUI();
   applyVolumeAll();
 
+  /**
+   * Toggles mute, updates UI, applies volume to all audio, and stops step loop if needed.
+   * @returns {void}
+   */
   btnMute?.addEventListener("click", () => {
     window.gameMuted = !window.gameMuted;
     localStorage.setItem("gameMuted", window.gameMuted ? "1" : "0");
@@ -145,6 +245,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  /**
+   * Hides start overlay, starts BGM, unpauses world, and updates touch buttons.
+   * @returns {void}
+   */
   function startGame() {
     ovStart.classList.add("hidden");
 
@@ -156,6 +260,11 @@ document.addEventListener("DOMContentLoaded", () => {
     updateTouchButtonsVisibility();
   }
 
+  /**
+   * Opens settings overlay, optionally pauses world (when not on start),
+   * and updates touch buttons.
+   * @returns {void}
+   */
   function openSettings() {
     const inStart = isStartVisible();
     if (resumeRow) resumeRow.classList.toggle("hidden", inStart);
@@ -165,12 +274,20 @@ document.addEventListener("DOMContentLoaded", () => {
     updateTouchButtonsVisibility();
   }
 
+  /**
+   * Closes settings overlay, resumes world if not on start, and updates touch buttons.
+   * @returns {void}
+   */
   function closeSettings() {
     ovSettings.classList.add("hidden");
     if (world && !isStartVisible()) world.paused = false;
     updateTouchButtonsVisibility();
   }
 
+  /**
+   * Returns to the start overlay and pauses the world.
+   * @returns {void}
+   */
   function backToStart() {
     ovSettings.classList.add("hidden");
     ovStart.classList.remove("hidden");
@@ -178,6 +295,10 @@ document.addEventListener("DOMContentLoaded", () => {
     updateTouchButtonsVisibility();
   }
 
+  /**
+   * Performs a hard reset by reloading the page.
+   * @returns {void}
+   */
   function backToStartHardReset() {
     location.reload();
   }
@@ -203,11 +324,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  /** @type {HTMLButtonElement|null} */
   const btnLeft = document.getElementById("button-left");
+  /** @type {HTMLButtonElement|null} */
   const btnRight = document.getElementById("button-right");
+  /** @type {HTMLButtonElement|null} */
   const btnJump = document.getElementById("button-jump");
+  /** @type {HTMLButtonElement|null} */
   const btnThrow = document.getElementById("button-throw");
 
+  /**
+   * Binds a "hold" behavior to a button to toggle a Keyboard flag while pressed.
+   * Works across pointer, touch and mouse events.
+   * @param {HTMLElement|null} el - The button element.
+   * @param {"LEFT"|"RIGHT"|"UP"|"SPACE"} flag - Keyboard flag to toggle.
+   * @returns {void}
+   */
   function bindHold(el, flag) {
     if (!el) return;
     const down = (e) => {
@@ -244,6 +376,7 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "ArrowDown" || event.key === "s" || event.key === "S") keyboard.DOWN = true;
   if (event.key === " ") keyboard.SPACE = true;
 });
+
 window.addEventListener("keyup", (event) => {
   if (event.key === "ArrowLeft" || event.key === "a" || event.key === "A") keyboard.LEFT = false;
   if (event.key === "ArrowUp" || event.key === "w" || event.key === "W") keyboard.UP = false;
@@ -252,6 +385,11 @@ window.addEventListener("keyup", (event) => {
   if (event.key === " ") keyboard.SPACE = false;
 });
 
+/**
+ * Shows a short result overlay (win/lose), pauses world and reloads after 2s.
+ * @param {"win"|"lose"} type - Result type.
+ * @returns {void}
+ */
 function showResult(type) {
   const ov = document.getElementById("overlay-result");
   const img = document.getElementById("result-img");
@@ -265,20 +403,28 @@ function showResult(type) {
   setTimeout(() => location.reload(), 2000);
 }
 
+/**
+ * Pauses the world when on touch devices in portrait orientation.
+ * No-op otherwise or before world exists.
+ * @returns {void}
+ */
 function syncPauseToOrientation() {
   if (!window.world) return;
   if (isTouch() && !isLandscape()) {
     world.paused = true;
   }
 }
+
 window.addEventListener("resize", () => {
   syncPauseToOrientation();
   updateTouchButtonsVisibility();
 });
+
 window.addEventListener("orientationchange", () => {
   syncPauseToOrientation();
   updateTouchButtonsVisibility();
 });
+
 document.addEventListener("DOMContentLoaded", () => {
   syncPauseToOrientation();
   updateTouchButtonsVisibility();

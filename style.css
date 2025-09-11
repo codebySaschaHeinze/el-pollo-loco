@@ -98,7 +98,7 @@
   border-radius: 10px;
   color: #fff;
   font-family: var(--hud-font, "Rye", "Rockwell", serif);
-  margin-top: 80px;
+  margin-top: 40px;
   display: inline-flex; /* sorgt für korrektes Zentrieren */
   transform: scale(0.7); /* 50% Größe */
   transform-origin: center;
