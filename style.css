@@ -229,9 +229,8 @@
   min-width: 280px;
   padding: 16px 18px;
   border-radius: 12px;
-  background: rgba(20, 18, 16, 0.85);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(116, 33, 0, 0.705);
+  color: #e8c602;
   font-family: var(--hud-font, "Rye", "Rockwell", serif);
   display: grid;
   gap: 12px;
@@ -262,9 +261,8 @@
 .settings-action {
   padding: 8px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(0, 0, 0, 0.26);
-  color: #fff;
+  background: rgba(116, 33, 0, 0.705);
+  color: #e8c602;
   cursor: pointer;
 }
 .hidden {

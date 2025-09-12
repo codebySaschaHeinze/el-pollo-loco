@@ -170,6 +170,7 @@ function updateTouchButtonsVisibility() {
  */
 function startGame() {
   DOM.ovStart?.classList.add("hidden");
+  DOM.backRow?.classList.add("hidden");
   buildWorld({ paused: false });
   startBGM();
   updateTouchButtonsVisibility();
@@ -180,8 +181,10 @@ function startGame() {
  * @returns {void}
  */
 function openSettings() {
+  const onStart = isStartVisible();
+  DOM.backRow?.classList.toggle("hidden", onStart);
   DOM.ovSettings?.classList.remove("hidden");
-  if (world && !isStartVisible()) world.paused = true;
+  if (world && !onStart) world.paused = true;
   updateTouchButtonsVisibility();
 }
 
@@ -202,6 +205,7 @@ function closeSettings() {
 function backToStart() {
   DOM.ovSettings?.classList.add("hidden");
   DOM.ovStart?.classList.remove("hidden");
+  DOM.backRow?.classList.add("hidden");
   if (world) world.paused = true;
   updateTouchButtonsVisibility();
 }
@@ -314,6 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnFab: $("btn-settings-fab"),
     btnClose: $("btn-close-settings"),
     btnBackStart: $("btn-back-start"),
+    backRow: $("back-row"),
     // volume
     slider: $("volume-slider"),
     volumeLbl: $("volume-value"),
