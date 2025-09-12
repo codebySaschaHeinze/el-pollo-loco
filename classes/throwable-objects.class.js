@@ -129,4 +129,15 @@ class ThrowableObjects extends MovableObjects {
     ctx.restore();
     this.angle += 0.25;
   }
+
+  /**
+   * Stops walking animation timer.
+   * @returns {void}
+   */
+  freeze() {
+    if (this.moveInterval) {
+      clearInterval(this.moveInterval);
+      this.moveInterval = null;
+    }
+  }
 }

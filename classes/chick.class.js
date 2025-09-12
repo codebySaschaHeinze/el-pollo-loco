@@ -70,4 +70,15 @@ class Chick extends Chicken {
     const ground = this.world?.character?.groundBottom || 417;
     return this.y + this.height < ground;
   }
+
+  /**
+   * Stops walking animation timer.
+   * @returns {void}
+   */
+  freeze() {
+    if (this.walkInterval) {
+      clearInterval(this.walkInterval);
+      this.walkInterval = null;
+    }
+  }
 }

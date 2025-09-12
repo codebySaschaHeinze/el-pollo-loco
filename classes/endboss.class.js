@@ -252,4 +252,31 @@ class Endboss extends MovableObjects {
     chick.otherDirection = true;
     this.world.level.enemies.push(chick);
   }
+
+  /**
+   * Stops boss timers (walk/attack/spawn/anim if present).
+   * @returns {void}
+   */
+  freeze() {
+    if (this.walkInterval) {
+      clearInterval(this.walkInterval);
+      this.walkInterval = null;
+    }
+    if (this.attackInterval) {
+      clearInterval(this.attackInterval);
+      this.attackInterval = null;
+    }
+    if (this.spawnInterval) {
+      clearInterval(this.spawnInterval);
+      this.spawnInterval = null;
+    }
+    if (this.animInterval) {
+      clearInterval(this.animInterval);
+      this.animInterval = null;
+    }
+    if (this.moveInterval) {
+      clearInterval(this.moveInterval);
+      this.moveInterval = null;
+    }
+  }
 }

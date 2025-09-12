@@ -1,4 +1,11 @@
 /**
+ * Options for playing sound effects from the global SFX registry.
+ * @typedef {Object} PlaySfxOptions
+ * @property {boolean} [clone] - Clone the audio node before playing.
+ * @property {boolean} [reset] - Reset currentTime before playing.
+ */
+
+/**
  * Game world orchestrating rendering, updates, collisions, HUD, and end conditions.
  * @class
  */
@@ -14,7 +21,9 @@ class World {
   /** @type {CoinHUD} */ coinHUD = new CoinHUD();
   /** @type {Array<ThrowableObjects>} */ throwableObjects = [];
   /** @type {boolean} */ paused = false;
-  /** @private @type {boolean} */ _ending = false;
+  /** @type {boolean} */ _ending = false;
+  /** @type {number|null} */ _raf = null;
+  /** @type {number|null} */ _throwTimer = null;
 
   /**
    * @param {HTMLCanvasElement} canvas - Render target.
@@ -70,7 +79,49 @@ class World {
     this.addToMap(this.bottleBar);
     this.checkEndConditions();
 
-    requestAnimationFrame(() => this.draw());
+    // ← NEU: rAF-Handle speichern
+    this._raf = requestAnimationFrame(() => this.draw());
+  }
+
+  /**
+   * Freezes the entire world:
+   * - sets paused=true
+   * - cancels rAF loop
+   * - clears throw interval
+   * - calls .freeze() on entities that support it
+   * @returns {void}
+   */
+  freezeAll() {
+    this.paused = true;
+
+    // rAF stoppen (Canvas-Loop)
+    if (this._raf != null) {
+      try {
+        cancelAnimationFrame(this._raf);
+      } catch (_) {}
+      this._raf = null;
+    }
+
+    // Throw-Interval stoppen
+    if (this._throwTimer != null) {
+      try {
+        clearInterval(this._throwTimer);
+      } catch (_) {}
+      this._throwTimer = null;
+    }
+
+    // Spieler & Boss
+    this.character?.freeze?.();
+    const boss = this.getBoss();
+    boss?.freeze?.();
+
+    // Gegner/Objekte/Projektil-Intervalle stoppen, wenn vorhanden
+    this.level?.enemies?.forEach((e) => e?.freeze?.());
+    this.level?.birds?.forEach((b) => b?.freeze?.());
+    this.level?.clouds?.forEach((c) => c?.freeze?.());
+    this.level?.foregroundObjects?.forEach((f) => f?.freeze?.());
+    this.level?.backgroundObjects?.forEach((o) => o?.freeze?.());
+    this.throwableObjects?.forEach((t) => t?.freeze?.());
   }
 
   /**
@@ -106,7 +157,7 @@ class World {
 
   /** Starts periodic throw checks. */
   run() {
-    setInterval(() => this.checkThrowObjects(), 200);
+    this._throwTimer = setInterval(() => this.checkThrowObjects(), 200);
   }
 
   /** Attempts to spawn a throwable when allowed; updates bottle HUD. */
@@ -191,11 +242,15 @@ class World {
             this.character.y = enemy.y - this.character.height;
             this.character.speedY = 15;
           }
+          // Grant short invulnerability after a successful stomp to avoid double-hit from overlapping enemies.
+          if (typeof this.character.registerStomp === "function") this.character.registerStomp();
           return;
         }
       }
 
-      if (typeof this.character.hit === "function") {
+      // Skip taking damage if currently within stomp grace window.
+      const inStompGrace = this.character.isInStompGrace && this.character.isInStompGrace();
+      if (!inStompGrace && typeof this.character.hit === "function") {
         this.character.hit();
         this.statusBar.setPercentage(this.character.energy);
       }
@@ -208,7 +263,10 @@ class World {
     if (!boss || boss.dead) return;
 
     if (this.boxesCollide(this.character, boss)) {
-      if (this.character.hit?.(20)) this.statusBar.setPercentage(this.character.energy);
+      const inStompGrace = this.character.isInStompGrace && this.character.isInStompGrace();
+      if (!inStompGrace && this.character.hit?.(20)) {
+        this.statusBar.setPercentage(this.character.energy);
+      }
       const push = this.character.x < boss.x ? -40 : 40;
       this.character.x += push;
       this.character.speedY = 12;
@@ -251,12 +309,14 @@ class World {
     if (this._ending) return;
     if (this.character?.isDead?.()) {
       this._ending = true;
+      this.freezeAll();
       showResult("lose");
       return;
     }
     const boss = this.level?.endboss;
     if (boss?.dead) {
       this._ending = true;
+      this.freezeAll();
       showResult("win");
     }
   }
@@ -384,7 +444,8 @@ class World {
   /**
    * Plays a named SFX from window.SFX with volume management.
    * @param {string} name - Key in window.SFX.
-   * @param {{clone?:boolean, reset?:boolean}} [opts]
+   * @param {PlaySfxOptions} [opts] - Playback options.
+   * @returns {void}
    */
   playSfx(name, opts = {}) {
     const s = window.SFX?.[name];

@@ -386,21 +386,59 @@ window.addEventListener("keyup", (event) => {
 });
 
 /**
- * Shows a short result overlay (win/lose), pauses world and reloads after 2s.
- * @param {"win"|"lose"} type - Result type.
- * @returns {void}
+ * Shows the result overlay (win/lose), pauses the world, offers actions.
+ * @param {"win"|"lose"} kind
  */
-function showResult(type) {
+function showResult(kind) {
   const ov = document.getElementById("overlay-result");
   const img = document.getElementById("result-img");
+  if (!ov || !img) return;
+
   const WIN_IMG = "assets/imgs/You_won_you_lost/won.png";
   const LOSE_IMG = "assets/imgs/You_won_you_lost/lost.png";
-  img.src = type === "win" ? WIN_IMG : LOSE_IMG;
-  if (window.world) world.paused = true;
+
+  img.src = kind === "win" ? WIN_IMG : LOSE_IMG;
+  img.alt = kind === "win" ? "Gewonnen" : "Verloren";
+  try {
+    window.world?.freezeAll?.();
+  } catch (_) {}
+
   ov.classList.remove("hidden");
   void ov.offsetWidth;
   ov.classList.add("show");
-  setTimeout(() => location.reload(), 2000);
+  ov.style.pointerEvents = "auto";
+  if (typeof bindResultActions === "function") bindResultActions();
+}
+
+/**
+ * Wires up click handlers for result overlay actions once.
+ * @returns {void}
+ */
+function bindResultActions() {
+  const ov = document.getElementById("overlay-result");
+  if (!ov || ov.dataset.bound === "1") return;
+  const btnRestart = document.getElementById("btn-result-restart");
+  const btnStart = document.getElementById("btn-result-start");
+  if (btnRestart) {
+    btnRestart.addEventListener("click", () => {
+      try {
+        if (window.world) window.world.paused = true;
+      } catch (_) {}
+      location.reload();
+    });
+  }
+  if (btnStart) {
+    btnStart.addEventListener("click", () => {
+      ov.classList.add("hidden");
+      ov.classList.remove("show");
+      const startOverlay = document.getElementById("overlay-1");
+      if (startOverlay) startOverlay.classList.remove("hidden");
+      try {
+        if (window.world) window.world.paused = true;
+      } catch (_) {}
+    });
+  }
+  ov.dataset.bound = "1";
 }
 
 /**
@@ -429,3 +467,26 @@ document.addEventListener("DOMContentLoaded", () => {
   syncPauseToOrientation();
   updateTouchButtonsVisibility();
 });
+
+(function setupResultActions() {
+  const res = document.getElementById("overlay-result");
+  const btnRestart = document.getElementById("btn-result-restart");
+  const btnStart = document.getElementById("btn-result-start");
+  if (!res || !btnRestart || !btnStart) return;
+  btnRestart.addEventListener("click", () => {
+    try {
+      if (window.world) window.world.paused = true;
+    } catch (_) {}
+    location.reload();
+  });
+
+  btnStart.addEventListener("click", () => {
+    res.classList.add("hidden");
+    res.classList.remove("show");
+    const startOverlay = document.getElementById("overlay-1");
+    if (startOverlay) startOverlay.classList.remove("hidden");
+    try {
+      if (window.world) window.world.paused = true;
+    } catch (_) {}
+  });
+})();

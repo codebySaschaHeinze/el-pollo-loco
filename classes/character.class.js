@@ -48,6 +48,10 @@ class Character extends MovableObjects {
   /** Whether footstep SFX is currently playing. @type {boolean} */
   stepPlaying = false;
 
+  stompGraceMs = 180;
+
+  lastStompAt = 0;
+
   /** Walking animation frames. @type {string[]} */
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",
@@ -402,6 +406,38 @@ class Character extends MovableObjects {
       this.playStep();
     } else {
       this.pauseStep();
+    }
+  }
+
+  /**
+   * Marks a successful stomp and starts a short grace window.
+   * @returns {void}
+   */
+  registerStomp() {
+    this.lastStompAt = Date.now();
+  }
+
+  /**
+   * True while stomp grace is active.
+   * @returns {boolean}
+   */
+  isInStompGrace() {
+    return Date.now() - (this.lastStompAt || 0) < this.stompGraceMs;
+  }
+
+  /**
+   * Stops movement/animation timers and step sound.
+   * @returns {void}
+   */
+  freeze() {
+    this.pauseStep?.();
+    if (this.moveInterval) {
+      clearInterval(this.moveInterval);
+      this.moveInterval = null;
+    }
+    if (this.animInterval) {
+      clearInterval(this.animInterval);
+      this.animInterval = null;
     }
   }
 }

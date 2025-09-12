@@ -98,4 +98,15 @@ class Chicken extends MovableObjects {
       this.y = 365 + Math.random() * 10;
     }
   }
+
+  /**
+   * Stops walking animation timer.
+   * @returns {void}
+   */
+  freeze() {
+    if (this.walkInterval) {
+      clearInterval(this.walkInterval);
+      this.walkInterval = null;
+    }
+  }
 }
