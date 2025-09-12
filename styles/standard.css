@@ -15,7 +15,6 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding-bottom: 60px;
   font-family: "ubuntu", sans-serif;
 }
 
@@ -26,32 +25,6 @@ a {
 
 a:hover {
   text-decoration: underline;
-}
-
-nav {
-  display: flex;
-  position: fixed;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  z-index: 10;
-  background-color: rgb(125, 71, 0);
-}
-
-footer {
-  display: flex;
-  position: fixed;
-  width: 100%;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  z-index: 10;
-  background-color: rgb(125, 71, 0);
 }
 
 canvas {

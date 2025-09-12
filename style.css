@@ -9,32 +9,6 @@
   background-color: rgb(148, 111, 1);
 }
 
-.nav_content {
-  max-width: 1920px;
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  padding-left: clamp(5px, 3vw, 40px);
-  padding-right: clamp(5px, 3vw, 40px);
-}
-
-.footer_content {
-  max-width: 1920px;
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-left: clamp(5px, 3vw, 40px);
-  padding-right: clamp(5px, 3vw, 40px);
-}
-
-.footer_links {
-  display: flex;
-  flex-direction: column;
-}
-
 .canvas_container {
   position: relative;
 }
@@ -72,7 +46,7 @@
 }
 
 .menu-btn {
-  margin-top: 200px;
+  margin-top: 150px;
   width: 120px;
   height: auto;
   cursor: pointer;
@@ -88,20 +62,26 @@
   filter: brightness(0.95);
 }
 
+.controls-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
+  background-color: rgba(0, 0, 0, 0.35);
+  padding-right: 10px;
+  padding-left: 10px;
+  border-radius: 8px;
+}
+
 .volume-block {
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  color: #fff;
+  gap: 8px;
+  color: #ffffff;
   font-family: var(--hud-font, "Rye", "Rockwell", serif);
-  margin-top: 40px;
-  display: inline-flex;
-  transform: scale(0.7);
-  transform-origin: center;
+  flex: 1 1 auto;
+  min-width: 320px;
 }
 
 .volume-block > span:first-child {
@@ -110,7 +90,7 @@
 }
 
 #volume-slider {
-  flex: 1 1 2200px;
+  flex: 1 1 240px;
   min-width: 140px;
 }
 
@@ -190,15 +170,21 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  justify-content: center;
-}
-.legal-links a {
+  white-space: nowrap;
+  flex: 0 0 auto;
   color: #fff;
-  text-decoration: underline;
+  font-family: var(--hud-font, "Rye", "Rockwell", serif);
+}
+
+.legal-links a {
+  color: #ffffff;
+
   opacity: 0.9;
 }
+
 .legal-links a:hover {
   opacity: 1;
+  text-decoration: underline;
 }
 
 .settings-fab {
@@ -276,8 +262,8 @@
 .settings-action {
   padding: 8px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.26);
   color: #fff;
   cursor: pointer;
 }
@@ -354,8 +340,8 @@
 }
 
 .mute-btn img {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   transform: scale(1.6);
   margin-right: 18px;
   transform-origin: center;
@@ -363,7 +349,7 @@
 }
 
 #volume-value {
-  min-width: 50px;
+  min-width: 40px;
   text-align: right;
 }
 
@@ -469,4 +455,18 @@
 #overlay-buttons button {
   touch-action: none;
   user-select: none;
+}
+
+.overlay_result.show {
+  pointer-events: auto;
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.result-actions .settings-action:hover {
+  transform: scale(1.05);
 }
