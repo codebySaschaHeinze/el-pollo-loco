@@ -5,52 +5,33 @@
  * @extends MovableObjects
  */
 class Character extends MovableObjects {
-  /** Baseline y before gravity adjustment; actual y is set to groundBottom - height in ctor. @type {number} */
   y = 180;
-  /** Horizontal movement speed. @type {number} */
   speed = 6;
-  /** Current health (0..100). @type {number} */
   energy = 100;
-  /** Timestamp (ms) of the last damaging hit. @type {number} */
   lastHitAt = 0;
-  /** Invulnerability window after a hit (ms). @type {number} */
   invulnMs = 700;
-  /** "Hurt" state duration (ms) for animation. @type {number} */
   hurtMs = 350;
-  /** Whether the character has died. @type {boolean} */
   dead = false;
-  /** Interval id for movement loop. @type {number|null} */
   moveInterval = null;
-  /** Interval id for animation loop. @type {number|null} */
   animInterval = null;
-  /** Whether the death animation finished its visible frames. @type {boolean} */
   deathDone = false;
-  /** Current index into IMAGES_DEAD during death animation. @type {number} */
   deathIndex = 0;
-  /** Timestamp when the post-death ascend effect started. @type {number} */
   ascendStartAt = 0;
-  /** Duration (ms) of the post-death ascend effect. @type {number} */
   ascendDuration = 2000;
-  /** Total vertical distance of the post-death ascend effect. @type {number} */
   ascendDistance = 300;
-  /** y-position recorded at the start of the ascend effect. @type {number} */
   bodyBaseY = 0;
-  /** Last index of a visible dead frame image. @type {number} */
   lastVisibleDeadIdx = 0;
-  /** Number of throwable bottles in inventory. @type {number} */
   bottles = 0;
-  /** Max bottles the character can carry. @type {number} */
   maxBottles = 10;
-  /** Coin count. @type {number} */
   coins = 0;
-  /** Coin counter cap for HUD formatting. @type {number} */
   maxCoins = 999;
-  /** Whether footstep SFX is currently playing. @type {boolean} */
   stepPlaying = false;
-
   stompGraceMs = 180;
-
   lastStompAt = 0;
+  idleTimeoutMs = 5000;
+  lastActionAt = Date.now();
+  sleeping = false;
+  _sleepImagesLoaded = false;
 
   /** Walking animation frames. @type {string[]} */
   IMAGES_WALKING = [
@@ -106,10 +87,21 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/1_idle/idle/i-10.png",
   ];
 
-  /** Current animation frame cursor. @type {number} */
-  currentImage = 0;
+  /** Sleep animation frames. @type {string[]} */
+  IMAGES_SLEEP = [
+    "assets/imgs/2_character_pepe/1_idle/long_idle/i-11.png",
+    "assets/imgs/2_character_pepe/1_idle/long_idle/i-12.png",
+    "assets/imgs/2_character_pepe/1_idle/long_idle/i-13.png",
+    "assets/imgs/2_character_pepe/1_idle/long_idle/i-14.png",
+    "assets/imgs/2_character_pepe/1_idle/long_idle/i-15.png",
+    "assets/imgs/2_character_pepe/1_idle/long_idle/i-16.png",
+    "assets/imgs/2_character_pepe/1_idle/long_idle/i-17.png",
+    "assets/imgs/2_character_pepe/1_idle/long_idle/i-18.png",
+    "assets/imgs/2_character_pepe/1_idle/long_idle/i-19.png",
+    "assets/imgs/2_character_pepe/1_idle/long_idle/i-20.png",
+  ];
 
-  /** Back-reference to the world, set externally. @type {World|undefined} */
+  currentImage = 0;
   world;
 
   /**
@@ -140,7 +132,6 @@ class Character extends MovableObjects {
    */
   playJump() {
     if (window.getEffectiveVolume && window.getEffectiveVolume() === 0) return;
-
     const a = window.SFX?.jump;
     if (!a) return;
     a.currentTime = 0;
@@ -220,27 +211,31 @@ class Character extends MovableObjects {
   }
 
   /**
-   * Starts movement and animation intervals:
-   * - Movement loop handles keyboard input and camera follow.
-   * - Animation loop selects appropriate sprite set based on state.
+   * Sets up movement and animation loops, including sleep-on-idle behavior.
    * @returns {void}
    */
   animate() {
     this.moveInterval = setInterval(() => {
       if (this.isDead()) return;
       if (this.world?.paused) return;
-
-      if (this.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
+      const kb = this.world?.keyboard || this.keyboard;
+      if (kb?.LEFT || kb?.RIGHT || kb?.UP || kb?.DOWN || kb?.SPACE) {
+        this.markActivity();
+      }
+      if (kb?.RIGHT && this.x < this.world.level.level_end_x) {
         this.moveRight();
         this.otherDirection = false;
+        this.markActivity();
       }
-      if (this.keyboard.LEFT && this.x > 0) {
+      if (kb?.LEFT && this.x > 0) {
         this.moveLeft();
         this.otherDirection = true;
+        this.markActivity();
       }
-      if (this.world.keyboard.UP && !this.isAboveGround()) {
+      if (kb?.UP && !this.isAboveGround()) {
         this.pauseStep();
         this.jump();
+        this.markActivity();
       }
       this.world.camera_x = -this.x + 250;
     }, 1000 / 100);
@@ -261,13 +256,30 @@ class Character extends MovableObjects {
         return;
       }
       if (this.world?.paused) return;
-
+      const kb = this.world?.keyboard || this.keyboard;
+      const moving = !!(kb?.RIGHT || kb?.LEFT);
+      const onGround = !this.isAboveGround();
+      if (!moving && onGround && !this.isHurt?.() && !(this.speedY > 0)) {
+        if (this.isInactive()) this.sleeping = true;
+      } else {
+        if (moving || kb?.UP || kb?.DOWN || kb?.SPACE) this.wakeUp();
+      }
       if (this.isHurt && this.isHurt()) {
         this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround() || this.speedY > 0) {
         this.playAnimation(this.IMAGES_JUMPING);
-      } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+      } else if (moving) {
         this.playAnimation(this.IMAGES_WALKING);
+      } else if (this.sleeping) {
+        if (this.IMAGES_SLEEP && this.IMAGES_SLEEP.length) {
+          if (!this._sleepImagesLoaded) {
+            this.loadImages(this.IMAGES_SLEEP);
+            this._sleepImagesLoaded = true;
+          }
+          this.playAnimation(this.IMAGES_SLEEP);
+        } else {
+          this.playAnimation(this.IMAGES_IDLE);
+        }
       } else {
         this.playAnimation(this.IMAGES_IDLE);
       }
@@ -297,9 +309,7 @@ class Character extends MovableObjects {
       ctx.globalAlpha = alpha;
       super.draw(ctx);
       ctx.restore();
-
       if (t >= 1) this.gone = true;
-
       return;
     }
 
@@ -439,5 +449,30 @@ class Character extends MovableObjects {
       clearInterval(this.animInterval);
       this.animInterval = null;
     }
+  }
+
+  /**
+   * Marks recent user activity and wakes up if sleeping.
+   * @returns {void}
+   */
+  markActivity() {
+    this.lastActionAt = Date.now();
+    if (this.sleeping) this.wakeUp();
+  }
+
+  /**
+   * Returns true if inactivity exceeded idleTimeoutMs.
+   * @returns {boolean}
+   */
+  isInactive() {
+    return Date.now() - (this.lastActionAt || 0) >= this.idleTimeoutMs;
+  }
+
+  /**
+   * Exits sleep state.
+   * @returns {void}
+   */
+  wakeUp() {
+    this.sleeping = false;
   }
 }

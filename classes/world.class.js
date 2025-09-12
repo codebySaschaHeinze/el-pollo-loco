@@ -10,29 +10,38 @@
  * @class
  */
 class World {
-  /** @type {Character} */ character;
-  /** @type {Object} */ level = level1;
-  /** @type {HTMLCanvasElement} */ canvas;
-  /** @type {CanvasRenderingContext2D} */ ctx;
-  /** @type {Keyboard} */ keyboard;
-  /** @type {number} */ camera_x = 0;
-  /** @type {StatusBar} */ statusBar = new StatusBar();
-  /** @type {BottleBar} */ bottleBar = new BottleBar();
-  /** @type {CoinHUD} */ coinHUD = new CoinHUD();
-  /** @type {Array<ThrowableObjects>} */ throwableObjects = [];
-  /** @type {boolean} */ paused = false;
-  /** @type {boolean} */ _ending = false;
-  /** @type {number|null} */ _raf = null;
-  /** @type {number|null} */ _throwTimer = null;
+  character;
+  level = null;
+  canvas;
+  ctx;
+  keyboard;
+  camera_x = 0;
+  statusBar = new StatusBar();
+  bottleBar = new BottleBar();
+  coinHUD = new CoinHUD();
+  throwableObjects = [];
+  paused = false;
+  _ending = false;
+  _raf = null;
+  _throwTimer = null;
+  _endDelayWinMs = 1500;
+  _endDelayLosesMs = 0;
 
   /**
    * @param {HTMLCanvasElement} canvas - Render target.
    * @param {Keyboard} keyboard - Input source.
    */
-  constructor(canvas, keyboard) {
+
+  constructor(canvas, keyboard, levelInstance = null) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
+    this.level =
+      levelInstance || (typeof window.createLevel1 === "function" ? window.createLevel1() : typeof level1 !== "undefined" ? level1 : null);
+    if (!this.level) {
+      console.error("[World] No level instance available. Did you define createLevel1()?");
+      return;
+    }
     this.character = new Character(this.keyboard);
     this.character.x = 100;
     this.setWorld();
@@ -40,46 +49,33 @@ class World {
     this.run();
   }
 
-  /** Main loop: render/update pipeline and scheduling. */
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.translate(this.camera_x, 0);
-
     this.addObjectsToMap(this.level.backgroundObjects);
     this.addObjectsToMap(this.level.saloon);
-
     if (!this.paused) this.updateGroup(this.level.clouds);
     this.addObjectsToMap(this.level.clouds);
-
     if (!this.paused) this.updateGroup(this.level.birds);
     this.addObjectsToMap(this.level.birds);
-
     this.addObjectsToMap(this.level.bottlePickups);
     this.addObjectsToMap(this.level.coinPickups);
-
     if (!this.paused) this.updateGroup(this.level.enemies);
     this.addObjectsToMap(this.level.enemies);
-
     const boss = this.getBoss();
     if (boss?.healthBar) this.addToMap(boss.healthBar);
-
     this.addToMap(this.character);
     if (!this.paused) this.character.updateStepSound();
     else this.character.pauseStep();
-
     this.addObjectsToMap(this.throwableObjects);
     this.pruneThrowables();
     this.addObjectsToMap(this.level.foregroundObjects);
-
-    if (!this.paused) this.checkCollisions();
-
+    if (!this.paused && !this._ending) this.checkCollisions();
     this.ctx.translate(-this.camera_x, 0);
     this.addToMap(this.statusBar);
     this.addToMap(this.coinHUD);
     this.addToMap(this.bottleBar);
     this.checkEndConditions();
-
-    // ← NEU: rAF-Handle speichern
     this._raf = requestAnimationFrame(() => this.draw());
   }
 
@@ -93,29 +89,21 @@ class World {
    */
   freezeAll() {
     this.paused = true;
-
-    // rAF stoppen (Canvas-Loop)
     if (this._raf != null) {
       try {
         cancelAnimationFrame(this._raf);
       } catch (_) {}
       this._raf = null;
     }
-
-    // Throw-Interval stoppen
     if (this._throwTimer != null) {
       try {
         clearInterval(this._throwTimer);
       } catch (_) {}
       this._throwTimer = null;
     }
-
-    // Spieler & Boss
     this.character?.freeze?.();
     const boss = this.getBoss();
     boss?.freeze?.();
-
-    // Gegner/Objekte/Projektil-Intervalle stoppen, wenn vorhanden
     this.level?.enemies?.forEach((e) => e?.freeze?.());
     this.level?.birds?.forEach((b) => b?.freeze?.());
     this.level?.clouds?.forEach((c) => c?.freeze?.());
@@ -135,13 +123,11 @@ class World {
     this.level.bottlePickups?.forEach((b) => (b.world = this));
     this.level.coinPickups?.forEach((c) => (c.world = this));
     this.level.foregroundObjects?.forEach((f) => (f.world = this));
-
     if (!this.level.birds?.length) {
       const W = this.level?.level_end_x || 8000;
       this.level.birds = Birds.spawnFlock(50, W);
     }
     this.level.birds.forEach((b) => (b.world = this));
-
     const boss = this.getBoss();
     if (boss) {
       boss.world = this;
@@ -150,19 +136,14 @@ class World {
       this.level.endboss = boss;
       if (!this.level.enemies.includes(boss)) this.level.enemies.push(boss);
     }
-
     this.updateCoinHUD();
     this.updateBottleBar();
   }
-
-  /** Starts periodic throw checks. */
   run() {
     this._throwTimer = setInterval(() => this.checkThrowObjects(), 200);
   }
-
-  /** Attempts to spawn a throwable when allowed; updates bottle HUD. */
   checkThrowObjects() {
-    if (this.paused) return;
+    if (this.paused || this._ending) return;
     if (this.keyboard.SPACE && this.character.canThrowBottle?.()) {
       const bottle = new ThrowableObjects(this.character.x + 50, this.character.y + 50);
       bottle.world = this;
@@ -170,8 +151,6 @@ class World {
       if (this.character.useBottle?.()) this.updateBottleBar();
     }
   }
-
-  /** Collision orchestrator for pickups, enemies, boss, and bottles. */
   checkCollisions() {
     this.collectCoins();
     this.collectBottles();
@@ -180,8 +159,6 @@ class World {
     this.resolveBossCollisions();
     this.resolveBottlesVsEnemies();
   }
-
-  /** Coin pickup handling with HUD/SFX updates. */
   collectCoins() {
     const list = this.level.coinPickups;
     if (!list?.length) return;
@@ -197,8 +174,6 @@ class World {
     });
     this.level.coinPickups = list.filter((c) => !c.collected);
   }
-
-  /** Bottle pickup handling with HUD/SFX updates. */
   collectBottles() {
     const list = this.level.bottlePickups;
     if (!list?.length) return;
@@ -215,17 +190,13 @@ class World {
     });
     this.level.bottlePickups = list.filter((p) => !p.collected);
   }
-
-  /** Character vs non-boss enemies, including stomp-from-above. */
   resolveCharVsEnemies() {
     this.level.enemies.forEach((enemy) => {
       if (enemy.dead) return;
       if (typeof Endboss !== "undefined" && enemy instanceof Endboss) return;
       if (!this.boxesCollide(this.character, enemy)) return;
-
       const isChicken =
         (typeof Chicken !== "undefined" && enemy instanceof Chicken) || (typeof Chick !== "undefined" && enemy instanceof Chick);
-
       if (isChicken) {
         const charBox = this.getBox(this.character);
         const enemyBox = this.getBox(enemy);
@@ -233,7 +204,6 @@ class World {
         const charBottom = charBox.y + charBox.h;
         const overlapY = charBottom - enemyBox.y;
         const fromAbove = isFalling && overlapY >= 0 && overlapY <= 40;
-
         if (fromAbove) {
           enemy.die?.();
           this.playSfx("chickenHit", { reset: true });
@@ -242,13 +212,10 @@ class World {
             this.character.y = enemy.y - this.character.height;
             this.character.speedY = 15;
           }
-          // Grant short invulnerability after a successful stomp to avoid double-hit from overlapping enemies.
           if (typeof this.character.registerStomp === "function") this.character.registerStomp();
           return;
         }
       }
-
-      // Skip taking damage if currently within stomp grace window.
       const inStompGrace = this.character.isInStompGrace && this.character.isInStompGrace();
       if (!inStompGrace && typeof this.character.hit === "function") {
         this.character.hit();
@@ -257,7 +224,6 @@ class World {
     });
   }
 
-  /** Character vs boss and bottles vs boss. */
   resolveBossCollisions() {
     const boss = this.getBoss();
     if (!boss || boss.dead) return;
@@ -271,7 +237,6 @@ class World {
       this.character.x += push;
       this.character.speedY = 12;
     }
-
     this.throwableObjects.forEach((bottle) => {
       if (bottle.gone || bottle.didDamage) return;
       const { ox, oy } = this.overlapXY(bottle, boss);
@@ -304,20 +269,18 @@ class World {
     });
   }
 
-  /** Win/lose checks with single trigger. */
+  /** Win/lose checks with single trigger (win waits a bit for boss death anim). */
   checkEndConditions() {
     if (this._ending) return;
     if (this.character?.isDead?.()) {
       this._ending = true;
-      this.freezeAll();
-      showResult("lose");
+      this.scheduleEnd("lose", this._endDelayLosesMs);
       return;
     }
     const boss = this.level?.endboss;
     if (boss?.dead) {
       this._ending = true;
-      this.freezeAll();
-      showResult("win");
+      this.scheduleEnd("win", this._endDelayWinMs);
     }
   }
 
@@ -456,5 +419,29 @@ class World {
       audio.volume = window.getEffectiveVolume ? window.getEffectiveVolume() : audio.volume;
       audio.play();
     } catch (_) {}
+  }
+
+  /**
+   * Schedules freeze + result overlay after a delay.
+   * During delay, collisions are already halted via _ending.
+   * @param {"win"|"lose"} kind
+   * @param {number} delayMs
+   * @returns {void}
+   */
+  scheduleEnd(kind, delayMs = 0) {
+    if (this._endTimer != null) {
+      try {
+        clearTimeout(this._endTimer);
+      } catch (_) {}
+      this._endTimer = null;
+    }
+    try {
+      this.character?.pauseStep?.();
+    } catch (_) {}
+    this._endTimer = setTimeout(() => {
+      this.freezeAll();
+      showResult(kind);
+      this._endTimer = null;
+    }, Math.max(0, delayMs | 0));
   }
 }
