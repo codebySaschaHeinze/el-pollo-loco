@@ -1,7 +1,7 @@
 /**
- * Main player character with movement, physics, combat states, item counts, animations, and SFX hooks.
- * Handles keyboard-driven movement, gravity (via parent), damage/invulnerability, death animation/ascend,
- * sprite state machine (walk/jump/hurt/idle/dead), and footsteps/jump sounds.
+ * Main player character with movement, physics, combat states, items, animations, and SFX hooks.
+ * Handles keyboard movement, gravity (via parent), damage/invulnerability, death anim/ascend,
+ * sprite state machine (walk/jump/hurt/idle/dead), and footstep/jump sounds.
  * @extends MovableObjects
  */
 class Character extends MovableObjects {
@@ -32,8 +32,10 @@ class Character extends MovableObjects {
   lastActionAt = Date.now();
   sleeping = false;
   _sleepImagesLoaded = false;
+  currentImage = 0;
+  world;
 
-  /** Walking animation frames. @type {string[]} */
+  /** @type {string[]} */
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",
     "assets/imgs/2_character_pepe/2_walk/w-22.png",
@@ -42,8 +44,7 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/2_walk/w-25.png",
     "assets/imgs/2_character_pepe/2_walk/w-26.png",
   ];
-
-  /** Jump animation frames. @type {string[]} */
+  /** @type {string[]} */
   IMAGES_JUMPING = [
     "assets/imgs/2_character_pepe/3_jump/j-31.png",
     "assets/imgs/2_character_pepe/3_jump/j-32.png",
@@ -55,8 +56,7 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/3_jump/j-38.png",
     "assets/imgs/2_character_pepe/3_jump/j-39.png",
   ];
-
-  /** Death animation frames. @type {string[]} */
+  /** @type {string[]} */
   IMAGES_DEAD = [
     "assets/imgs/2_character_pepe/5_dead/d-51.png",
     "assets/imgs/2_character_pepe/5_dead/d-52.png",
@@ -65,15 +65,13 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/5_dead/d-55.png",
     "assets/imgs/2_character_pepe/5_dead/d-56.png",
   ];
-
-  /** Hurt animation frames. @type {string[]} */
+  /** @type {string[]} */
   IMAGES_HURT = [
     "assets/imgs/2_character_pepe/4_hurt/h-41.png",
     "assets/imgs/2_character_pepe/4_hurt/h-42.png",
     "assets/imgs/2_character_pepe/4_hurt/h-43.png",
   ];
-
-  /** Idle animation frames. @type {string[]} */
+  /** @type {string[]} */
   IMAGES_IDLE = [
     "assets/imgs/2_character_pepe/1_idle/idle/i-1.png",
     "assets/imgs/2_character_pepe/1_idle/idle/i-2.png",
@@ -86,8 +84,7 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/1_idle/idle/i-9.png",
     "assets/imgs/2_character_pepe/1_idle/idle/i-10.png",
   ];
-
-  /** Sleep animation frames. @type {string[]} */
+  /** @type {string[]} */
   IMAGES_SLEEP = [
     "assets/imgs/2_character_pepe/1_idle/long_idle/i-11.png",
     "assets/imgs/2_character_pepe/1_idle/long_idle/i-12.png",
@@ -101,88 +98,80 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/1_idle/long_idle/i-20.png",
   ];
 
-  currentImage = 0;
-  world;
-
   /**
-   * Creates the character, loads sprites, sets collisions/ground, applies gravity, and starts animation loops.
-   * @param {Keyboard} keyboard - The keyboard input source controlling movement and jump.
+   * Create character, set physics/sprites, apply gravity, start loops.
+   * @param {GameKeyboard|Keyboard} keyboard Input handler instance.
    */
   constructor(keyboard) {
     super().loadImage("assets/imgs/2_character_pepe/1_idle/idle/i-1.png");
+    this.keyboard = keyboard;
+    this._initProps();
+    this._loadSprites();
+    this.applyGravity();
+    this.animate();
+  }
+
+  /** Initialize dimensions, collisions and ground alignment. */
+  _initProps() {
     this.width = 85;
     this.height = 160;
     this.offset = { top: 90, right: 30, bottom: 10, left: 30 };
     this.groundBottom = 365 + 52;
     this.y = this.groundBottom - this.height;
-    this.loadImages(this.IMAGES_WALKING);
-    this.loadImages(this.IMAGES_JUMPING);
-    this.loadImages(this.IMAGES_DEAD);
-    this.loadImages(this.IMAGES_HURT);
-    this.loadImages(this.IMAGES_IDLE);
     this.lastVisibleDeadIdx = this.IMAGES_DEAD.length - 4;
-    this.applyGravity();
-    this.keyboard = keyboard;
-    this.animate();
   }
 
-  /**
-   * Plays the jump sound effect if available and not muted.
-   * @returns {void}
-   */
+  /** Preload sprite sheets used by the state machine. */
+  _loadSprites() {
+    [this.IMAGES_WALKING, this.IMAGES_JUMPING, this.IMAGES_DEAD, this.IMAGES_HURT, this.IMAGES_IDLE].forEach((a) => this.loadImages(a));
+  }
+
+  /** Play jump SFX (respects volume). */
   playJump() {
     if (window.getEffectiveVolume && window.getEffectiveVolume() === 0) return;
     const a = window.SFX?.jump;
     if (!a) return;
     a.currentTime = 0;
-    a.volume = window.getEffectiveVolume ? window.getEffectiveVolume() : window.gameVolume ?? 1;
+    a.volume = window.getEffectiveVolume?.() ?? window.gameVolume ?? 1;
     a.play().catch(() => {});
   }
 
-  /**
-   * Whether the character is currently invulnerable after a recent hit.
-   * @returns {boolean}
-   */
+  /** True if currently invulnerable after a hit. */
   isInvulnerable() {
     return Date.now() - (this.lastHitAt || 0) < this.invulnMs;
   }
 
   /**
-   * Applies damage if not invulnerable; plays hurt SFX, updates energy, and triggers death if needed.
-   * @param {number} [damage=10] - Amount of energy to subtract.
-   * @returns {boolean} True if damage was applied; false if ignored (invulnerable/dead).
+   * Apply damage unless invulnerable; triggers hurt SFX and death at 0.
+   * @param {number} [damage=10]
+   * @returns {boolean} True if damage applied.
    */
   hit(damage = 10) {
-    if (this.isInvulnerable() || (this.isDead && this.isDead())) return false;
+    if (this.isInvulnerable() || this.isDead?.()) return false;
     this.lastHitAt = Date.now();
-    const s = window.SFX?.hurt;
-    if (s) {
-      try {
-        s.currentTime = 0;
-        s.volume = window.getEffectiveVolume();
-        s.play();
-      } catch (_) {}
-    }
+    this._playHurtSfx();
     this.energy = Math.max(0, this.energy - damage);
-    if (this.energy <= 0) {
-      this.die();
-    }
-
+    if (this.energy <= 0) this.die();
     return true;
   }
 
-  /**
-   * Whether the character is within the "hurt" animation window.
-   * @returns {boolean}
-   */
+  /** Play hurt SFX safely. */
+  _playHurtSfx() {
+    const s = window.SFX?.hurt;
+    if (!s) return;
+    try {
+      s.currentTime = 0;
+      s.volume = window.getEffectiveVolume?.() ?? 1;
+      s.play();
+    } catch {}
+  }
+
+  /** True while the "hurt" animation window is active. */
   isHurt() {
     return Date.now() - (this.lastHitAt || 0) < this.hurtMs;
   }
 
-  /**
-   * Marks the character as dead and cancels movement by zeroing physics parameters.
-   * @returns {void}
-   */
+  /** Mark as dead and stop movement physics. */
   die() {
     if (this.dead) return;
     this.dead = true;
@@ -192,143 +181,121 @@ class Character extends MovableObjects {
     this.acceleration = 0;
   }
 
-  /**
-   * Whether the character is dead or out of energy.
-   * @returns {boolean}
-   */
+  /** Dead or out of energy. */
   isDead() {
     return this.dead || this.energy <= 0;
   }
 
-  /**
-   * Whether the character is above the ground plane (used for jump state).
-   * Dead characters are not considered above ground.
-   * @returns {boolean}
-   */
+  /** True if above ground (dead chars are never above). */
   isAboveGround() {
-    if (this.isDead()) return false;
-    return this.y + this.height < this.groundBottom;
+    return !this.isDead() && this.y + this.height < this.groundBottom;
   }
 
-  /**
-   * Sets up movement and animation loops, including sleep-on-idle behavior.
-   * @returns {void}
-   */
+  /** Start movement and animation tick loops. */
   animate() {
-    this.moveInterval = setInterval(() => {
-      if (this.isDead()) return;
-      if (this.world?.paused) return;
-      const kb = this.world?.keyboard || this.keyboard;
-      if (kb?.LEFT || kb?.RIGHT || kb?.UP || kb?.DOWN || kb?.SPACE) {
-        this.markActivity();
-      }
-      if (kb?.RIGHT && this.x < this.world.level.level_end_x) {
-        this.moveRight();
-        this.otherDirection = false;
-        this.markActivity();
-      }
-      if (kb?.LEFT && this.x > 0) {
-        this.moveLeft();
-        this.otherDirection = true;
-        this.markActivity();
-      }
-      if (kb?.UP && !this.isAboveGround()) {
-        this.pauseStep();
-        this.jump();
-        this.markActivity();
-      }
-      this.world.camera_x = -this.x + 250;
-    }, 1000 / 100);
-    this.animInterval = setInterval(() => {
-      if (this.isDead()) {
-        if (!this.deathDone) {
-          const lastIdx = this.lastVisibleDeadIdx;
-          const idx = Math.min(this.deathIndex, lastIdx);
-          const frame = this.IMAGES_DEAD[idx];
-          if (frame) this.img = this.imageCache[frame];
-          this.deathIndex++;
-          if (this.deathIndex > lastIdx) {
-            this.deathDone = true;
-            this.img = this.imageCache[this.IMAGES_DEAD[lastIdx]];
-            clearInterval(this.animInterval);
-          }
-        }
-        return;
-      }
-      if (this.world?.paused) return;
-      const kb = this.world?.keyboard || this.keyboard;
-      const moving = !!(kb?.RIGHT || kb?.LEFT);
-      const onGround = !this.isAboveGround();
-      if (!moving && onGround && !this.isHurt?.() && !(this.speedY > 0)) {
-        if (this.isInactive()) this.sleeping = true;
-      } else {
-        if (moving || kb?.UP || kb?.DOWN || kb?.SPACE) this.wakeUp();
-      }
-      if (this.isHurt && this.isHurt()) {
-        this.playAnimation(this.IMAGES_HURT);
-      } else if (this.isAboveGround() || this.speedY > 0) {
-        this.playAnimation(this.IMAGES_JUMPING);
-      } else if (moving) {
-        this.playAnimation(this.IMAGES_WALKING);
-      } else if (this.sleeping) {
-        if (this.IMAGES_SLEEP && this.IMAGES_SLEEP.length) {
-          if (!this._sleepImagesLoaded) {
-            this.loadImages(this.IMAGES_SLEEP);
-            this._sleepImagesLoaded = true;
-          }
-          this.playAnimation(this.IMAGES_SLEEP);
-        } else {
-          this.playAnimation(this.IMAGES_IDLE);
-        }
-      } else {
-        this.playAnimation(this.IMAGES_IDLE);
-      }
-    }, 100);
+    this.moveInterval = setInterval(() => this._tickMove(), 1000 / 100);
+    this.animInterval = setInterval(() => this._tickAnim(), 100);
   }
 
-  /**
-   * Draws the character; if dead and death animation finished, performs a fade-and-ascend effect then flags as gone.
-   * @param {CanvasRenderingContext2D} ctx - The 2D rendering context.
-   * @returns {void}
-   */
-  draw(ctx) {
-    if (this.dead && this.deathDone) {
-      if (!this.ascendStartAt) {
-        this.ascendStartAt = Date.now();
-        this.bodyBaseY = this.y;
-      }
-      const elapsed = Date.now() - this.ascendStartAt;
-      const t = Math.min(elapsed / this.ascendDuration, 1);
-      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      const alpha = 1 - t;
-      this.y = this.bodyBaseY - this.ascendDistance * ease;
-      const last = this.IMAGES_DEAD[this.lastVisibleDeadIdx];
-      const cached = this.imageCache[last];
-      if (cached) this.img = cached;
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      super.draw(ctx);
-      ctx.restore();
-      if (t >= 1) this.gone = true;
-      return;
+  /** Movement loop: input → motion, jump, camera. */
+  _tickMove() {
+    if (this.isDead() || this.world?.paused) return;
+    const kb = this._kb();
+    if (this._anyKey(kb)) this.markActivity();
+    if (kb?.RIGHT && this.x < this.world?.level?.level_end_x) {
+      this.moveRight();
+      this.otherDirection = false;
+      this.markActivity();
     }
+    if (kb?.LEFT && this.x > 0) {
+      this.moveLeft();
+      this.otherDirection = true;
+      this.markActivity();
+    }
+    if (kb?.UP && !this.isAboveGround()) {
+      this.pauseStep();
+      this.jump();
+      this.markActivity();
+    }
+    if (this.world) this.world.camera_x = -this.x + 250;
+  }
 
+  /** Animation loop: death, sleep/idle/walk/jump/hurt state selection. */
+  _tickAnim() {
+    if (this.isDead()) return this._tickDeathAnim();
+    if (this.world?.paused) return;
+    const kb = this._kb(),
+      moving = !!(kb?.RIGHT || kb?.LEFT),
+      onGround = !this.isAboveGround();
+    if (!moving && onGround && !this.isHurt?.() && !(this.speedY > 0)) {
+      if (this.isInactive()) this.sleeping = true;
+    } else if (moving || kb?.UP || kb?.DOWN || kb?.SPACE) this.wakeUp();
+    if (this.isHurt?.()) this.playAnimation(this.IMAGES_HURT);
+    else if (!onGround || this.speedY > 0) this.playAnimation(this.IMAGES_JUMPING);
+    else if (moving) this.playAnimation(this.IMAGES_WALKING);
+    else if (this.sleeping) {
+      this._ensureSleepSprites();
+      this.playAnimation(this.IMAGES_SLEEP?.length ? this.IMAGES_SLEEP : this.IMAGES_IDLE);
+    } else this.playAnimation(this.IMAGES_IDLE);
+  }
+
+  /** Advance death animation; stop loop when final frame is reached. */
+  _tickDeathAnim() {
+    if (this.deathDone) return;
+    const last = this.lastVisibleDeadIdx,
+      idx = Math.min(this.deathIndex, last);
+    const frame = this.IMAGES_DEAD[idx];
+    if (frame) this.img = this.imageCache[frame];
+    this.deathIndex++;
+    if (this.deathIndex > last) {
+      this.deathDone = true;
+      this.img = this.imageCache[this.IMAGES_DEAD[last]];
+      clearInterval(this.animInterval);
+    }
+  }
+
+  /** Ensure sleep sheet is loaded once. */
+  _ensureSleepSprites() {
+    if (this._sleepImagesLoaded || !this.IMAGES_SLEEP?.length) return;
+    this.loadImages(this.IMAGES_SLEEP);
+    this._sleepImagesLoaded = true;
+  }
+
+  /** Draw the character; when dead+finished, draw fade&ascend. */
+  draw(ctx) {
+    if (this.dead && this.deathDone) return this._drawDeadAscend(ctx);
     super.draw(ctx);
   }
 
-  /**
-   * Helper indicating the vertical velocity is downward (used for stomp logic in collisions).
-   * @returns {boolean}
-   */
+  /** Dead fade & ascend effect; flags entity as gone at the end. */
+  _drawDeadAscend(ctx) {
+    if (!this.ascendStartAt) {
+      this.ascendStartAt = Date.now();
+      this.bodyBaseY = this.y;
+    }
+    const t = Math.min((Date.now() - this.ascendStartAt) / this.ascendDuration, 1);
+    const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    this.y = this.bodyBaseY - this.ascendDistance * ease;
+    const alpha = 1 - t;
+    const last = this.IMAGES_DEAD[this.lastVisibleDeadIdx],
+      cached = this.imageCache[last];
+    if (cached) this.img = cached;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    super.draw(ctx);
+    ctx.restore();
+    if (t >= 1) this.gone = true;
+  }
+
+  /** True when falling down (used for stomp logic). */
   fallingDown() {
     return this.speedY < 0;
   }
 
   /**
-   * Bounces the character off an enemy, adding vertical speed and playing jump SFX.
-   * @param {{y:number,height:number}} enemy - The enemy collided with.
-   * @param {number} [strength=15] - Upward speed to apply.
-   * @returns {void}
+   * Bounce off an enemy (vertical impulse) and play jump SFX.
+   * @param {{y:number,height:number}} enemy Hit enemy object.
+   * @param {number} [strength=15] Upward speed.
    */
   bounceOn(enemy, strength = 15) {
     this.y = enemy.y - this.height + 20;
@@ -336,109 +303,65 @@ class Character extends MovableObjects {
     this.playJump();
   }
 
-  /**
-   * Whether at least one bottle is available to throw.
-   * @returns {boolean}
-   */
+  /** Bottle availability for throwing. */
   canThrowBottle() {
     return this.bottles > 0;
   }
 
-  /**
-   * Consumes a bottle if available.
-   * @returns {boolean} True if a bottle was used; otherwise false.
-   */
+  /** Consume one bottle if available. */
   useBottle() {
-    if (this.bottles > 0) {
-      this.bottles -= 1;
-      return true;
-    }
-    return false;
+    if (this.bottles <= 0) return false;
+    this.bottles -= 1;
+    return true;
   }
 
-  /**
-   * Adds bottles to inventory, capped at maxBottles.
-   * @param {number} [n=1] - How many to add.
-   * @returns {void}
-   */
+  /** Add bottles (capped). */
   addBottle(n = 1) {
     this.bottles = Math.min(this.maxBottles, this.bottles + n);
   }
 
-  /**
-   * Adds coins to the counter (never below zero).
-   * @param {number} [n=1] - How many coins to add (can be negative).
-   * @returns {void}
-   */
+  /** Add coins (never below zero). */
   addCoin(n = 1) {
     this.coins = Math.max(0, (this.coins || 0) + n);
   }
 
-  /**
-   * Starts footstep sound if not already playing and volume permits.
-   * @returns {void}
-   */
+  /** Start footstep SFX if not playing. */
   playStep() {
     const a = window.SFX?.step;
-    if (!a) return;
-    if (!this.stepPlaying) {
-      a.currentTime = 0;
-      a.volume = window.getEffectiveVolume();
-      a.play().catch(() => {});
-      this.stepPlaying = true;
-    }
+    if (!a || this.stepPlaying) return;
+    a.currentTime = 0;
+    a.volume = window.getEffectiveVolume?.() ?? 1;
+    a.play().catch(() => {});
+    this.stepPlaying = true;
   }
 
-  /**
-   * Pauses footstep sound if currently playing.
-   * @returns {void}
-   */
+  /** Pause footstep SFX if playing. */
   pauseStep() {
     const a = window.SFX?.step;
-    if (!a) return;
-    if (this.stepPlaying) {
-      a.pause();
-      this.stepPlaying = false;
-    }
+    if (!a || !this.stepPlaying) return;
+    a.pause();
+    this.stepPlaying = false;
   }
 
-  /**
-   * Updates footstep SFX state based on movement, ground contact, life state, and pause state.
-   * @returns {void}
-   */
+  /** Update footstep SFX according to motion/ground/life/pause. */
   updateStepSound() {
-    const kb = this.world?.keyboard;
-    const moving = !!(kb?.LEFT || kb?.RIGHT);
-    const onGround = !this.isAboveGround();
-    const alive = !(this.isDead?.() || this.dead);
-    const paused = !!this.world?.paused;
-    if (moving && onGround && alive && !paused) {
-      this.playStep();
-    } else {
-      this.pauseStep();
-    }
+    const kb = this.world?.keyboard,
+      moving = !!(kb?.LEFT || kb?.RIGHT);
+    const play = moving && !this.isAboveGround() && !this.isDead() && !this.world?.paused;
+    play ? this.playStep() : this.pauseStep();
   }
 
-  /**
-   * Marks a successful stomp and starts a short grace window.
-   * @returns {void}
-   */
+  /** Remember a successful stomp; starts short grace window. */
   registerStomp() {
     this.lastStompAt = Date.now();
   }
 
-  /**
-   * True while stomp grace is active.
-   * @returns {boolean}
-   */
+  /** True while stomp grace is active. */
   isInStompGrace() {
     return Date.now() - (this.lastStompAt || 0) < this.stompGraceMs;
   }
 
-  /**
-   * Stops movement/animation timers and step sound.
-   * @returns {void}
-   */
+  /** Stop timers and step sound. */
   freeze() {
     this.pauseStep?.();
     if (this.moveInterval) {
@@ -451,28 +374,29 @@ class Character extends MovableObjects {
     }
   }
 
-  /**
-   * Marks recent user activity and wakes up if sleeping.
-   * @returns {void}
-   */
+  /** Mark activity and wake if sleeping. */
   markActivity() {
     this.lastActionAt = Date.now();
     if (this.sleeping) this.wakeUp();
   }
 
-  /**
-   * Returns true if inactivity exceeded idleTimeoutMs.
-   * @returns {boolean}
-   */
+  /** Inactive when idle threshold exceeded. */
   isInactive() {
     return Date.now() - (this.lastActionAt || 0) >= this.idleTimeoutMs;
   }
 
-  /**
-   * Exits sleep state.
-   * @returns {void}
-   */
+  /** Exit sleep state. */
   wakeUp() {
     this.sleeping = false;
+  }
+
+  /** Get current keyboard (world or local). */
+  _kb() {
+    return this.world?.keyboard || this.keyboard;
+  }
+
+  /** True if any relevant input is held. */
+  _anyKey(kb) {
+    return !!(kb?.LEFT || kb?.RIGHT || kb?.UP || kb?.DOWN || kb?.SPACE);
   }
 }
