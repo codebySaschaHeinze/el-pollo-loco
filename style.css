@@ -135,17 +135,17 @@
 }
 
 .settings-inner {
-  min-width: 260px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
+  background-image: url("assets/imgs/extras/setting-background.png");
+  min-width: 280px;
   padding: 16px 18px;
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  color: #fff;
+  background: rgba(116, 33, 0, 0.705);
+  color: #e8c602;
   font-family: var(--hud-font, "Rye", "Rockwell", serif);
+  display: grid;
+  gap: 12px;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .menu-link {
@@ -222,18 +222,6 @@
 }
 .overlay_settings.hidden {
   display: none;
-}
-
-.settings-inner {
-  background-image: url("assets/imgs/extras/setting-background.png");
-  min-width: 280px;
-  padding: 16px 18px;
-  border-radius: 12px;
-  background: rgba(116, 33, 0, 0.705);
-  color: #e8c602;
-  font-family: var(--hud-font, "Rye", "Rockwell", serif);
-  display: grid;
-  gap: 12px;
 }
 
 .settings-row {
