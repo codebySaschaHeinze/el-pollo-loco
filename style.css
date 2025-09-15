@@ -428,7 +428,7 @@
 
   .overlay-inner {
     transform-origin: center;
-    transform: scaleX(calc(100vw / 720)) scaleY(calc(100vh / 480));
+    transform: scaleX(calc(100dvw / 720)) scaleY(calc(100dvh / 480));
   }
 
   .overlay_settings,
