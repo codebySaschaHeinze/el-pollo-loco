@@ -46,12 +46,10 @@ class Chick extends Chicken {
    */
   update() {
     if (this.dead) return;
-
     if (this.falling) {
       const ground = this.world?.character?.groundBottom || 420;
       if (this.y + this.height >= ground) {
         this.y = ground - this.height;
-
         this.speed = 0.6 + Math.random() * 0.6;
         this.otherDirection = true;
         this.falling = false;

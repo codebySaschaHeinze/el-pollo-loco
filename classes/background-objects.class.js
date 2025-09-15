@@ -4,8 +4,8 @@
  * @extends MovableObjects
  */
 class BackgroundObjects extends MovableObjects {
-  /** @type {number} */ width = 1440;
-  /** @type {number} */ height = 480;
+  width = 1440;
+  height = 480;
 
   /**
    * Creates a background object.

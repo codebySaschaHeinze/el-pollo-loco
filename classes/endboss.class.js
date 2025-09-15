@@ -1,12 +1,20 @@
+/**
+ * Endboss with patrol/attack AI, hurt/death states, fade-out, healthbar
+ * and periodic chick spawning. Uses sprite strips for each state.
+ * @extends MovableObjects
+ */
 class Endboss extends MovableObjects {
   width = 250;
   height = 400;
   x = 700;
   y = 50;
   energy = 100;
+  maxEnergy = 100;
   dead = false;
   spawnInterval = null;
+  animInterval = null;
   currentImage = 0;
+  state = "walk";
   patrolMinX = 8000;
   patrolMaxX = 8700;
   speed = 1.5;
@@ -17,8 +25,6 @@ class Endboss extends MovableObjects {
   lastAttackAt = 0;
   attacking = false;
   attackUntil = 0;
-  state = "walk";
-  animInterval = null;
   hurtMs = 250;
   hurtUntil = 0;
   dying = false;
@@ -28,6 +34,7 @@ class Endboss extends MovableObjects {
   fadeOutMs = 1000;
   fadeStartAt = 0;
   vanished = false;
+  otherDirection = true;
 
   IMAGES_WALKING = [
     "assets/imgs/4_enemie_boss_chicken/1_walk/g1.png",
@@ -58,114 +65,129 @@ class Endboss extends MovableObjects {
     "assets/imgs/4_enemie_boss_chicken/5_dead/g26.png",
   ];
 
+  /**
+   * Sets up sprites, healthbar and animation loop.
+   */
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_ATTACK);
     this.loadImages(this.IMAGES_HURT);
-    this.maxEnergy = this.energy;
-    if (typeof BossHealthBar !== "undefined") {
-      this.healthBar = new BossHealthBar(this);
-    }
     this.loadImages(this.IMAGES_DEAD);
-    this.animate();
-    this.lastAttackAt = Date.now();
     this.offset = { top: 20, right: 40, bottom: 20, left: 40 };
-    this.otherDirection = true;
+    this.maxEnergy = this.energy;
+    if (typeof BossHealthBar !== "undefined") this.healthBar = new BossHealthBar(this);
+    this.lastAttackAt = Date.now();
+    this.animate();
   }
 
+  /**
+   * Draws, and if dying+finished, performs fade-up fade-out then vanish.
+   */
   draw(ctx) {
     if (this.vanished) return;
     if (this.dying && this.deathDone) {
-      const elapsed = Date.now() - (this.fadeStartAt || Date.now());
-      const t = Math.min(elapsed / this.fadeOutMs, 1);
-      const alpha = 1 - t;
-      const rise = Math.floor(this.height * 0.4 * t);
-      ctx.save();
-      ctx.globalAlpha = alpha;
+      const start = this.fadeStartAt || Date.now();
+      const t = Math.min((Date.now() - start) / this.fadeOutMs, 1);
       const oldY = this.y;
-      this.y = oldY - rise;
+      ctx.save();
+      ctx.globalAlpha = 1 - t;
+      this.y = oldY - Math.floor(this.height * 0.4 * t);
       super.draw(ctx);
       this.y = oldY;
       ctx.restore();
       if (t >= 1) this.vanished = true;
       return;
     }
-
     super.draw(ctx);
   }
 
+  /**
+   * Sprite animator for walk/attack/hurt/death sequences.
+   */
   animate() {
     if (this.world?.paused) return;
     this.animInterval = setInterval(() => {
       if (this.dying) {
         const last = this.IMAGES_DEAD.length - 1;
         const idx = Math.min(this.deathIndex, last);
-        const frame = this.IMAGES_DEAD[idx];
-        if (frame) this.loadImage(frame);
-        if (this.deathIndex < last) {
-          this.deathIndex++;
-        } else {
+        const f = this.IMAGES_DEAD[idx];
+        if (f) this.loadImage(f);
+        if (this.deathIndex < last) this.deathIndex++;
+        else {
           this.deathDone = true;
           if (!this.fadeStartAt) this.fadeStartAt = Date.now();
         }
         return;
       }
-
       if (this.dead) return;
-      let frames = this.IMAGES_WALKING;
-      if (Date.now() < this.hurtUntil) {
-        frames = this.IMAGES_HURT;
-      } else if (this.state === "attack") {
-        frames = this.IMAGES_ATTACK;
-      }
+      const frames = Date.now() < this.hurtUntil ? this.IMAGES_HURT : this.state === "attack" ? this.IMAGES_ATTACK : this.IMAGES_WALKING;
       this.playAnimation(frames);
     }, this.deathFrameMs);
   }
 
+  /**
+   * Called each frame from World; handles init, attack, patrol.
+   */
   update() {
     if (this.vanished || this.dying || this.dead) return;
-    this.otherDirection = false;
-    if (!this._initd) {
-      this._initd = true;
-      if (this.x < this.patrolMinX) this.x = this.patrolMinX;
-      if (this.x + this.width > this.patrolMaxX) this.x = this.patrolMaxX - this.width;
-      this._dir = -1;
-    }
-
+    this.ensureInit();
     const now = Date.now();
+    if (this.attackMove(now)) return;
+    if (this._maybeStartAttack(now)) return;
+    this.patrolStep();
+  }
+
+  /**
+   * One-time patrol bounds init and default direction.
+   */
+  ensureInit() {
+    if (this._initd) return;
+    this._initd = true;
+    if (this.x < this.patrolMinX) this.x = this.patrolMinX;
+    if (this.x + this.width > this.patrolMaxX) this.x = this.patrolMaxX - this.width;
+    this._dir = -1;
+    this.otherDirection = false;
+  }
+
+  /**
+   * Advances attack dash toward character while time remains.
+   * @returns {boolean} true if in attack move this tick.
+   */
+  attackMove(now) {
+    if (!(this.attacking && now < this.attackUntil)) return false;
     const c = this.world?.character;
-    let moved = 0;
-    if (this.attacking && now < this.attackUntil) {
-      let dir = this._dir ?? -1;
-      if (c) {
-        const myMid = this.x + this.width / 2;
-        const hisMid = c.x + c.width / 2;
-        dir = hisMid < myMid ? -1 : 1;
-      }
+    let dir = this._dir ?? -1;
+    if (c) dir = c.x + c.width / 2 < this.x + this.width / 2 ? -1 : 1;
+    this.x += dir * this.attackSpeed;
+    this.state = "attack";
+    this.clampToPatrol();
+    return true;
+  }
 
-      const step = dir * this.attackSpeed;
-      this.x += step;
-      moved = step;
-      this.clampToPatrol();
-      this.state = "attack";
-      return;
+  /**
+   * Starts a new attack if cooldown elapsed.
+   * @returns {boolean} true if attack started.
+   */
+  _maybeStartAttack(now) {
+    if (this.attacking) {
+      if (now >= this.attackUntil) this.attacking = false;
+      return false;
     }
-
-    if (this.attacking && now >= this.attackUntil) {
-      this.attacking = false;
-    }
-
-    if (!this.attacking && now - this.lastAttackAt >= this.attackEveryMs) {
+    if (now - this.lastAttackAt >= this.attackEveryMs) {
       this.startAttack();
-      return;
+      return true;
     }
+    return false;
+  }
 
+  /**
+   * Patrol step left/right and flip at bounds.
+   */
+  patrolStep() {
     this.state = "walk";
     const step = (this._dir ?? -1) * this.speed;
     this.x += step;
-    moved = step;
-
     if (this.x <= this.patrolMinX) {
       this.x = this.patrolMinX;
       this._dir = 1;
@@ -176,6 +198,9 @@ class Endboss extends MovableObjects {
     }
   }
 
+  /**
+   * Begins the timed attack window.
+   */
   startAttack() {
     this.attacking = true;
     this.lastAttackAt = Date.now();
@@ -183,32 +208,36 @@ class Endboss extends MovableObjects {
     this.state = "attack";
   }
 
+  /**
+   * Keeps boss inside patrol corridor.
+   */
   clampToPatrol() {
-    if (this.x < this.patrolMinX) this.x = this.patrolMinX + -100;
+    if (this.x < this.patrolMinX) this.x = this.patrolMinX;
     if (this.x + this.width > this.patrolMaxX) this.x = this.patrolMaxX - this.width;
   }
 
+  /**
+   * Applies damage, plays SFX, updates healthbar, switches to death.
+   */
   takeHit(damage = 10) {
     if (this.dead || this.dying) return;
     const s = window.SFX?.bossHurt;
-    if (s) {
-      try {
+    try {
+      if (s) {
         s.currentTime = 0;
         s.volume = window.getEffectiveVolume();
         s.play();
-      } catch (_) {}
-    }
+      }
+    } catch {}
     this.energy = Math.max(0, this.energy - damage);
-    if (this.healthBar) {
-      this.healthBar.setPercentage((this.energy / this.maxEnergy) * 100);
-    }
-    if (this.energy <= 0) {
-      this.die();
-    } else {
-      this.hurtUntil = Date.now() + this.hurtMs;
-    }
+    this.healthBar?.setPercentage((this.energy / this.maxEnergy) * 100);
+    if (this.energy <= 0) this.die();
+    else this.hurtUntil = Date.now() + this.hurtMs;
   }
 
+  /**
+   * Enters death sequence and stops future attacks/spawns.
+   */
   die() {
     if (this.dead || this.dying) return;
     this.dead = true;
@@ -225,26 +254,26 @@ class Endboss extends MovableObjects {
     }
   }
 
+  /**
+   * Ensures Chick is ready, then spawns chicks periodically.
+   */
   startSpawning() {
     if (this.spawnInterval || this.dead) return;
     const ensure = () => {
-      if (typeof Chick === "undefined") {
-        setTimeout(ensure, 200);
-        return;
-      }
-
+      if (typeof Chick === "undefined") return void setTimeout(ensure, 200);
       this.spawnInterval = setInterval(() => this.spawnChick(), 6000);
     };
-
     ensure();
   }
 
+  /**
+   * Spawns one chick at boss mid-X, starting to fall.
+   */
   spawnChick() {
     if (!this.world || this.dead) return;
     const ground = this.world?.character?.groundBottom || 417;
     const midX = this.x + this.width / 2;
-    const rawY = this.y + this.height - 30;
-    const spawnY = Math.min(rawY, ground - 90);
+    const spawnY = Math.min(this.y + this.height - 30, ground - 90);
     const chick = new Chick(0, 0.6 + Math.random() * 0.6);
     chick.world = this.world;
     chick.x = Math.floor(midX - chick.width / 2);
@@ -254,29 +283,14 @@ class Endboss extends MovableObjects {
   }
 
   /**
-   * Stops boss timers (walk/attack/spawn/anim if present).
-   * @returns {void}
+   * Stops boss timers (anim/attack/spawn/move if present).
    */
   freeze() {
-    if (this.walkInterval) {
-      clearInterval(this.walkInterval);
-      this.walkInterval = null;
-    }
-    if (this.attackInterval) {
-      clearInterval(this.attackInterval);
-      this.attackInterval = null;
-    }
-    if (this.spawnInterval) {
-      clearInterval(this.spawnInterval);
-      this.spawnInterval = null;
-    }
-    if (this.animInterval) {
-      clearInterval(this.animInterval);
-      this.animInterval = null;
-    }
-    if (this.moveInterval) {
-      clearInterval(this.moveInterval);
-      this.moveInterval = null;
-    }
+    ["walkInterval", "attackInterval", "spawnInterval", "animInterval", "moveInterval"].forEach((k) => {
+      if (this[k]) {
+        clearInterval(this[k]);
+        this[k] = null;
+      }
+    });
   }
 }

@@ -5,20 +5,15 @@
  * @extends MovableObjects
  */
 class Chicken extends MovableObjects {
-  /** Walk animation frames. @type {string[]} */
   IMAGES_WALKING = [
     "assets/imgs/3_enemies_chicken/chicken_normal/1_walk/1_w.png",
     "assets/imgs/3_enemies_chicken/chicken_normal/1_walk/2_w.png",
     "assets/imgs/3_enemies_chicken/chicken_normal/1_walk/3_w.png",
   ];
 
-  /** Current animation frame cursor. @type {number} */
   currentImage = 0;
-  /** Sprite width. @type {number} */
   width = 48;
-  /** Sprite height. @type {number} */
   height = 62;
-  /** Whether the chicken is dead (fading). @type {boolean} */
   dead = false;
 
   /**

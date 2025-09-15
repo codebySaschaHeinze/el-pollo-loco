@@ -4,13 +4,8 @@
  * @extends MovableObjects
  */
 class Cloud extends MovableObjects {
-  /** Initial vertical position. @type {number} */
   y = 10;
-
-  /** Cloud width randomized at construction time. @type {number} */
   width = Math.random() * 300 + 100;
-
-  /** Cloud height randomized at construction time. @type {number} */
   height = Math.random() * 80 + 30;
 
   /**
