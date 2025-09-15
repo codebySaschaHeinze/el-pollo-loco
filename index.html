@@ -50,7 +50,7 @@
     <script defer src="./levels/level1.js"></script>
 
     <script defer src="./classes/world.class.js"></script>
-    <script defer src="./classes/keyboard.class.js"></script>
+    <script defer src="./classes/gamekeyboard.class.js"></script>
     <script defer src="./script.js"></script>
   </head>
   <body onload="init()">
@@ -75,8 +75,8 @@
                 <span id="volume-value">100%</span>
               </div>
               <nav class="legal-links" aria-label="Rechtliches">
-                <a href="./datenschutz.html">Datenschutz</a>
                 <a href="./impressum.html">Impressum</a>
+                <a href="./datenschutz.html">Datenschutz</a>
               </nav>
             </div>
           </div>
@@ -88,14 +88,20 @@
               <button id="btn-back-start" class="settings-action">Zurück zum Start</button>
             </div>
 
-            <!-- LEGAL-LINKS WAREN HIER – sind jetzt neben dem Volume-Block -->
-
             <div class="settings-row">
               <button id="btn-close-settings" class="settings-action">Zurück zum Spiel</button>
             </div>
           </div>
         </section>
-
+        <section id="overlay-legal" class="overlay_settings hidden" aria-modal="true" role="dialog">
+          <div class="settings-inner legal-inner">
+            <h2 id="legal-title">Rechtliches</h2>
+            <div id="legal-body" class="legal-body">Lädt…</div>
+            <div class="settings-row">
+              <button id="btn-legal-close" class="settings-action">Zurück</button>
+            </div>
+          </div>
+        </section>
         <section id="overlay-result" class="overlay_result hidden">
           <div class="result-inner">
             <img id="result-img" alt="Result" />

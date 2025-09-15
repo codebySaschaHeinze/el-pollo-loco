@@ -468,3 +468,21 @@
 .result-actions .settings-action:hover {
   transform: scale(1.05);
 }
+
+.legal-inner {
+  width: min(720px, 90vw);
+}
+
+.legal-body {
+  max-height: 60vh;
+  overflow: auto;
+  text-align: left;
+  line-height: 1.45;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+}
+.legal-body a {
+  color: #fff;
+  text-decoration: underline;
+}

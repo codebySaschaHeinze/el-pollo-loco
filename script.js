@@ -5,29 +5,31 @@
 
 /** @type {HTMLCanvasElement|null} */ let canvas = null;
 /** @type {World|null}            */ let world = null;
-/** @type {Keyboard}              */ let keyboard = new Keyboard();
+/** @type {GameKeyboard}          */ let keyboard = new GameKeyboard();
 
-/** Small DOM helper (by id) */
+/**
+ * Shorthand to get an element by id.
+ * @param {string} id
+ * @returns {HTMLElement|null}
+ */
 const $ = (id) => /** @type {HTMLElement|null} */ (document.getElementById(id));
 
-/** Cache for frequent nodes (filled on DOMContentLoaded) */
+/** Frequently used nodes (filled on DOMContentLoaded). */
 let DOM = /** @type {Record<string, HTMLElement|null>} */ ({});
 
-/* -------------------- AUDIO -------------------- */
-
-/** @global {boolean} persisted */
+/** Whether global audio is muted (persisted). @global */
 window.gameMuted = localStorage.getItem("gameMuted") === "1";
-/** @global {number}  persisted (0..1) */
+/** Master volume [0..1] (persisted). @global */
 window.gameVolume = Math.min(1, Math.max(0, parseFloat(localStorage.getItem("gameVolume") ?? "1")));
 
 /**
- * Effective master volume [0..1], respecting mute.
+ * Effective master volume [0..1], respecting the mute flag.
  * @returns {number}
  */
 window.getEffectiveVolume = () => (window.gameMuted ? 0 : window.gameVolume);
 
 /**
- * Apply effective volume to all registered SFX/BGM.
+ * Apply the effective volume to all registered SFX and BGM.
  * @returns {void}
  */
 function applyVolumeAll() {
@@ -37,7 +39,7 @@ function applyVolumeAll() {
 }
 
 /**
- * Update the mute icon.
+ * Update mute icon according to the current state.
  * @returns {void}
  */
 function updateMuteUI() {
@@ -48,9 +50,9 @@ function updateMuteUI() {
 }
 
 /**
- * Create an SFX audio element.
- * @param {string} src
- * @param {boolean} [loop=false]
+ * Create an HTMLAudioElement for SFX.
+ * @param {string} src - File path.
+ * @param {boolean} [loop=false] - Whether to loop.
  * @returns {HTMLAudioElement}
  */
 function makeSfx(src, loop = false) {
@@ -61,7 +63,7 @@ function makeSfx(src, loop = false) {
   return a;
 }
 
-/** Global SFX registry (created early so applyVolumeAll() can run safely) */
+/** Global SFX registry. */
 window.SFX = window.SFX || {
   step: makeSfx("audio/footstep.wav", true),
   bottleBreak: makeSfx("audio/broken-bottle.wav"),
@@ -74,7 +76,7 @@ window.SFX = window.SFX || {
 };
 
 /**
- * Play an SFX by name (respects mute/volume).
+ * Play an SFX by name from the registry (respects mute/volume).
  * @param {string} name
  * @returns {void}
  */
@@ -88,11 +90,11 @@ window.playSfx = function (name) {
   } catch {}
 };
 
-/** @global {HTMLAudioElement|null} background music */
+/** Active background music element (created on demand). @global */
 window.BGM = null;
 
 /**
- * Set master volume from 0..100 slider and apply globally.
+ * Set master volume from a 0..100 slider value and apply globally.
  * @param {number|string} pct
  * @returns {void}
  */
@@ -103,7 +105,10 @@ function setGameVolumeFromSlider(pct) {
   applyVolumeAll();
 }
 
-/** Ensure BGM exists & plays. */
+/**
+ * Ensure BGM exists and is playing.
+ * @returns {void}
+ */
 function startBGM() {
   if (!window.BGM) {
     const a = new Audio("audio/bg-music.wav");
@@ -116,17 +121,14 @@ function startBGM() {
   window.BGM.play().catch(() => {});
 }
 
-/* -------------------- WORLD LIFECYCLE -------------------- */
-
 /**
  * Initialize canvas, keyboard, and a paused world.
- * (Aufruf via body onload="init()")
+ * (Called via body onload="init()")
  * @returns {void}
  */
 function init() {
-  canvas = /** @type {HTMLCanvasElement} */ ($("canvas")) || /** @type {HTMLCanvasElement} */ (document.querySelector("#canvas"));
-  keyboard = new Keyboard();
-  // Erste World nur, um alles zu initialisieren; bleibt pausiert bis Start
+  canvas = /** @type {HTMLCanvasElement} / ($("canvas")) || /* @type {HTMLCanvasElement} */ (document.querySelector("#canvas"));
+  keyboard = new GameKeyboard();
   world = new World(canvas, keyboard);
   world.paused = true;
 }
@@ -145,16 +147,69 @@ function buildWorld({ paused = false } = {}) {
   world.paused = !!paused;
 }
 
-/* -------------------- OVERLAYS / UI -------------------- */
-
+/**
+ * Whether the start overlay is visible.
+ * @returns {boolean}
+ */
 const isStartVisible = () => !!(DOM.ovStart && !DOM.ovStart.classList.contains("hidden"));
+
+/**
+ * Whether the settings overlay is visible.
+ * @returns {boolean}
+ */
 const isSettingsVisible = () => !!(DOM.ovSettings && !DOM.ovSettings.classList.contains("hidden"));
 
+/**
+ * Detect touch-capable device.
+ * @returns {boolean}
+ */
 const isTouch = () => matchMedia("(pointer: coarse)").matches;
+
+/**
+ * Detect landscape orientation.
+ * @returns {boolean}
+ */
 const isLandscape = () => matchMedia("(orientation: landscape)").matches;
 
 /**
- * Show/hide on-screen controls based on env & overlays.
+ * Open legal overlay and load the requested document into it.
+ * Pauses the world if not on the start screen.
+ * @param {"impressum"|"datenschutz"} kind
+ * @returns {void}
+ */
+function openLegal(kind) {
+  const ov = document.getElementById("overlay-legal");
+  const title = document.getElementById("legal-title");
+  const body = document.getElementById("legal-body");
+  if (!ov || !title || !body) return;
+
+  title.textContent = kind === "impressum" ? "Impressum" : "Datenschutz";
+  body.innerHTML = "Lädt …";
+  if (window.world && !isStartVisible()) window.world.paused = true;
+  ov.classList.remove("hidden");
+
+  fetch(`${kind}.html`)
+    .then((r) => r.text())
+    .then((html) => {
+      // Try <main> first, fallback to <body>; capture full content.
+      const m = html.match(/<main[^>]>([\s\S]?)<\/main>/i) || html.match(/<body[^>]>([\s\S]?)<\/body>/i);
+      body.innerHTML = m ? m[1] : html;
+    })
+    .catch(() => (body.textContent = "Inhalt konnte nicht geladen werden."));
+}
+
+/**
+ * Close the legal overlay and resume (if not on start).
+ * @returns {void}
+ */
+function closeLegal() {
+  const ov = document.getElementById("overlay-legal");
+  ov?.classList.add("hidden");
+  if (window.world && !isStartVisible()) window.world.paused = false;
+}
+
+/**
+ * Show/hide on-screen touch controls based on device/orientation/overlays.
  * @returns {void}
  */
 function updateTouchButtonsVisibility() {
@@ -165,7 +220,7 @@ function updateTouchButtonsVisibility() {
 }
 
 /**
- * Start the game: hide start overlay, fresh world, play music.
+ * Start the game: hide start overlay, create fresh world, play music.
  * @returns {void}
  */
 function startGame() {
@@ -177,7 +232,7 @@ function startGame() {
 }
 
 /**
- * Open settings; pause if not on start.
+ * Open settings; pause world if not on start.
  * @returns {void}
  */
 function openSettings() {
@@ -189,7 +244,7 @@ function openSettings() {
 }
 
 /**
- * Close settings; resume if not on start.
+ * Close settings; resume world if not on start.
  * @returns {void}
  */
 function closeSettings() {
@@ -199,7 +254,7 @@ function closeSettings() {
 }
 
 /**
- * Go back to start overlay (pause world, kein Reload).
+ * Return to start overlay and pause the world (no reload).
  * @returns {void}
  */
 function backToStart() {
@@ -216,8 +271,8 @@ function backToStart() {
  * @returns {void}
  */
 function showResult(kind) {
-  const ov = DOM.ovResult,
-    img = /** @type {HTMLImageElement|null} */ (DOM.resultImg);
+  const ov = DOM.ovResult;
+  const img = /** @type {HTMLImageElement|null} */ (DOM.resultImg);
   if (!ov || !img) return;
   img.src = kind === "win" ? "assets/imgs/You_won_you_lost/won.png" : "assets/imgs/You_won_you_lost/lost.png";
   img.alt = kind === "win" ? "Gewonnen" : "Verloren";
@@ -232,7 +287,7 @@ function showResult(kind) {
 }
 
 /**
- * Bind result overlay buttons once (falls vorhanden).
+ * Bind result overlay buttons exactly once.
  * @returns {void}
  */
 function bindResultActions() {
@@ -260,7 +315,7 @@ function bindResultActions() {
 }
 
 /**
- * Restart level immediately (fresh world, skip start overlay).
+ * Restart the level immediately (fresh world, skip start overlay).
  * @returns {void}
  */
 function restartLevel() {
@@ -272,10 +327,8 @@ function restartLevel() {
   updateTouchButtonsVisibility();
 }
 
-/* -------------------- INPUT -------------------- */
-
 /**
- * Toggle a Keyboard flag while a button is held (pointer events).
+ * Toggle a keyboard flag while the given button is held (pointer events).
  * @param {HTMLElement|null} el
  * @param {"LEFT"|"RIGHT"|"UP"|"SPACE"} flag
  * @returns {void}
@@ -295,7 +348,7 @@ function bindHold(el, flag) {
 }
 
 /**
- * Pause world when touch device is in portrait orientation.
+ * Pause world when on a touch device in portrait orientation.
  * @returns {void}
  */
 function syncPauseToOrientation() {
@@ -303,37 +356,39 @@ function syncPauseToOrientation() {
   if (isTouch() && !isLandscape()) world.paused = true;
 }
 
-/* -------------------- DOM & EVENTS -------------------- */
-
 document.addEventListener("DOMContentLoaded", () => {
-  // Cache elements once
   DOM = {
     ovStart: $("overlay-1"),
     ovSettings: $("overlay-settings"),
     ovResult: $("overlay-result"),
     overlayButtons: $("overlay-buttons"),
     resultImg: $("result-img"),
-    // start/settings
     btnStart: $("btn-start"),
     btnFab: $("btn-settings-fab"),
     btnClose: $("btn-close-settings"),
     btnBackStart: $("btn-back-start"),
     backRow: $("back-row"),
-    // volume
     slider: $("volume-slider"),
     volumeLbl: $("volume-value"),
     btnMute: $("btn-mute"),
-    // result (optional)
     btnResRestart: $("btn-result-restart"),
     btnResStart: $("btn-result-start"),
-    // touch controls
     btnLeft: $("button-left"),
     btnRight: $("button-right"),
     btnJump: $("button-jump"),
     btnThrow: $("button-throw"),
   };
 
-  // Audio UI
+  document.querySelector('.legal-links a[href="./impressum.html"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openLegal("impressum");
+  });
+  document.querySelector('.legal-links a[href="./datenschutz.html"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openLegal("datenschutz");
+  });
+  document.getElementById("btn-legal-close")?.addEventListener("click", closeLegal);
+
   updateMuteUI();
   applyVolumeAll();
   DOM.btnMute?.addEventListener("click", () => {
@@ -359,7 +414,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Start/Settings handlers
   DOM.btnStart?.addEventListener("click", startGame);
   DOM.btnFab?.addEventListener("click", openSettings);
   DOM.btnFab?.addEventListener(
@@ -372,23 +426,18 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   DOM.btnClose?.addEventListener("click", closeSettings);
   DOM.btnBackStart?.addEventListener("click", backToStart);
-
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && DOM.ovSettings && !DOM.ovSettings.classList.contains("hidden")) closeSettings();
   });
 
-  // Touch control bindings
   bindHold(DOM.btnLeft, "LEFT");
   bindHold(DOM.btnRight, "RIGHT");
   bindHold(DOM.btnJump, "UP");
   bindHold(DOM.btnThrow, "SPACE");
-
-  // Initial UI sync
   syncPauseToOrientation();
   updateTouchButtonsVisibility();
 });
 
-// Keyboard controls
 const keyToFlag = {
   ArrowLeft: "LEFT",
   a: "LEFT",
@@ -412,7 +461,6 @@ window.addEventListener("keyup", (e) => {
   if (e.key === " ") keyboard.SPACE = false;
 });
 
-// Window/layout updates
 ["resize", "orientationchange"].forEach((evt) => {
   window.addEventListener(evt, () => {
     syncPauseToOrientation();

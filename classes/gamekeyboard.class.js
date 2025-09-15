@@ -3,7 +3,7 @@
  * Each property is a boolean flag indicating whether the key is currently pressed.
  * @class
  */
-class Keyboard {
+class GameKeyboard {
   /** Whether the left movement key is pressed. @type {boolean} */
   LEFT = false;
 
