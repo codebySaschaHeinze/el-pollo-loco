@@ -4,28 +4,15 @@
  * @extends MovableObjects
  */
 class ThrowableObjects extends MovableObjects {
-  /** Continuous rotation angle (radians). @type {number} */
-  angle = 0;
+  /** Continuous rotation angle (radians). */ angle = 0;
+  /** Interval id for horizontal movement.  */ moveInterval = null;
+  /** Whether the bottle is in breaking animation. */ breaking = false;
+  /** Timestamp when breaking started. */ brokenAt = 0;
+  /** Splash animation duration (ms).    */ breakDuration = 600;
+  /** True once the projectile dealt damage. */ didDamage = false;
+  /** Optional horizontal velocity hint (World may set this). */ vx = undefined;
 
-  /** Interval id for horizontal movement. @type {number|null} */
-  moveInterval = null;
-
-  /** Whether the bottle is currently in its breaking/splash animation. @type {boolean} */
-  breaking = false;
-
-  /** Timestamp (ms) when breaking started. @type {number} */
-  brokenAt = 0;
-
-  /** Splash animation total duration (ms). @type {number} */
-  breakDuration = 600;
-
-  /** Set once the projectile has already dealt damage. @type {boolean} */
-  didDamage = false;
-
-  /**
-   * Splash animation frames shown over {@link breakDuration}.
-   * @type {string[]}
-   */
+  /** Splash frames. */
   IMAGES_BREAK = [
     "assets/imgs/6_salsa_bottle/bottle_rotation/bottle_splash/1_bottle_splash.png",
     "assets/imgs/6_salsa_bottle/bottle_rotation/bottle_splash/2_bottle_splash.png",
@@ -36,9 +23,9 @@ class ThrowableObjects extends MovableObjects {
   ];
 
   /**
-   * Creates a throwable bottle at (x, y), preloads splash frames, and starts its flight.
-   * @param {number} x - Initial world x-coordinate.
-   * @param {number} y - Initial world y-coordinate.
+   * Create a bottle at (x,y), preload splash frames, start flight.
+   * @param {number} x
+   * @param {number} y
    */
   constructor(x, y) {
     super().loadImage("assets/imgs/6_salsa_bottle/salsa_bottle.png");
@@ -51,8 +38,8 @@ class ThrowableObjects extends MovableObjects {
   }
 
   /**
-   * Starts the projectile motion: upward vertical speed with gravity and
-   * a fixed-rate horizontal advance.
+   * Begin motion: upward impulse + gravity + timed horizontal ticks.
+   * Uses this.vx (or speedX) each tick so World can flip direction.
    * @returns {void}
    */
   throw() {
@@ -60,13 +47,15 @@ class ThrowableObjects extends MovableObjects {
     this.applyGravity();
     this.moveInterval = setInterval(() => {
       if (this.world?.paused) return;
-      this.x += 30;
+      let vx = typeof this.vx === "number" ? this.vx : typeof this.speedX === "number" ? this.speedX : 8;
+      if (this.otherDirection && vx > 0) vx = -vx;
+      this.x += vx;
+      this.angle += vx >= 0 ? 0.25 : -0.25;
     }, 50);
   }
 
   /**
-   * Triggers the breaking state: stop motion, start splash timing, and play SFX (if available).
-   * Idempotent; subsequent calls are ignored while already breaking.
+   * Enter breaking state, stop motion, start splash SFX/clock.
    * @returns {void}
    */
   break() {
@@ -77,23 +66,20 @@ class ThrowableObjects extends MovableObjects {
     if (this.moveInterval) {
       clearInterval(this.moveInterval);
       this.moveInterval = null;
-      const a = window.SFX?.bottleBreak;
-      if (a) {
-        try {
-          a.currentTime = 0;
-          a.volume = window.getEffectiveVolume();
-          a.play();
-        } catch (_) {}
-      }
+    }
+    const a = window.SFX?.bottleBreak;
+    if (a) {
+      try {
+        a.currentTime = 0;
+        a.volume = window.getEffectiveVolume();
+        a.play();
+      } catch {}
     }
   }
 
   /**
-   * Draws the bottle or its splash animation.
-   * - While breaking: renders splash frames over time and flags as gone when finished.
-   * - In flight: rotates and draws the bottle; triggers break on ground contact.
-   * No-ops while the world is paused.
-   * @param {CanvasRenderingContext2D} ctx - Canvas 2D rendering context.
+   * Draw flight (rotating) or splash frames; break on ground contact.
+   * @param {CanvasRenderingContext2D} ctx
    * @returns {void}
    */
   draw(ctx) {
@@ -102,11 +88,10 @@ class ThrowableObjects extends MovableObjects {
     if (this.breaking) {
       const t = Math.min((Date.now() - this.brokenAt) / this.breakDuration, 1);
       const idx = Math.min(Math.floor(t * this.IMAGES_BREAK.length), this.IMAGES_BREAK.length - 1);
-      const frame = this.IMAGES_BREAK[idx];
-      const img = this.imageCache[frame];
+      const frame = this.IMAGES_BREAK[idx],
+        img = this.imageCache[frame];
       if (img) {
         ctx.save();
-        ctx.globalAlpha = 1;
         ctx.drawImage(img, this.x, this.y, this.width, this.height);
         ctx.restore();
       }
@@ -127,13 +112,9 @@ class ThrowableObjects extends MovableObjects {
     ctx.translate(-this.width / 2, -this.height / 2);
     ctx.drawImage(this.img, 0, 0, this.width, this.height);
     ctx.restore();
-    this.angle += 0.25;
   }
 
-  /**
-   * Stops walking animation timer.
-   * @returns {void}
-   */
+  /** Stop timers (used by World.freezeAll). */
   freeze() {
     if (this.moveInterval) {
       clearInterval(this.moveInterval);

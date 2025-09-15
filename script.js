@@ -3,9 +3,9 @@
  * touch controls and orientation. Exposes helpers on window.
  */
 
-/** @type {HTMLCanvasElement|null} */ let canvas = null;
-/** @type {World|null}            */ let world = null;
-/** @type {GameKeyboard}          */ let keyboard = new GameKeyboard();
+canvas = null;
+let world = null;
+let keyboard = new GameKeyboard();
 
 /**
  * Shorthand to get an element by id.
@@ -16,16 +16,8 @@ const $ = (id) => /** @type {HTMLElement|null} */ (document.getElementById(id));
 
 /** Frequently used nodes (filled on DOMContentLoaded). */
 let DOM = /** @type {Record<string, HTMLElement|null>} */ ({});
-
-/** Whether global audio is muted (persisted). @global */
 window.gameMuted = localStorage.getItem("gameMuted") === "1";
-/** Master volume [0..1] (persisted). @global */
 window.gameVolume = Math.min(1, Math.max(0, parseFloat(localStorage.getItem("gameVolume") ?? "1")));
-
-/**
- * Effective master volume [0..1], respecting the mute flag.
- * @returns {number}
- */
 window.getEffectiveVolume = () => (window.gameMuted ? 0 : window.gameVolume);
 
 /**
@@ -63,7 +55,6 @@ function makeSfx(src, loop = false) {
   return a;
 }
 
-/** Global SFX registry. */
 window.SFX = window.SFX || {
   step: makeSfx("audio/footstep.wav", true),
   bottleBreak: makeSfx("audio/broken-bottle.wav"),
@@ -75,11 +66,6 @@ window.SFX = window.SFX || {
   jump: makeSfx("audio/jump.wav"),
 };
 
-/**
- * Play an SFX by name from the registry (respects mute/volume).
- * @param {string} name
- * @returns {void}
- */
 window.playSfx = function (name) {
   const a = window.SFX?.[name];
   if (!a) return;
@@ -90,7 +76,6 @@ window.playSfx = function (name) {
   } catch {}
 };
 
-/** Active background music element (created on demand). @global */
 window.BGM = null;
 
 /**
@@ -147,28 +132,9 @@ function buildWorld({ paused = false } = {}) {
   world.paused = !!paused;
 }
 
-/**
- * Whether the start overlay is visible.
- * @returns {boolean}
- */
 const isStartVisible = () => !!(DOM.ovStart && !DOM.ovStart.classList.contains("hidden"));
-
-/**
- * Whether the settings overlay is visible.
- * @returns {boolean}
- */
 const isSettingsVisible = () => !!(DOM.ovSettings && !DOM.ovSettings.classList.contains("hidden"));
-
-/**
- * Detect touch-capable device.
- * @returns {boolean}
- */
 const isTouch = () => matchMedia("(pointer: coarse)").matches;
-
-/**
- * Detect landscape orientation.
- * @returns {boolean}
- */
 const isLandscape = () => matchMedia("(orientation: landscape)").matches;
 
 /**
@@ -403,7 +369,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (DOM.slider && DOM.volumeLbl) {
     const startPct = Math.round((window.gameVolume ?? 1) * 100);
-    /** @type {HTMLInputElement} */ (DOM.slider).value = String(startPct);
     DOM.volumeLbl.textContent = `${startPct}%`;
     setGameVolumeFromSlider(startPct);
     DOM.slider.addEventListener("input", (e) => {
