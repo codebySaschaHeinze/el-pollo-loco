@@ -9,19 +9,15 @@
     <link rel="stylesheet" href="./styles/standard.css" />
     <link rel="stylesheet" href="./styles/fonts.css" />
     <link rel="icon" type="image/png" href="./assets/icons/pepe.png" />
-
     <script defer src="./classes/drawable-objects.class.js"></script>
     <script defer src="./classes/movable-objects.class.js"></script>
-
     <script defer src="./classes/status-bar.class.js"></script>
     <script defer src="./classes/bottle-bar.class.js"></script>
     <script defer src="./classes/coin-hud.class.js"></script>
     <script defer src="./classes/boss-health-bar.class.js"></script>
-
     <script defer src="./classes/background-objects.class.js"></script>
     <script defer src="./classes/cloud.class.js"></script>
     <script defer src="./classes/birds.class.js"></script>
-
     <script defer src="./classes/warning-sign.class.js"></script>
     <script defer src="./classes/adventure-sign.class.js"></script>
     <script defer src="./classes/keep-going-sign.class.js"></script>
@@ -36,26 +32,22 @@
     <script defer src="./classes/skull.class.js"></script>
     <script defer src="./classes/big-sign-legend.class.js"></script>
     <script defer src="./classes/saloon.class.js"></script>
-
     <script defer src="./classes/character.class.js"></script>
     <script defer src="./classes/chicken.class.js"></script>
     <script defer src="./classes/chick.class.js"></script>
     <script defer src="./classes/endboss.class.js"></script>
-
     <script defer src="./classes/bottles.class.js"></script>
     <script defer src="./classes/coins.class.js"></script>
     <script defer src="./classes/throwable-objects.class.js"></script>
-
     <script defer src="./classes/level.class.js"></script>
     <script defer src="./levels/level1.js"></script>
-
     <script defer src="./classes/world.class.js"></script>
     <script defer src="./classes/gamekeyboard.class.js"></script>
     <script defer src="./script.js"></script>
   </head>
   <body onload="init()">
     <main>
-      <div class="canvas_container">
+      <div class="canvas_container" oncontextmenu="return false;">
         <canvas id="canvas" width="720" height="480"></canvas>
         <button id="btn-settings-fab" class="settings-fab" aria-label="Settings">
           <img src="assets/buttons/settings.png" alt="Settings" />
@@ -87,7 +79,6 @@
             <div id="back-row" class="settings-row1 hidden">
               <button id="btn-back-start" class="settings-action">Zurück zum Start</button>
             </div>
-
             <div class="settings-row">
               <button id="btn-close-settings" class="settings-action">Zurück zum Spiel</button>
             </div>
@@ -111,11 +102,9 @@
             </div>
           </div>
         </section>
-
         <section id="overlay-rotate" class="overlay_rotate hidden" aria-hidden="true">
           <div class="rotate-inner"></div>
         </section>
-
         <div id="overlay-buttons" class="hidden">
           <div class="buttons-left">
             <button id="button-left"><img src="assets/buttons/left.png" alt="Move right button" /></button>
@@ -127,9 +116,7 @@
           </div>
         </div>
       </div>
-
       <section class="rotate-overlay" aria-hidden="true">Bitte Gerät drehen</section>
     </main>
-     
   </body>
 </html>
