@@ -5,28 +5,13 @@
  * @class
  */
 class Level {
-  /** All enemy entities present in the level. @type {Array<Object>} */
   enemies;
-
-  /** Cloud instances for ambient sky movement. @type {Array<Object>} */
   clouds;
-
-  /** Background objects drawn behind gameplay elements. @type {Array<Object>} */
   backgroundObjects;
-
-  /** Bottle pickup instances. @type {Array<Object>} */
   bottlePickups = [];
-
-  /** Coin pickup instances. @type {Array<Object>} */
   coinPickups = [];
-
-  /** Foreground objects drawn in front of gameplay elements. @type {Array<Object>} */
   foregroundObjects = [];
-
-  /** Ambient birds (decorative). @type {Array<Object>} */
   birds = [];
-
-  /** Horizontal end position for the level (camera/character limit). @type {number} */
   level_end_x = 8000;
 
   /**
@@ -47,7 +32,6 @@ class Level {
     this.coinPickups = coinPickups;
     this.foregroundObjects = foregroundObjects;
     this.birds = birds;
-    /** Total number of coins present in the level. @type {number} */
     this.totalCoins = coinPickups.length;
   }
 }

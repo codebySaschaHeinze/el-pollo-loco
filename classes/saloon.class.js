@@ -4,8 +4,8 @@
  * @extends MovableObjects
  */
 class Saloon extends MovableObjects {
-  /** @type {number} */ width = 500;
-  /** @type {number} */ height = 500;
+  width = 500;
+  height = 500;
 
   /**
    * Creates a saloon object.

@@ -4,10 +4,6 @@
  * @extends DrawableObjects
  */
 class BottleBar extends DrawableObjects {
-  /**
-   * Bottle HUD sprite frames ordered from empty to full.
-   * @type {string[]}
-   */
   BOTTLE_IMAGES = [
     "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/a.png",
     "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/b.png",
@@ -17,7 +13,6 @@ class BottleBar extends DrawableObjects {
     "assets/imgs/7_statusbars/1_statusbar/3_statusbar_bottle/orange/f.png",
   ];
 
-  /** Current percentage (0..100) mapped to one of the HUD frames. @type {number} */
   percentage = 100;
 
   /**

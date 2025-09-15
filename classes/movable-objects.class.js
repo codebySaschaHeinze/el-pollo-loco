@@ -4,22 +4,11 @@
  * @extends DrawableObjects
  */
 class MovableObjects extends DrawableObjects {
-  /** Horizontal movement speed (world units per tick). @type {number} */
   speed = 0.15;
-
-  /** Whether the sprite is facing the opposite direction (for mirroring). @type {boolean} */
   otherDirection = false;
-
-  /** Current vertical velocity; positive values move upward (y decreases). @type {number} */
   speedY = 0;
-
-  /** Constant vertical acceleration applied each tick (gravity). @type {number} */
   acceleration = 2.3;
-
-  /** Current health/energy (0..100). @type {number} */
   energy = 100;
-
-  /** Timestamp of the last successful hit (ms since epoch). @type {number} */
   lastHit = 0;
 
   /**
@@ -137,7 +126,7 @@ class MovableObjects extends DrawableObjects {
    * @returns {void}
    */
   jump() {
-    this.speedY = 20;
+    this.speedY = 21;
 
     if (!(window.getEffectiveVolume && window.getEffectiveVolume() === 0)) {
       if (typeof this.playJump === "function") {

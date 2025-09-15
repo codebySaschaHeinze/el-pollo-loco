@@ -4,20 +4,11 @@
  */
 
 function createLevel1() {
-  /** Total playable world width in pixels. */
   const LEVEL_WIDTH = 8000;
-
-  /** Endboss instance positioned at the level end. @type {Endboss} */
   const endboss = new Endboss();
   endboss.x = LEVEL_WIDTH;
-
-  /** Number of bottle pickups to distribute across the level. */
   const BOTTLE_COUNT = 20;
-
-  /** Collection of bottle pickups placed along the level. @type {Bottles[]} */
   const bottlePickups = [];
-
-  /** Horizontal spacing baseline used for bottle distribution. */
   const step = Math.floor(LEVEL_WIDTH / BOTTLE_COUNT + 1);
 
   for (let i = 0; i < BOTTLE_COUNT; i++) {
@@ -26,25 +17,12 @@ function createLevel1() {
     bottlePickups.push(new Bottles(base + jitter));
   }
 
-  /** Number of coin groups to create. */
   const COIN_GROUPS = 8;
-
-  /** Number of coins per group (randomized 3..4). */
   const GROUP_SIZE = Math.floor(Math.random() * 2) + 3;
-
-  /** Horizontal spacing between coins within a group. */
   const COIN_GAP_X = 60;
-
-  /** Left/right margin within which no coins spawn. */
   const COIN_MARGIN = 200;
-
-  /** Collection of coin pickups arranged in groups. @type {Coins[]} */
   const coinPickups = [];
-
-  /** Width available for distributing coin groups after margins. */
   const usableWidth = LEVEL_WIDTH - COIN_MARGIN * 2;
-
-  /** Base stride between coin groups. */
   const groupStride = Math.floor(usableWidth / COIN_GROUPS);
 
   for (let g = 0; g < COIN_GROUPS; g++) {
@@ -58,13 +36,8 @@ function createLevel1() {
     }
   }
 
-  /** Number of ambient birds to spawn across the sky. */
   const BIRD_COUNT = 12;
-
-  /** Bird instances. @type {Birds[]} */
   const birds = [];
-
-  /** Base stride to distribute birds from left to right. */
   const stride = Math.floor(LEVEL_WIDTH / (BIRD_COUNT - 2));
 
   for (let i = 0; i < BIRD_COUNT; i++) {
@@ -73,12 +46,10 @@ function createLevel1() {
     birds.push(new Birds(LEVEL_WIDTH, x));
   }
 
-  /** Warning/guide signs placed along the path. */
   const sign1 = new WarningSign(endboss.x - 600);
   const sign2 = new AdventureSign(330);
   const sign3 = new KeepGoingSign(endboss.x - 4000);
 
-  /** Wheels and props scattered through the level. */
   const wheel1 = new Wheel1(845);
   const wheel2 = new Wheel1(3040);
   const wheel3 = new Wheel1(3750);
@@ -130,10 +101,8 @@ function createLevel1() {
 
   const bigSignLegend = new BigSignLegend(330);
 
-  /** Decorative saloon building positioned slightly off-screen to the left. @type {Saloon} */
   const saloon = new Saloon("assets/imgs/extras/saloon.png", -420);
 
-  /** Foreground-only lanterns that render in front of player/enemies. @type {LanternBigForeground[]} */
   const foreground = [
     new LanternBigForeground(230),
     new LanternBigForeground(930),
@@ -151,7 +120,6 @@ function createLevel1() {
 
   const skull1 = new Skull(endboss.x - 590);
 
-  /** Cloud layer instances spaced across the level. @type {Cloud[]} */
   const clouds = [
     new Cloud(LEVEL_WIDTH, 100),
     new Cloud(LEVEL_WIDTH, 550),
@@ -173,11 +141,6 @@ function createLevel1() {
     new Cloud(LEVEL_WIDTH, 7750),
   ];
 
-  /**
-   * Background parallax layers and static props (added later).
-   * Order matters: farthest (air) first, then third/second/first layers repeating across width.
-   * @type {BackgroundObjects[]|Array<DrawableObjects>}
-   */
   const backgrounds = [
     new BackgroundObjects("assets/imgs/5_background/layers/air.png", -1540),
     new BackgroundObjects("assets/imgs/5_background/layers/3_third_layer/full.png", -1540),
@@ -278,7 +241,6 @@ function createLevel1() {
 
   backgrounds.push(saloon);
 
-  /** Enemy roster for the level. @type {(Chicken|Endboss)[]} */
   const enemies = [
     new Chicken(1720),
     new Chicken(2050),
@@ -313,11 +275,6 @@ function createLevel1() {
 
   enemies.push(endboss);
 
-  /**
-   * Final Level instance composed from all assembled entities.
-   * Note: Extra trailing argument is ignored by Level's constructor signature.
-   * @type {Level}
-   */
   const level1 = new Level(enemies, clouds, backgrounds, bottlePickups, coinPickups, foreground, birds, saloon);
   return level1;
 }

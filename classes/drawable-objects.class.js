@@ -3,25 +3,12 @@
  * Provides helpers to load single/multiple images and render to a canvas.
  */
 class DrawableObjects {
-  /** World x-position (left edge). @type {number} */
   x = 0;
-
-  /** World y-position (top edge). @type {number} */
   y = 0;
-
-  /** Current image to draw. @type {HTMLImageElement|null} */
   img = null;
-
-  /** Render width in pixels. @type {number} */
   width = 80;
-
-  /** Render height in pixels. @type {number} */
   height = 150;
-
-  /** Cache of loaded images keyed by source path. @type {Record<string,HTMLImageElement>} */
   imageCache = {};
-
-  /** Animation frame cursor for sprite sequences. @type {number} */
   currentImage = 0;
 
   /**

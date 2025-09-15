@@ -35,7 +35,6 @@ class Character extends MovableObjects {
   currentImage = 0;
   world;
 
-  /** @type {string[]} */
   IMAGES_WALKING = [
     "assets/imgs/2_character_pepe/2_walk/w-21.png",
     "assets/imgs/2_character_pepe/2_walk/w-22.png",
@@ -44,7 +43,7 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/2_walk/w-25.png",
     "assets/imgs/2_character_pepe/2_walk/w-26.png",
   ];
-  /** @type {string[]} */
+
   IMAGES_JUMPING = [
     "assets/imgs/2_character_pepe/3_jump/j-31.png",
     "assets/imgs/2_character_pepe/3_jump/j-32.png",
@@ -56,7 +55,7 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/3_jump/j-38.png",
     "assets/imgs/2_character_pepe/3_jump/j-39.png",
   ];
-  /** @type {string[]} */
+
   IMAGES_DEAD = [
     "assets/imgs/2_character_pepe/5_dead/d-51.png",
     "assets/imgs/2_character_pepe/5_dead/d-52.png",
@@ -65,13 +64,13 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/5_dead/d-55.png",
     "assets/imgs/2_character_pepe/5_dead/d-56.png",
   ];
-  /** @type {string[]} */
+
   IMAGES_HURT = [
     "assets/imgs/2_character_pepe/4_hurt/h-41.png",
     "assets/imgs/2_character_pepe/4_hurt/h-42.png",
     "assets/imgs/2_character_pepe/4_hurt/h-43.png",
   ];
-  /** @type {string[]} */
+
   IMAGES_IDLE = [
     "assets/imgs/2_character_pepe/1_idle/idle/i-1.png",
     "assets/imgs/2_character_pepe/1_idle/idle/i-2.png",
@@ -84,7 +83,7 @@ class Character extends MovableObjects {
     "assets/imgs/2_character_pepe/1_idle/idle/i-9.png",
     "assets/imgs/2_character_pepe/1_idle/idle/i-10.png",
   ];
-  /** @type {string[]} */
+
   IMAGES_SLEEP = [
     "assets/imgs/2_character_pepe/1_idle/long_idle/i-11.png",
     "assets/imgs/2_character_pepe/1_idle/long_idle/i-12.png",
@@ -105,14 +104,14 @@ class Character extends MovableObjects {
   constructor(keyboard) {
     super().loadImage("assets/imgs/2_character_pepe/1_idle/idle/i-1.png");
     this.keyboard = keyboard;
-    this._initProps();
-    this._loadSprites();
+    this.initProps();
+    this.loadSprites();
     this.applyGravity();
     this.animate();
   }
 
   /** Initialize dimensions, collisions and ground alignment. */
-  _initProps() {
+  initProps() {
     this.width = 85;
     this.height = 160;
     this.offset = { top: 90, right: 30, bottom: 10, left: 30 };
@@ -122,7 +121,7 @@ class Character extends MovableObjects {
   }
 
   /** Preload sprite sheets used by the state machine. */
-  _loadSprites() {
+  loadSprites() {
     [this.IMAGES_WALKING, this.IMAGES_JUMPING, this.IMAGES_DEAD, this.IMAGES_HURT, this.IMAGES_IDLE].forEach((a) => this.loadImages(a));
   }
 
@@ -149,14 +148,14 @@ class Character extends MovableObjects {
   hit(damage = 10) {
     if (this.isInvulnerable() || this.isDead?.()) return false;
     this.lastHitAt = Date.now();
-    this._playHurtSfx();
+    this.playHurtSfx();
     this.energy = Math.max(0, this.energy - damage);
     if (this.energy <= 0) this.die();
     return true;
   }
 
   /** Play hurt SFX safely. */
-  _playHurtSfx() {
+  playHurtSfx() {
     const s = window.SFX?.hurt;
     if (!s) return;
     try {
@@ -193,12 +192,12 @@ class Character extends MovableObjects {
 
   /** Start movement and animation tick loops. */
   animate() {
-    this.moveInterval = setInterval(() => this._tickMove(), 1000 / 100);
-    this.animInterval = setInterval(() => this._tickAnim(), 100);
+    this.moveInterval = setInterval(() => this.tickMove(), 1000 / 100);
+    this.animInterval = setInterval(() => this.tickAnim(), 100);
   }
 
   /** Movement loop: input → motion, jump, camera. */
-  _tickMove() {
+  tickMove() {
     if (this.isDead() || this.world?.paused) return;
     const kb = this._kb();
     if (this._anyKey(kb)) this.markActivity();
@@ -221,8 +220,8 @@ class Character extends MovableObjects {
   }
 
   /** Animation loop: death, sleep/idle/walk/jump/hurt state selection. */
-  _tickAnim() {
-    if (this.isDead()) return this._tickDeathAnim();
+  tickAnim() {
+    if (this.isDead()) return this.tickDeathAnim();
     if (this.world?.paused) return;
     const kb = this._kb(),
       moving = !!(kb?.RIGHT || kb?.LEFT),
@@ -234,13 +233,13 @@ class Character extends MovableObjects {
     else if (!onGround || this.speedY > 0) this.playAnimation(this.IMAGES_JUMPING);
     else if (moving) this.playAnimation(this.IMAGES_WALKING);
     else if (this.sleeping) {
-      this._ensureSleepSprites();
+      this.ensureSleepSprites();
       this.playAnimation(this.IMAGES_SLEEP?.length ? this.IMAGES_SLEEP : this.IMAGES_IDLE);
     } else this.playAnimation(this.IMAGES_IDLE);
   }
 
   /** Advance death animation; stop loop when final frame is reached. */
-  _tickDeathAnim() {
+  tickDeathAnim() {
     if (this.deathDone) return;
     const last = this.lastVisibleDeadIdx,
       idx = Math.min(this.deathIndex, last);
@@ -255,7 +254,7 @@ class Character extends MovableObjects {
   }
 
   /** Ensure sleep sheet is loaded once. */
-  _ensureSleepSprites() {
+  ensureSleepSprites() {
     if (this._sleepImagesLoaded || !this.IMAGES_SLEEP?.length) return;
     this.loadImages(this.IMAGES_SLEEP);
     this._sleepImagesLoaded = true;
@@ -263,12 +262,12 @@ class Character extends MovableObjects {
 
   /** Draw the character; when dead+finished, draw fade&ascend. */
   draw(ctx) {
-    if (this.dead && this.deathDone) return this._drawDeadAscend(ctx);
+    if (this.dead && this.deathDone) return this.drawDeadAscend(ctx);
     super.draw(ctx);
   }
 
   /** Dead fade & ascend effect; flags entity as gone at the end. */
-  _drawDeadAscend(ctx) {
+  drawDeadAscend(ctx) {
     if (!this.ascendStartAt) {
       this.ascendStartAt = Date.now();
       this.bodyBaseY = this.y;

@@ -4,10 +4,6 @@
  * @extends DrawableObjects
  */
 class StatusBar extends DrawableObjects {
-  /**
-   * Health bar sprite frames ordered from empty to full.
-   * @type {string[]}
-   */
   STATUS_IMAGES = [
     "assets/imgs/7_statusbars/1_statusbar/2_statusbar_health/green/0.png",
     "assets/imgs/7_statusbars/1_statusbar/2_statusbar_health/green/20.png",
@@ -17,7 +13,6 @@ class StatusBar extends DrawableObjects {
     "assets/imgs/7_statusbars/1_statusbar/2_statusbar_health/green/100.png",
   ];
 
-  /** Current percentage (0..100) mapped to one of the HUD frames. @type {number} */
   percentage = 100;
 
   /**

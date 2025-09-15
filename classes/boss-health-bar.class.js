@@ -4,10 +4,6 @@
  * @extends DrawableObjects
  */
 class BossHealthBar extends DrawableObjects {
-  /**
-   * Sprites for health bar states (0%,20%,40%,60%,80%,100%).
-   * @type {string[]}
-   */
   IMAGES = [
     "assets/imgs/7_statusbars/1_statusbar/2_statusbar_health/orange/0.png",
     "assets/imgs/7_statusbars/1_statusbar/2_statusbar_health/orange/20.png",
@@ -17,10 +13,7 @@ class BossHealthBar extends DrawableObjects {
     "assets/imgs/7_statusbars/1_statusbar/2_statusbar_health/orange/100.png",
   ];
 
-  /** Current health percentage (0..100). @type {number} */
   percentage = 100;
-
-  /** Linked boss instance this HUD tracks. @type {Endboss|null} */
   boss = null;
 
   /**

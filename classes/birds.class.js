@@ -4,11 +4,6 @@
  * @extends MovableObjects
  */
 class Birds extends MovableObjects {
-  /**
-   * Available bird sprite frames used for random appearance.
-   * @type {string[]}
-   * @static
-   */
   static IMAGES = [
     "assets/imgs/5_background/layers/5_birds/1.png",
     "assets/imgs/5_background/layers/5_birds/2.png",
